@@ -34,7 +34,7 @@
             font-weight: bold;
         }
         .no-box {
-            width: 170px;
+            width: 215px;
             text-align: right;
         }
         .no-box .no-label {
@@ -42,23 +42,21 @@
             margin-bottom: 2px;
         }
         .account-box {
-            width: 170px;
+            width: 215px;
             border-collapse: collapse;
             border: 1px solid #000;
         }
         .account-box th {
             border: 1px solid #000;
-            padding: 3px 4px;
-            font-size: 8pt;
+            padding: 2px 4px;
+            font-size: 7.5pt;
             font-weight: bold;
             text-align: center;
         }
         .account-box td {
             border: 1px solid #000;
-            padding: 3px 4px;
-            font-size: 8pt;
-            text-align: center;
-            height: 20px;
+            padding: 2px 4px;
+            font-size: 7.5pt;
             vertical-align: middle;
         }
 
@@ -205,14 +203,21 @@
                 <table class="account-box">
                     <thead>
                         <tr>
-                            <th style="width:50%;">Kode</th>
-                            <th style="width:50%;">Account</th>
+                            <th style="width:28%;">Akun</th>
+                            <th style="width:32%;">Kode</th>
+                            <th style="width:40%;">Nama Account</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>{{ $voucher->kode_akun }}</td>
-                            <td>{{ $voucher->chartOfAccount->nama_akun ?? '-' }}</td>
+                            <td style="text-align: center; font-weight: bold;">{{ $voucher->isBank() ? 'Bank' : 'Kas' }}</td>
+                            <td style="text-align: center; font-family: monospace;">{{ $voucher->kode_akun_kas_bank ?? '-' }}</td>
+                            <td style="text-align: left;">{{ $voucher->akunKasBank->nama_akun ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">Anggaran</td>
+                            <td style="text-align: center; font-family: monospace;">{{ $voucher->kode_akun ?? '-' }}</td>
+                            <td style="text-align: left;">{{ $voucher->chartOfAccount->nama_akun ?? '-' }}</td>
                         </tr>
                     </tbody>
                 </table>

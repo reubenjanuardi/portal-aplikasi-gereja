@@ -21,7 +21,9 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use BackedEnum;
 use UnitEnum;
 
@@ -34,6 +36,11 @@ class VoucherResource extends Resource
     protected static UnitEnum|string|null $navigationGroup = 'Transaksi';
 
     protected static ?string $recordTitleAttribute = 'no_bukti';
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with(['akunKasBank', 'chartOfAccount']);
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -94,16 +101,47 @@ class VoucherResource extends Resource
                     }
                 }),
 
-            // ─── Mata Anggaran ────────────────────────────────────────────────────
-            // Satu voucher = satu mata anggaran. Dipilih di level header.
-            // Nilai ini akan dipropagasi ke semua baris transactions saat disimpan.
+            // ─── CoA 1: Akun Kas / Rekening Bank ──────────────────────────────────
+            // Menentukan dari mana kas keluar atau ke mana kas/bank masuk.
+            Select::make('kode_akun_kas_bank')
+                ->label(fn (Get $get): string => match ($get('jenis_voucher')) {
+                    'BKK' => 'Sumber Kas (Kas Keluar dari)',
+                    'BBK' => 'Sumber Rekening Bank (Bank Keluar dari)',
+                    'BKM' => 'Kas Penerima (Kas Masuk ke)',
+                    'BBM' => 'Rekening Bank Penerima (Bank Masuk ke)',
+                    default => 'Akun Kas / Rekening Bank',
+                })
+                ->required()
+                ->searchable()
+                ->preload()
+                ->options(fn (Get $get, ?Voucher $record): array => static::getKasBankOptions(
+                    $get('jenis_voucher'),
+                    $record?->kode_akun_kas_bank
+                ))
+                ->helperText(fn (Get $get): string => match ($get('jenis_voucher')) {
+                    'BKK' => 'Pilih akun kas tunai tempat dana dikeluarkan (misal: Kas Besar / Kas Kecil).',
+                    'BBK' => 'Pilih rekening bank sumber penarikan atau transfer keluar.',
+                    'BKM' => 'Pilih akun kas tunai tempat penerimaan uang.',
+                    'BBM' => 'Pilih rekening bank penerima transfer/setoran masuk.',
+                    default => 'Pilih akun kas atau rekening bank yang digunakan.',
+                }),
+
+            // ─── CoA 2: Mata Anggaran (Pos Beban / Penerimaan) ─────────────────────
+            // Menentukan ke mana kas keluar (beban) atau dari mana penerimaan diperoleh.
             Select::make('kode_akun')
-                ->label('Mata Anggaran (Kode Akun)')
+                ->label(fn (Get $get): string => match ($get('jenis_voucher')) {
+                    'BKK', 'BBK' => 'Mata Anggaran Pengeluaran (Tujuan Pengeluaran)',
+                    'BKM', 'BBM' => 'Mata Anggaran Penerimaan (Sumber Penerimaan)',
+                    default => 'Mata Anggaran (Kode Akun)',
+                })
                 ->required()
                 ->searchable()
                 ->preload()
                 ->optionsLimit(500)
-                ->options(fn (): array => static::getCoaTreeOptions())
+                ->options(fn (Get $get, ?Voucher $record): array => static::getMataAnggaranTreeOptions(
+                    $get('jenis_voucher'),
+                    $record?->kode_akun
+                ))
                 ->disableOptionWhen(function (?string $value): bool {
                     if (! $value) return false;
                     static $nonPostable = null;
@@ -112,7 +150,11 @@ class VoucherResource extends Resource
                     }
                     return isset($nonPostable[$value]);
                 })
-                ->helperText('Semua baris item dalam voucher ini akan dicatat pada mata anggaran yang sama.'),
+                ->helperText(fn (Get $get): string => match ($get('jenis_voucher')) {
+                    'BKK', 'BBK' => 'Semua baris item dalam voucher ini akan dicatat pada pos mata anggaran pengeluaran yang sama.',
+                    'BKM', 'BBM' => 'Semua baris item dalam voucher ini akan dicatat pada pos mata anggaran penerimaan yang sama.',
+                    default => 'Semua baris item dalam voucher ini akan dicatat pada mata anggaran yang sama.',
+                }),
 
             // ─── Detail Item ──────────────────────────────────────────────────────
             Repeater::make('transactions')
@@ -195,11 +237,31 @@ class VoucherResource extends Resource
                         default => 'gray',
                     }),
 
+                TextColumn::make('akunKasBank.nama_akun')
+                    ->label('Kas / Bank')
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn (Voucher $record): ?string => $record->kode_akun_kas_bank),
+
+                TextColumn::make('chartOfAccount.nama_akun')
+                    ->label('Mata Anggaran')
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn (Voucher $record): ?string => $record->kode_akun),
+
                 TextColumn::make('total_nominal')
                     ->label('Total Nominal')
                     ->sortable()
                     ->alignEnd()
                     ->formatStateUsing(fn($state): string => 'Rp ' . number_format((float) $state, 0, ',', '.')),
+            ])
+            ->filters([
+                SelectFilter::make('kode_akun_kas_bank')
+                    ->label('Kas / Rekening Bank')
+                    ->options(fn (): array => static::getKasBankOptions()),
+                SelectFilter::make('kode_akun')
+                    ->label('Mata Anggaran')
+                    ->options(fn (): array => static::getCoaTreeOptions()),
             ])
             ->recordActions([
                 ActionGroup::make([
@@ -270,5 +332,99 @@ class VoucherResource extends Resource
                 return [$coa->kode_akun => static::formatCoaLabel($coa)];
             })
             ->toArray();
+    }
+
+    /**
+     * Get options for the Cash or Bank account field, dynamically filtered by voucher type.
+     */
+    public static function getKasBankOptions(?string $jenisVoucher = null, ?string $currentCode = null): array
+    {
+        $query = ChartOfAccount::where('is_postable', true)
+            ->where('kategori', 'Kas & Bank')
+            ->orderBy('kode_akun');
+
+        // BKK & BKM: Kas accounts
+        if (in_array($jenisVoucher, ['BKK', 'BKM'], true)) {
+            $kasAccounts = (clone $query)->where(function ($q) {
+                $q->where('kode_akun', 'like', '111%')
+                  ->orWhere('nama_akun', 'like', '%Kas%');
+            })->get();
+
+            if ($kasAccounts->isNotEmpty()) {
+                $options = $kasAccounts->mapWithKeys(fn (ChartOfAccount $coa) => [$coa->kode_akun => "{$coa->kode_akun} - {$coa->nama_akun}"])->toArray();
+                if ($currentCode && ! isset($options[$currentCode])) {
+                    if ($curr = ChartOfAccount::find($currentCode)) {
+                        $options[$currentCode] = "{$curr->kode_akun} - {$curr->nama_akun}";
+                    }
+                }
+                return $options;
+            }
+        }
+
+        // BBK & BBM: Bank accounts
+        if (in_array($jenisVoucher, ['BBK', 'BBM'], true)) {
+            $bankAccounts = (clone $query)->where(function ($q) {
+                $q->where('kode_akun', 'not like', '111%')
+                  ->where('nama_akun', 'not like', '%Kas Besar%')
+                  ->where('nama_akun', 'not like', '%Kas Kecil%');
+            })->get();
+
+            if ($bankAccounts->isNotEmpty()) {
+                $options = $bankAccounts->mapWithKeys(fn (ChartOfAccount $coa) => [$coa->kode_akun => "{$coa->kode_akun} - {$coa->nama_akun}"])->toArray();
+                if ($currentCode && ! isset($options[$currentCode])) {
+                    if ($curr = ChartOfAccount::find($currentCode)) {
+                        $options[$currentCode] = "{$curr->kode_akun} - {$curr->nama_akun}";
+                    }
+                }
+                return $options;
+            }
+        }
+
+        // Default: All postable Kas & Bank
+        $options = $query->get()
+            ->mapWithKeys(fn (ChartOfAccount $coa) => [$coa->kode_akun => "{$coa->kode_akun} - {$coa->nama_akun}"])
+            ->toArray();
+
+        if ($currentCode && ! isset($options[$currentCode])) {
+            if ($curr = ChartOfAccount::find($currentCode)) {
+                $options[$currentCode] = "{$curr->kode_akun} - {$curr->nama_akun}";
+            }
+        }
+
+        return $options;
+    }
+
+    /**
+     * Get tree options for the Budget Account field, filtered by transaction direction.
+     */
+    public static function getMataAnggaranTreeOptions(?string $jenisVoucher = null, ?string $currentCode = null): array
+    {
+        $kategori = match ($jenisVoucher) {
+            'BKK', 'BBK' => 'Pengeluaran',
+            'BKM', 'BBM' => 'Penerimaan',
+            default => null,
+        };
+
+        $query = ChartOfAccount::orderBy('kode_akun');
+        if ($kategori) {
+            $query->where(function ($q) use ($kategori) {
+                $q->where('kategori', $kategori)
+                  ->orWhereNull('kategori');
+            });
+        }
+
+        $options = $query->get()
+            ->mapWithKeys(function (ChartOfAccount $coa) {
+                return [$coa->kode_akun => static::formatCoaLabel($coa)];
+            })
+            ->toArray();
+
+        if ($currentCode && ! isset($options[$currentCode])) {
+            if ($curr = ChartOfAccount::find($currentCode)) {
+                $options[$currentCode] = static::formatCoaLabel($curr);
+            }
+        }
+
+        return $options;
     }
 }

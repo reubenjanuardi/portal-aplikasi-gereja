@@ -22,7 +22,7 @@ class VoucherPdfController extends Controller
             subject: $voucher
         );
 
-        $voucher->load('transactions.chartOfAccount', 'chartOfAccount');
+        $voucher->load('transactions.chartOfAccount', 'chartOfAccount', 'akunKasBank');
 
         $settings = [
             'church_name'     => AppSetting::get('church_name',     'GPIB Jemaat Hosiana'),
@@ -45,7 +45,7 @@ class VoucherPdfController extends Controller
      */
     public function download(Voucher $voucher): Response
     {
-        $voucher->load('transactions.chartOfAccount', 'chartOfAccount');
+        $voucher->load('transactions.chartOfAccount', 'chartOfAccount', 'akunKasBank');
 
         $settings = [
             'church_name'     => AppSetting::get('church_name',     'GPIB Jemaat Hosiana'),

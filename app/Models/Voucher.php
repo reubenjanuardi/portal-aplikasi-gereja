@@ -39,6 +39,14 @@ class Voucher extends Model
     }
 
     /**
+     * The cash or bank account (sumber atau rekening tujuan) for this voucher.
+     */
+    public function akunKasBank()
+    {
+        return $this->belongsTo(ChartOfAccount::class, 'kode_akun_kas_bank', 'kode_akun');
+    }
+
+    /**
      * Check if voucher is an incoming cash/bank voucher.
      */
     public function isMasuk(): bool
@@ -52,5 +60,21 @@ class Voucher extends Model
     public function isKeluar(): bool
     {
         return in_array($this->jenis_voucher, ['Keluar', 'BKK', 'BBK', 'Bukti Kas Keluar (BKK)', 'Bukti Bank Keluar (BBK)'], true);
+    }
+
+    /**
+     * Check if voucher involves cash (Kas).
+     */
+    public function isKas(): bool
+    {
+        return in_array($this->jenis_voucher, ['BKM', 'BKK', 'Masuk', 'Keluar', 'Bukti Kas Masuk (BKM)', 'Bukti Kas Keluar (BKK)'], true);
+    }
+
+    /**
+     * Check if voucher involves bank account (Bank).
+     */
+    public function isBank(): bool
+    {
+        return in_array($this->jenis_voucher, ['BBM', 'BBK', 'Bukti Bank Masuk (BBM)', 'Bukti Bank Keluar (BBK)'], true);
     }
 }
