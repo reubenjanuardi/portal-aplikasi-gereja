@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: ${DOCKER_IMAGE:-ghcr.io/reubenjanuardi/keuangan-gereja:latest}
+    image: ${DOCKER_IMAGE:-ghcr.io/reubenjanuardi/portal-aplikasi-gereja:latest}
     container_name: keuangan-gereja-app
     restart: unless-stopped
     volumes:
