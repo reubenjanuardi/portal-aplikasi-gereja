@@ -187,6 +187,24 @@ class LaporanRealisasiService
             $saldoAwalMap[$row->kas_kode_akun] = $current + ($isKeluar ? -$nominal : $nominal);
         }
 
+        // 1b. Inter-account transfers before startDate (e.g. setor kas ke bank)
+        $txBeforeDest = Transaction::query()
+            ->selectRaw('transactions.kode_akun as kas_kode_akun, vouchers.jenis_voucher, SUM(transactions.nominal) as total')
+            ->join('vouchers', 'vouchers.no_bukti', '=', 'transactions.no_bukti')
+            ->where('vouchers.tanggal', '<', $startDate)
+            ->whereNotNull('vouchers.kode_akun_kas_bank')
+            ->whereColumn('transactions.kode_akun', '!=', 'vouchers.kode_akun_kas_bank')
+            ->whereIn('transactions.kode_akun', $allCodes)
+            ->groupBy('transactions.kode_akun', 'vouchers.jenis_voucher')
+            ->get();
+
+        foreach ($txBeforeDest as $row) {
+            $nominal = (float) $row->total;
+            $current = $saldoAwalMap[$row->kas_kode_akun] ?? 0.0;
+            $isKeluar = in_array($row->jenis_voucher, ['Keluar', 'BKK', 'BBK'], true);
+            $saldoAwalMap[$row->kas_kode_akun] = $current + ($isKeluar ? $nominal : -$nominal);
+        }
+
         // 2. Transactions during period [startDate, endDate]
         $txDuring = Transaction::query()
             ->selectRaw('COALESCE(vouchers.kode_akun_kas_bank, transactions.kode_akun) as kas_kode_akun, vouchers.jenis_voucher, SUM(transactions.nominal) as total')
@@ -208,6 +226,24 @@ class LaporanRealisasiService
             $current = $mutasiMap[$row->kas_kode_akun] ?? 0.0;
             $isKeluar = in_array($row->jenis_voucher, ['Keluar', 'BKK', 'BBK'], true);
             $mutasiMap[$row->kas_kode_akun] = $current + ($isKeluar ? -$nominal : $nominal);
+        }
+
+        // 2b. Inter-account transfers during period [startDate, endDate]
+        $txDuringDest = Transaction::query()
+            ->selectRaw('transactions.kode_akun as kas_kode_akun, vouchers.jenis_voucher, SUM(transactions.nominal) as total')
+            ->join('vouchers', 'vouchers.no_bukti', '=', 'transactions.no_bukti')
+            ->whereBetween('vouchers.tanggal', [$startDate, $endDate])
+            ->whereNotNull('vouchers.kode_akun_kas_bank')
+            ->whereColumn('transactions.kode_akun', '!=', 'vouchers.kode_akun_kas_bank')
+            ->whereIn('transactions.kode_akun', $allCodes)
+            ->groupBy('transactions.kode_akun', 'vouchers.jenis_voucher')
+            ->get();
+
+        foreach ($txDuringDest as $row) {
+            $nominal = (float) $row->total;
+            $current = $mutasiMap[$row->kas_kode_akun] ?? 0.0;
+            $isKeluar = in_array($row->jenis_voucher, ['Keluar', 'BKK', 'BBK'], true);
+            $mutasiMap[$row->kas_kode_akun] = $current + ($isKeluar ? $nominal : -$nominal);
         }
 
         // Build account map

@@ -39,6 +39,14 @@ beforeEach(function () {
         'kategori'    => 'Pengeluaran',
         'is_postable' => true,
     ]);
+
+    // 4. Hutang / Piutang account
+    $this->piutang = ChartOfAccount::create([
+        'kode_akun'   => '14.01',
+        'nama_akun'   => 'Piutang Karyawan',
+        'kategori'    => 'Hutang / Piutang',
+        'is_postable' => true,
+    ]);
 });
 
 test('can create a voucher with both kas/bank account and budget account (2 CoA inputs)', function () {
@@ -117,16 +125,33 @@ test('VoucherResource::getKasBankOptions filters accounts based on voucher type'
         ->and(array_keys($bankOptions))->not->toContain('111.01');
 });
 
-test('VoucherResource::getMataAnggaranTreeOptions filters accounts based on voucher direction', function () {
-    // For BKK (Expense): Should contain Pengeluaran and not Penerimaan
-    $expenseOptions = VoucherResource::getMataAnggaranTreeOptions('BKK');
-    expect(array_keys($expenseOptions))->toContain('363.01.01')
-        ->and(array_keys($expenseOptions))->not->toContain('21.01.01');
+test('VoucherResource::getMataAnggaranTreeOptions filters accounts based on voucher type', function () {
+    // For BKK: Pengeluaran, Kas & Bank (setor kas ke bank), Hutang / Piutang (NOT Penerimaan)
+    $bkkOptions = VoucherResource::getMataAnggaranTreeOptions('BKK');
+    expect(array_keys($bkkOptions))->toContain('363.01.01')
+        ->and(array_keys($bkkOptions))->toContain('112.02')
+        ->and(array_keys($bkkOptions))->toContain('14.01')
+        ->and(array_keys($bkkOptions))->not->toContain('21.01.01');
 
-    // For BBM (Income): Should contain Penerimaan and not Pengeluaran
-    $incomeOptions = VoucherResource::getMataAnggaranTreeOptions('BBM');
-    expect(array_keys($incomeOptions))->toContain('21.01.01')
-        ->and(array_keys($incomeOptions))->not->toContain('363.01.01');
+    // For BKM: Penerimaan, Kas & Bank, Hutang / Piutang (NOT Pengeluaran)
+    $bkmOptions = VoucherResource::getMataAnggaranTreeOptions('BKM');
+    expect(array_keys($bkmOptions))->toContain('21.01.01')
+        ->and(array_keys($bkmOptions))->toContain('112.02')
+        ->and(array_keys($bkmOptions))->toContain('14.01')
+        ->and(array_keys($bkmOptions))->not->toContain('363.01.01');
+
+    // For BBK & BBM: All accounts can be selected
+    $bbkOptions = VoucherResource::getMataAnggaranTreeOptions('BBK');
+    expect(array_keys($bbkOptions))->toContain('363.01.01')
+        ->and(array_keys($bbkOptions))->toContain('21.01.01')
+        ->and(array_keys($bbkOptions))->toContain('112.02')
+        ->and(array_keys($bbkOptions))->toContain('14.01');
+
+    $bbmOptions = VoucherResource::getMataAnggaranTreeOptions('BBM');
+    expect(array_keys($bbmOptions))->toContain('363.01.01')
+        ->and(array_keys($bbmOptions))->toContain('21.01.01')
+        ->and(array_keys($bbmOptions))->toContain('112.02')
+        ->and(array_keys($bbmOptions))->toContain('14.01');
 });
 
 test('PDF voucher stream renders with both Kas/Bank and Anggaran account info', function () {
@@ -182,4 +207,39 @@ test('LaporanRealisasiService accurately calculates Kas and Bank balances using 
     expect($briEntry)->not->toBeNull();
     // Since it was a BBK (Keluar), saldo_akhir should be -200000 (starting from 0)
     expect((float) $briEntry['saldo_akhir'])->toBe(-200000.0);
+});
+
+test('LaporanRealisasiService accurately balances setor kas ke bank (inter-account transfer)', function () {
+    // Transfer from Kas Besar to Bank BRI via BKK
+    $voucher = Voucher::create([
+        'no_bukti'           => 'BKK-SETOR-001',
+        'tanggal'            => '2026-09-09',
+        'pihak_terkait'      => 'Bank BRI Unit Hosiana',
+        'jenis_voucher'      => 'BKK',
+        'kode_akun_kas_bank' => $this->kasBesar->kode_akun, // 111.01 Kas Keluar
+        'kode_akun'          => $this->bankBri->kode_akun,  // 112.02 Tujuan Bank BRI
+        'total_nominal'      => 500000,
+    ]);
+
+    Transaction::create([
+        'no_bukti'  => $voucher->no_bukti,
+        'kode_akun' => $voucher->kode_akun, // 112.02
+        'uraian'    => 'Setor kas ke rekening Bank BRI',
+        'nominal'   => 500000,
+    ]);
+
+    $service = new LaporanRealisasiService();
+    $report = $service->getWeeklyReport('2026-09-01', '2026-09-30');
+
+    $kasEntry = collect($report['kasBank'])->firstWhere('kode_akun', '111.01');
+    $briEntry = collect($report['kasBank'])->firstWhere('kode_akun', '112.02');
+
+    expect($kasEntry)->not->toBeNull()
+        ->and((float) $kasEntry['saldo_akhir'])->toBe(-500000.0);
+
+    expect($briEntry)->not->toBeNull()
+        ->and((float) $briEntry['saldo_akhir'])->toBe(500000.0);
+
+    // Total saldo akhir change across kas & bank is net 0
+    expect((float) $report['totalSaldoAkhir'])->toBe(0.0);
 });

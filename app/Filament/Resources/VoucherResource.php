@@ -137,7 +137,7 @@ class VoucherResource extends Resource
                 ->required()
                 ->searchable()
                 ->preload()
-                ->optionsLimit(500)
+                ->optionsLimit(1000)
                 ->options(fn (Get $get, ?Voucher $record): array => static::getMataAnggaranTreeOptions(
                     $get('jenis_voucher'),
                     $record?->kode_akun
@@ -151,8 +151,9 @@ class VoucherResource extends Resource
                     return isset($nonPostable[$value]);
                 })
                 ->helperText(fn (Get $get): string => match ($get('jenis_voucher')) {
-                    'BKK', 'BBK' => 'Semua baris item dalam voucher ini akan dicatat pada pos mata anggaran pengeluaran yang sama.',
-                    'BKM', 'BBM' => 'Semua baris item dalam voucher ini akan dicatat pada pos mata anggaran penerimaan yang sama.',
+                    'BKK' => 'Pilih pos mata anggaran pengeluaran, akun kas & bank (untuk setor kas ke bank), atau hutang/piutang.',
+                    'BKM' => 'Pilih pos mata anggaran penerimaan, akun kas & bank, atau hutang/piutang.',
+                    'BBK', 'BBM' => 'Pilih mata anggaran yang sesuai (semua kategori akun dapat dipilih).',
                     default => 'Semua baris item dalam voucher ini akan dicatat pada mata anggaran yang sama.',
                 }),
 
@@ -395,20 +396,21 @@ class VoucherResource extends Resource
     }
 
     /**
-     * Get tree options for the Budget Account field, filtered by transaction direction.
+     * Get tree options for the Budget Account field, filtered by voucher type.
      */
     public static function getMataAnggaranTreeOptions(?string $jenisVoucher = null, ?string $currentCode = null): array
     {
-        $kategori = match ($jenisVoucher) {
-            'BKK', 'BBK' => 'Pengeluaran',
-            'BKM', 'BBM' => 'Penerimaan',
+        $allowedCategories = match ($jenisVoucher) {
+            'BKK', 'Keluar', 'Bukti Kas Keluar (BKK)' => ['Pengeluaran', 'Kas & Bank', 'Hutang / Piutang', 'Hutang/Piutang', 'Hutang', 'Piutang'],
+            'BKM', 'Masuk', 'Bukti Kas Masuk (BKM)' => ['Penerimaan', 'Kas & Bank', 'Hutang / Piutang', 'Hutang/Piutang', 'Hutang', 'Piutang'],
+            'BBK', 'BBM', 'Bukti Bank Keluar (BBK)', 'Bukti Bank Masuk (BBM)' => null, // Bebas pilih semua mata anggaran
             default => null,
         };
 
         $query = ChartOfAccount::orderBy('kode_akun');
-        if ($kategori) {
-            $query->where(function ($q) use ($kategori) {
-                $q->where('kategori', $kategori)
+        if ($allowedCategories !== null) {
+            $query->where(function ($q) use ($allowedCategories) {
+                $q->whereIn('kategori', $allowedCategories)
                   ->orWhereNull('kategori');
             });
         }
