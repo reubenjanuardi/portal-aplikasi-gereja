@@ -52,6 +52,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/buku-besar/excel', [LaporanExcelController::class, 'bukuBesar'])->name('laporan.buku-besar.excel');
     Route::get('/laporan/jurnal/pdf', [LaporanPdfController::class, 'jurnal'])->name('laporan.jurnal.pdf');
     Route::get('/laporan/jurnal/excel', [LaporanExcelController::class, 'jurnal'])->name('laporan.jurnal.excel');
+    Route::get('/laporan/jurnal-umum/pdf', [LaporanPdfController::class, 'jurnalUmum'])->name('laporan.jurnal-umum.pdf');
+    Route::get('/laporan/jurnal-umum/excel', [LaporanExcelController::class, 'jurnalUmum'])->name('laporan.jurnal-umum.excel');
     Route::get('/laporan/realisasi-mingguan/pdf', [LaporanPdfController::class, 'realisasiMingguan'])->name('laporan.realisasi-mingguan.pdf');
     Route::get('/laporan/realisasi-mingguan/excel', [LaporanExcelController::class, 'realisasiMingguan'])->name('laporan.realisasi-mingguan.excel');
 });

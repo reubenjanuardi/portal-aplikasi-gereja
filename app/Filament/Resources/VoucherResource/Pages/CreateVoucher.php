@@ -11,10 +11,18 @@ class CreateVoucher extends CreateRecord
     protected static string $resource = VoucherResource::class;
 
     /**
-     * Ensure total_nominal is accurately computed before record creation.
+     * Ensure total_nominal and no_bukti are accurately computed before record creation.
      */
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        // Pastikan no_bukti terisi dan unik (mencegah bentrok race condition)
+        if (empty($data['no_bukti']) || Voucher::where('no_bukti', $data['no_bukti'])->exists()) {
+            $data['no_bukti'] = VoucherResource::generateNoBukti(
+                $data['jenis_voucher'] ?? 'BKM',
+                $data['tanggal'] ?? now()->toDateString()
+            );
+        }
+
         $data['total_nominal'] = VoucherResource::calculateTotalNominal($data['transactions'] ?? []);
 
         return $data;

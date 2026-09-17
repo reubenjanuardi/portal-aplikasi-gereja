@@ -404,6 +404,123 @@ class ExcelReportService
     }
 
     /**
+     * Generate XLSX for Laporan Jurnal Umum (Double-Entry: Debet & Kredit)
+     */
+    public function generateJurnalUmumXlsx(
+        Collection $journalEntries,
+        string $startDate,
+        string $endDate,
+        ?string $jenisVoucher = null
+    ): string {
+        $tempPath = tempnam(sys_get_temp_dir(), 'jurnal_umum_') . '.xlsx';
+        $options = new Options();
+        $writer = new Writer($options);
+        $writer->openToFile($tempPath);
+
+        $churchName = AppSetting::get('church_name', 'GPIB JEMAAT HOSIANA');
+        $churchAddress1 = AppSetting::get('church_address1', '');
+        $churchAddress2 = AppSetting::get('church_address2', '');
+
+        // Title Section
+        $writer->addRow(Row::fromValues([strtoupper($churchName)], $this->getTitleStyle()));
+        if ($churchAddress1 || $churchAddress2) {
+            $writer->addRow(Row::fromValues([trim("{$churchAddress1} {$churchAddress2}")], $this->getMetaStyle()));
+        }
+        $writer->addRow(Row::fromValues(['JURNAL UMUM (GENERAL JOURNAL)'], $this->getSubtitleStyle()));
+
+        $formattedPeriod = 'Periode: ' . Carbon::parse($startDate)->translatedFormat('d F Y') . ' s/d ' . Carbon::parse($endDate)->translatedFormat('d F Y');
+        $writer->addRow(Row::fromValues([$formattedPeriod], $this->getMetaStyle()));
+
+        if ($jenisVoucher) {
+            $writer->addRow(Row::fromValues(['Jenis Voucher: ' . $jenisVoucher], $this->getMetaStyle()));
+        }
+        $writer->addRow(Row::fromValues([''])); // Blank row
+
+        // Table Column Headers
+        $writer->addRow(Row::fromValues([
+            'Tanggal',
+            'No. Bukti',
+            'Jenis',
+            'Pihak Terkait',
+            'Keterangan / Nama Rekening & Akun',
+            'Ref (Kode)',
+            'Debet (Rp)',
+            'Kredit (Rp)',
+        ], $this->getTableHeaderStyle()));
+
+        $totalDebet = 0;
+        $totalKredit = 0;
+
+        foreach ($journalEntries as $entry) {
+            $tgl = Carbon::parse($entry['tanggal'])->format('d/m/Y');
+            $noBukti = $entry['no_bukti'];
+            $jenis = $entry['jenis_voucher'];
+            $pihak = $entry['pihak_terkait'] ?: '-';
+            $uraian = '(' . $entry['uraian'] . ')';
+
+            $debetNominal = (float) $entry['debit']['nominal'];
+            $kreditNominal = (float) $entry['kredit']['nominal'];
+            $totalDebet += $debetNominal;
+            $totalKredit += $kreditNominal;
+
+            // Baris 1: Sisi Debet
+            $writer->addRow(new Row([
+                Cell::fromValue($tgl, $this->getDataRowStyle()),
+                Cell::fromValue($noBukti, $this->getDataRowStyle()),
+                Cell::fromValue($jenis, $this->getDataRowStyle()),
+                Cell::fromValue($pihak, $this->getDataRowStyle()),
+                Cell::fromValue($entry['debit']['nama_akun'], $this->getDataRowStyle()),
+                Cell::fromValue($entry['debit']['kode_akun'], $this->getDataRowStyle()),
+                Cell::fromValue($debetNominal, $this->getNumberStyle()),
+                Cell::fromValue(0, $this->getNumberStyle()),
+            ]));
+
+            // Baris 2: Sisi Kredit (dengan indentasi)
+            $writer->addRow(new Row([
+                Cell::fromValue('', $this->getDataRowStyle()),
+                Cell::fromValue('', $this->getDataRowStyle()),
+                Cell::fromValue('', $this->getDataRowStyle()),
+                Cell::fromValue('', $this->getDataRowStyle()),
+                Cell::fromValue('    ↳ ' . $entry['kredit']['nama_akun'], $this->getDataRowStyle()),
+                Cell::fromValue($entry['kredit']['kode_akun'], $this->getDataRowStyle()),
+                Cell::fromValue(0, $this->getNumberStyle()),
+                Cell::fromValue($kreditNominal, $this->getNumberStyle()),
+            ]));
+
+            // Baris 3: Uraian Transaksi
+            $writer->addRow(new Row([
+                Cell::fromValue('', $this->getDataRowStyle()),
+                Cell::fromValue('', $this->getDataRowStyle()),
+                Cell::fromValue('', $this->getDataRowStyle()),
+                Cell::fromValue('', $this->getDataRowStyle()),
+                Cell::fromValue($uraian, $this->getMetaStyle()),
+                Cell::fromValue('', $this->getDataRowStyle()),
+                Cell::fromValue('', $this->getDataRowStyle()),
+                Cell::fromValue('', $this->getDataRowStyle()),
+            ]));
+        }
+
+        // Grand Total Row
+        $writer->addRow(new Row([
+            Cell::fromValue('TOTAL DEBET & KREDIT', $this->getGrandTotalRowStyle()),
+            Cell::fromValue('', $this->getGrandTotalRowStyle()),
+            Cell::fromValue('', $this->getGrandTotalRowStyle()),
+            Cell::fromValue('', $this->getGrandTotalRowStyle()),
+            Cell::fromValue('', $this->getGrandTotalRowStyle()),
+            Cell::fromValue('', $this->getGrandTotalRowStyle()),
+            Cell::fromValue($totalDebet, $this->getGrandTotalNumberStyle()),
+            Cell::fromValue($totalKredit, $this->getGrandTotalNumberStyle()),
+        ]));
+
+        $statusSeimbang = round($totalDebet, 2) === round($totalKredit, 2) ? 'STATUS: SEIMBANG (BALANCE)' : 'STATUS: TIDAK SEIMBANG';
+        $writer->addRow(Row::fromValues([$statusSeimbang], $this->getSubtitleStyle()));
+
+        $writer->close();
+
+        return $tempPath;
+    }
+
+    /**
      * Generate XLSX for Laporan Realisasi Mingguan (Multi-Sheet)
      */
     public function generateRealisasiMingguanXlsx(

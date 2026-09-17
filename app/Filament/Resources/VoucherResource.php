@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\VoucherResource\Pages;
 use App\Models\ChartOfAccount;
 use App\Models\Voucher;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
@@ -55,13 +56,25 @@ class VoucherResource extends Resource
                     'regex' => 'Format Nomor Bukti harus kontinu (menyambung) dan tidak boleh mengandung spasi atau tanda koma (,).',
                     'unique' => 'Nomor Bukti sudah digunakan.',
                 ])
-                ->dehydrateStateUsing(fn (?string $state) => $state ? str_replace([',', ' '], ['', ''], $state) : $state)
-                ->disabled(fn(string $operation): bool => $operation === 'edit')
-                ->dehydrated(fn(string $operation): bool => $operation === 'create'),
+                ->default(fn (Get $get): string => static::generateNoBukti($get('jenis_voucher') ?? 'BKM', $get('tanggal') ?? now()->toDateString()))
+                ->disabled()
+                ->dehydrated(fn (string $operation): bool => $operation === 'create')
+                ->prefixIcon('heroicon-m-lock-closed')
+                ->extraInputAttributes([
+                    'class' => 'bg-gray-100 dark:bg-gray-800 font-mono font-bold text-gray-700 dark:text-gray-300 cursor-not-allowed select-none',
+                ])
+                ->helperText('Nomor bukti dibuat otomatis oleh sistem dan tidak dapat diubah secara manual.')
+                ->dehydrateStateUsing(fn (?string $state) => $state ? str_replace([',', ' '], ['', ''], $state) : $state),
 
             DatePicker::make('tanggal')
                 ->required()
-                ->default(fn(): string => now()->toDateString()),
+                ->default(fn (): string => now()->toDateString())
+                ->live()
+                ->afterStateUpdated(function (?string $state, Set $set, Get $get, string $operation): void {
+                    if ($operation === 'create' && $state) {
+                        $set('no_bukti', static::generateNoBukti($get('jenis_voucher') ?? 'BKM', $state));
+                    }
+                }),
 
             TextInput::make('pihak_terkait')
                 ->label('Pihak Terkait')
@@ -71,6 +84,7 @@ class VoucherResource extends Resource
             Select::make('jenis_voucher')
                 ->label('Jenis Voucher')
                 ->required()
+                ->default('BKM')
                 ->options([
                     'BKM' => 'Bukti Kas Masuk (BKM)',
                     'BKK' => 'Bukti Kas Keluar (BKK)',
@@ -78,26 +92,9 @@ class VoucherResource extends Resource
                     'BBK' => 'Bukti Bank Keluar (BBK)',
                 ])
                 ->live()
-                ->afterStateUpdated(function (?string $state, $set, $get, string $operation): void {
-                    if ($operation !== 'create' || ! $state) {
-                        return;
-                    }
-
-                    $currentNo = (string) ($get('no_bukti') ?? '');
-                    $prefixes = ['BKM', 'BKK', 'BBM', 'BBK'];
-                    $matched = false;
-
-                    foreach ($prefixes as $prefix) {
-                        if (str_starts_with($currentNo, $prefix)) {
-                            $suffix = substr($currentNo, strlen($prefix));
-                            $set('no_bukti', $state . $suffix);
-                            $matched = true;
-                            break;
-                        }
-                    }
-
-                    if (! $matched) {
-                        $set('no_bukti', $state . $currentNo);
+                ->afterStateUpdated(function (?string $state, Set $set, Get $get, string $operation): void {
+                    if ($operation === 'create' && $state) {
+                        $set('no_bukti', static::generateNoBukti($state, $get('tanggal') ?? now()->toDateString()));
                     }
                 }),
 
@@ -429,4 +426,66 @@ class VoucherResource extends Resource
 
         return $options;
     }
+
+    /**
+     * Konversi angka bulan (1-12) ke angka Romawi (I - XII).
+     */
+    public static function getRomawiMonth(int $month): string
+    {
+        $romawi = [
+            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI',
+            7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII',
+        ];
+
+        return $romawi[$month] ?? 'I';
+    }
+
+    /**
+     * Generate Nomor Bukti otomatis dengan format:
+     * [JENIS][3 DIGIT NO URUT]-[2 DIGIT MINGGU]-[BULAN ROMAWI]-[4 DIGIT TAHUN]
+     * Contoh: BKK001-01-IV-2026
+     */
+    public static function generateNoBukti(?string $jenisVoucher, ?string $tanggal): string
+    {
+        $jenis = match ($jenisVoucher) {
+            'BKK', 'Keluar', 'Bukti Kas Keluar (BKK)' => 'BKK',
+            'BKM', 'Masuk', 'Bukti Kas Masuk (BKM)' => 'BKM',
+            'BBK', 'Bukti Bank Keluar (BBK)' => 'BBK',
+            'BBM', 'Bukti Bank Masuk (BBM)' => 'BBM',
+            default => $jenisVoucher ?: 'BKM',
+        };
+
+        $date = $tanggal ? Carbon::parse($tanggal) : Carbon::now();
+        $weekOfMonth = sprintf('%02d', (int) ceil($date->day / 7));
+        $romawiMonth = static::getRomawiMonth((int) $date->month);
+        $year = $date->year;
+
+        $suffix = "{$weekOfMonth}-{$romawiMonth}-{$year}";
+        $prefix = $jenis;
+
+        // Ambil semua nomor bukti voucher sejenis dalam minggu dan bulan romawi yang sama
+        $existingVouchers = Voucher::where(function ($q) use ($jenis) {
+                $q->where('jenis_voucher', $jenis)
+                  ->orWhere('no_bukti', 'like', "{$jenis}%");
+            })
+            ->where('no_bukti', 'like', "{$prefix}%-{$suffix}")
+            ->pluck('no_bukti');
+
+        $maxSeq = 0;
+        $pattern = '/^' . preg_quote($prefix, '/') . '(\d+)-' . preg_quote($suffix, '/') . '$/';
+
+        foreach ($existingVouchers as $no) {
+            if (preg_match($pattern, $no, $matches)) {
+                $seq = (int) $matches[1];
+                if ($seq > $maxSeq) {
+                    $maxSeq = $seq;
+                }
+            }
+        }
+
+        $nextSeq = $maxSeq + 1;
+
+        return sprintf('%s%03d-%s', $prefix, $nextSeq, $suffix);
+    }
 }
+
