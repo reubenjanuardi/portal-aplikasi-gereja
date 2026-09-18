@@ -61,6 +61,10 @@ class LaporanExcelController extends Controller
 
         $fileName = 'Laporan-Buku-Besar-' . $startDate . '-sd-' . $endDate . '.xlsx';
 
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
         return response()->download($filePath, $fileName, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ])->deleteFileAfterSend(true);
@@ -113,6 +117,10 @@ class LaporanExcelController extends Controller
         );
 
         $fileName = 'Laporan-Jurnal-Transaksi-' . $startDate . '-sd-' . $endDate . '.xlsx';
+
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
 
         return response()->download($filePath, $fileName, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -222,6 +230,10 @@ class LaporanExcelController extends Controller
 
         $fileName = 'Laporan-Jurnal-Umum-' . $startDate . '-sd-' . $endDate . '.xlsx';
 
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
         return response()->download($filePath, $fileName, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ])->deleteFileAfterSend(true);
@@ -254,6 +266,10 @@ class LaporanExcelController extends Controller
         );
 
         $fileName = 'Laporan-Realisasi-Mingguan-' . $startDate . '-sd-' . $endDate . '.xlsx';
+
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
 
         return response()->download($filePath, $fileName, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

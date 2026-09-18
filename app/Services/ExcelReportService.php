@@ -558,7 +558,8 @@ class ExcelReportService
             'Kode Akun',
             'Uraian Pos Penerimaan',
             'Tingkat Akun',
-            'Realisasi (Rp)',
+            'Saldo Awal (Rp)',
+            'Saldo Akhir (Rp)',
         ], $this->getTableHeaderStyle()));
 
         $penerimaanItems = $reportData['penerimaan'] ?? [];
@@ -567,24 +568,28 @@ class ExcelReportService
             $isHeader = ! ($item['is_postable'] ?? true);
             $style = $isHeader ? $this->getSubtotalRowStyle() : $this->getDataRowStyle();
             $numStyle = $isHeader ? $this->getSubtotalNumberStyle() : $this->getNumberStyle();
-            $amount = (float) ($item['total_amount'] ?? ($item['direct_amount'] ?? 0));
+            $saldoAwal = (float) ($item['saldo_awal'] ?? 0);
+            $saldoAkhir = (float) ($item['saldo_akhir'] ?? 0);
 
             $cells = [
                 Cell::fromValue($item['kode_akun'] ?? '', $style),
                 Cell::fromValue($indent . ($item['nama_akun'] ?? ''), $style),
                 Cell::fromValue($isHeader ? 'Akun Induk / Header' : 'Akun Pos Transaksi', $style),
-                Cell::fromValue($amount, $numStyle),
+                Cell::fromValue($saldoAwal, $numStyle),
+                Cell::fromValue($saldoAkhir, $numStyle),
             ];
             $writer->addRow(new Row($cells));
         }
 
         // Total Penerimaan
-        $totalPenerimaan = (float) ($reportData['totalPenerimaan'] ?? 0);
+        $totalSaldoAwalPenerimaan = (float) ($reportData['totalSaldoAwalPenerimaan'] ?? 0);
+        $totalSaldoAkhirPenerimaan = (float) ($reportData['totalSaldoAkhirPenerimaan'] ?? 0);
         $writer->addRow(new Row([
             Cell::fromValue('TOTAL PENERIMAAN', $this->getGrandTotalRowStyle()),
             Cell::fromValue('', $this->getGrandTotalRowStyle()),
             Cell::fromValue('', $this->getGrandTotalRowStyle()),
-            Cell::fromValue($totalPenerimaan, $this->getGrandTotalNumberStyle()),
+            Cell::fromValue($totalSaldoAwalPenerimaan, $this->getGrandTotalNumberStyle()),
+            Cell::fromValue($totalSaldoAkhirPenerimaan, $this->getGrandTotalNumberStyle()),
         ]));
 
         // Executive Summary Box
@@ -592,6 +597,7 @@ class ExcelReportService
         $writer->addRow(Row::fromValues(['RINGKASAN EKSEKUTIF KEUANGAN MINGGU INI', ''], $this->getSubtitleStyle()));
         $writer->addRow(Row::fromValues(['Indikator Keuangan', 'Nilai Realisasi (Rp)'], $this->getTableHeaderStyle()));
 
+        $totalPenerimaan = (float) ($reportData['totalPenerimaan'] ?? 0);
         $totalPengeluaran = (float) ($reportData['totalPengeluaran'] ?? 0);
         $surplusDefisit = (float) ($reportData['surplusDefisit'] ?? 0);
         $totalSaldoAwal = (float) ($reportData['totalSaldoAwal'] ?? 0);
@@ -618,7 +624,8 @@ class ExcelReportService
             'Kode Akun',
             'Uraian Pos Pengeluaran',
             'Tingkat Akun',
-            'Realisasi (Rp)',
+            'Saldo Awal (Rp)',
+            'Saldo Akhir (Rp)',
         ], $this->getTableHeaderStyle()));
 
         $pengeluaranItems = $reportData['pengeluaran'] ?? [];
@@ -627,22 +634,27 @@ class ExcelReportService
             $isHeader = ! ($item['is_postable'] ?? true);
             $style = $isHeader ? $this->getSubtotalRowStyle() : $this->getDataRowStyle();
             $numStyle = $isHeader ? $this->getSubtotalNumberStyle() : $this->getNumberStyle();
-            $amount = (float) ($item['total_amount'] ?? ($item['direct_amount'] ?? 0));
+            $saldoAwal = (float) ($item['saldo_awal'] ?? 0);
+            $saldoAkhir = (float) ($item['saldo_akhir'] ?? 0);
 
             $cells = [
                 Cell::fromValue($item['kode_akun'] ?? '', $style),
                 Cell::fromValue($indent . ($item['nama_akun'] ?? ''), $style),
                 Cell::fromValue($isHeader ? 'Akun Induk / Header' : 'Akun Pos Transaksi', $style),
-                Cell::fromValue($amount, $numStyle),
+                Cell::fromValue($saldoAwal, $numStyle),
+                Cell::fromValue($saldoAkhir, $numStyle),
             ];
             $writer->addRow(new Row($cells));
         }
 
+        $totalSaldoAwalPengeluaran = (float) ($reportData['totalSaldoAwalPengeluaran'] ?? 0);
+        $totalSaldoAkhirPengeluaran = (float) ($reportData['totalSaldoAkhirPengeluaran'] ?? 0);
         $writer->addRow(new Row([
             Cell::fromValue('TOTAL PENGELUARAN', $this->getGrandTotalRowStyle()),
             Cell::fromValue('', $this->getGrandTotalRowStyle()),
             Cell::fromValue('', $this->getGrandTotalRowStyle()),
-            Cell::fromValue($totalPengeluaran, $this->getGrandTotalNumberStyle()),
+            Cell::fromValue($totalSaldoAwalPengeluaran, $this->getGrandTotalNumberStyle()),
+            Cell::fromValue($totalSaldoAkhirPengeluaran, $this->getGrandTotalNumberStyle()),
         ]));
 
         // ==========================================

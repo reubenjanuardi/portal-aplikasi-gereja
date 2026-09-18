@@ -38,8 +38,12 @@ class LaporanRealisasiService
             'endDate' => $endDate,
             'penerimaan' => $penerimaanData['items'] ?? [],
             'totalPenerimaan' => $totalPenerimaan,
+            'totalSaldoAwalPenerimaan' => $penerimaanData['total_saldo_awal'] ?? 0,
+            'totalSaldoAkhirPenerimaan' => $penerimaanData['total_saldo_akhir'] ?? 0,
             'pengeluaran' => $pengeluaranData['items'] ?? [],
             'totalPengeluaran' => $totalPengeluaran,
+            'totalSaldoAwalPengeluaran' => $pengeluaranData['total_saldo_awal'] ?? 0,
+            'totalSaldoAkhirPengeluaran' => $pengeluaranData['total_saldo_akhir'] ?? 0,
             'kasBank' => $kasBankData['items'] ?? [],
             'totalSaldoAwal' => $totalSaldoAwal,
             'totalSaldoAkhir' => $totalSaldoAkhir,
@@ -58,10 +62,26 @@ class LaporanRealisasiService
             ->get();
 
         if ($accounts->isEmpty()) {
-            return ['items' => [], 'grand_total' => 0];
+            return [
+                'items' => [],
+                'grand_total' => 0,
+                'total_saldo_awal' => 0,
+                'total_saldo_akhir' => 0,
+            ];
         }
 
-        // Fetch transaction sums grouped by kode_akun for the date range
+        // 1. Fetch transaction sums before startDate (for Saldo Awal)
+        $transactionsBefore = Transaction::query()
+            ->selectRaw('kode_akun, SUM(nominal) as total_nominal')
+            ->whereHas('voucher', function ($q) use ($startDate) {
+                $q->where('tanggal', '<', $startDate);
+            })
+            ->whereIn('kode_akun', $accounts->pluck('kode_akun'))
+            ->groupBy('kode_akun')
+            ->pluck('total_nominal', 'kode_akun')
+            ->toArray();
+
+        // 2. Fetch transaction sums during period [startDate, endDate] (for Realisasi)
         $transactionsSums = Transaction::query()
             ->selectRaw('kode_akun, SUM(nominal) as total_nominal')
             ->whereHas('voucher', function ($q) use ($startDate, $endDate) {
@@ -75,14 +95,22 @@ class LaporanRealisasiService
         // Build array keyed by kode_akun
         $accMap = [];
         foreach ($accounts as $acc) {
+            $directAwal = (float) ($transactionsBefore[$acc->kode_akun] ?? 0);
+            $directAmount = (float) ($transactionsSums[$acc->kode_akun] ?? 0);
+            $directAkhir = $directAwal + $directAmount;
+
             $accMap[$acc->kode_akun] = [
                 'kode_akun' => $acc->kode_akun,
                 'nama_akun' => $acc->nama_akun,
                 'parent_code' => $acc->parent_code,
                 'is_postable' => (bool) $acc->is_postable,
                 'depth' => substr_count($acc->kode_akun, '.'),
-                'direct_amount' => (float) ($transactionsSums[$acc->kode_akun] ?? 0),
+                'direct_saldo_awal' => $directAwal,
+                'direct_amount' => $directAmount,
+                'direct_saldo_akhir' => $directAkhir,
+                'total_saldo_awal' => 0,
                 'total_amount' => 0,
+                'total_saldo_akhir' => 0,
                 'children' => [],
             ];
         }
@@ -100,19 +128,38 @@ class LaporanRealisasiService
         unset($item);
 
         // Recursive sum function
-        $calculateTotal = function ($code) use (&$accMap, &$calculateTotal): float {
+        $calculateTotal = function ($code) use (&$accMap, &$calculateTotal): array {
             $item = &$accMap[$code];
-            $sum = $item['direct_amount'];
+            $sumAwal = $item['direct_saldo_awal'];
+            $sumAmount = $item['direct_amount'];
+            $sumAkhir = $item['direct_saldo_akhir'];
+
             foreach ($item['children'] as $childCode) {
-                $sum += $calculateTotal($childCode);
+                $childTotals = $calculateTotal($childCode);
+                $sumAwal += $childTotals['awal'];
+                $sumAmount += $childTotals['amount'];
+                $sumAkhir += $childTotals['akhir'];
             }
-            $item['total_amount'] = $sum;
-            return $sum;
+
+            $item['total_saldo_awal'] = $sumAwal;
+            $item['total_amount'] = $sumAmount;
+            $item['total_saldo_akhir'] = $sumAkhir;
+
+            return [
+                'awal' => $sumAwal,
+                'amount' => $sumAmount,
+                'akhir' => $sumAkhir,
+            ];
         };
 
         $grandTotal = 0;
+        $grandSaldoAwal = 0;
+        $grandSaldoAkhir = 0;
         foreach ($rootCodes as $rootCode) {
-            $grandTotal += $calculateTotal($rootCode);
+            $res = $calculateTotal($rootCode);
+            $grandSaldoAwal += $res['awal'];
+            $grandTotal += $res['amount'];
+            $grandSaldoAkhir += $res['akhir'];
         }
 
         // Flatten in tree traversal order for clean hierarchical display
@@ -126,6 +173,8 @@ class LaporanRealisasiService
                 'is_postable' => $item['is_postable'],
                 'is_group' => !empty($item['children']) || !$item['is_postable'],
                 'amount' => $item['total_amount'],
+                'saldo_awal' => $item['total_saldo_awal'],
+                'saldo_akhir' => $item['total_saldo_akhir'],
             ];
             foreach ($item['children'] as $childCode) {
                 $flatten($childCode);
@@ -139,6 +188,8 @@ class LaporanRealisasiService
         return [
             'items' => $flatList,
             'grand_total' => $grandTotal,
+            'total_saldo_awal' => $grandSaldoAwal,
+            'total_saldo_akhir' => $grandSaldoAkhir,
         ];
     }
 
