@@ -23,38 +23,64 @@ const verificationLinkSent = computed(
 
 <template>
     <GuestLayout>
-        <Head title="Email Verification" />
+        <Head title="Verifikasi Alamat Email" />
 
-        <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-            Thanks for signing up! Before getting started, could you verify your
-            email address by clicking on the link we just emailed to you? If you
-            didn't receive the email, we will gladly send you another.
+        <div class="mb-6">
+            <h1 class="text-xl font-bold tracking-tight text-slate-900">
+                Verifikasi Alamat Email
+            </h1>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">
+                Sebelum memulai, silakan verifikasi alamat email Anda dengan
+                mengklik tautan yang baru saja kami kirimkan ke email Anda. Jika
+                Anda tidak menerima email tersebut, kami dapat mengirimkan
+                tautan baru.
+            </p>
         </div>
 
         <div
-            class="mb-4 text-sm font-medium text-green-600 dark:text-green-400"
             v-if="verificationLinkSent"
+            class="mb-5 flex items-start gap-2.5 rounded-lg border border-emerald-200 bg-emerald-50 p-3.5 text-sm text-emerald-800"
         >
-            A new verification link has been sent to the email address you
-            provided during registration.
+            <svg
+                class="mt-0.5 h-5 w-5 shrink-0 text-emerald-600"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+            </svg>
+            <span class="leading-snug">
+                Tautan verifikasi baru telah dikirimkan ke alamat email akun
+                Anda.
+            </span>
         </div>
 
-        <form @submit.prevent="submit">
-            <div class="mt-4 flex items-center justify-between">
+        <form @submit.prevent="submit" class="space-y-4">
+            <div>
                 <PrimaryButton
-                    :class="{ 'opacity-25': form.processing }"
+                    class="w-full py-2.5"
                     :disabled="form.processing"
                 >
-                    Resend Verification Email
+                    <span v-if="form.processing">Mengirim Ulang...</span>
+                    <span v-else>Kirim Ulang Email Verifikasi</span>
                 </PrimaryButton>
+            </div>
 
+            <div class="pt-2 text-center">
                 <Link
                     :href="route('logout')"
                     method="post"
                     as="button"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
-                    >Log Out</Link
+                    class="text-xs font-medium text-slate-600 transition-colors hover:text-red-600"
                 >
+                    Keluar (Log Out)
+                </Link>
             </div>
         </form>
     </GuestLayout>

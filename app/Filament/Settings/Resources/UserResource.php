@@ -3,7 +3,9 @@
 namespace App\Filament\Settings\Resources;
 
 use App\Filament\Settings\Resources\UserResource\Pages;
+use App\Models\ActivityLog;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -17,6 +19,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use BackedEnum;
 use UnitEnum;
 use Spatie\Permission\Models\Role;
@@ -128,6 +131,34 @@ class UserResource extends Resource
             ->recordActions([
                 ActionGroup::make([
                     EditAction::make(),
+                    Action::make('reset_password')
+                        ->label('Reset Password')
+                        ->icon('heroicon-o-key')
+                        ->color('warning')
+                        ->modalHeading(fn (User $record): string => "Reset Password — {$record->name}")
+                        ->modalWidth('lg')
+                        ->modalSubmitAction(false)
+                        ->modalCancelAction(false)
+                        ->modalContent(fn (User $record) => view('filament.settings.modals.reset-password-flow', [
+                            'record' => $record,
+                            'expireMinutes' => (int) config('auth.passwords.users.expire', 60),
+                        ]))
+                        ->authorize(fn (User $record): bool => auth()->user()?->can('portal.user.manage') && $record->is_active)
+                        ->action(function (User $record) {
+                            $token = Password::broker()->createToken($record);
+                            $admin = auth()->user();
+                            $adminName = $admin?->name ?? 'Administrator';
+
+                            ActivityLog::log(
+                                description: "Administrator [{$adminName}] membuat link reset password untuk pengguna [{$record->name}]",
+                                logName: 'user_management',
+                                subject: $record,
+                                properties: [
+                                    'target_user_id' => $record->id,
+                                    'target_user_email' => $record->email,
+                                ]
+                            );
+                        }),
                     DeleteAction::make(),
                 ]),
             ]);

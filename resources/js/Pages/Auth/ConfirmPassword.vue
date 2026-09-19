@@ -19,35 +19,41 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Confirm Password" />
+        <Head title="Konfirmasi Kata Sandi" />
 
-        <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-            This is a secure area of the application. Please confirm your
-            password before continuing.
+        <div class="mb-6">
+            <h1 class="text-xl font-bold tracking-tight text-slate-900">
+                Konfirmasi Kata Sandi
+            </h1>
+            <p class="mt-1 text-sm text-slate-600">
+                Ini adalah area aman aplikasi. Harap konfirmasi kata sandi Anda
+                sebelum melanjutkan.
+            </p>
         </div>
 
-        <form @submit.prevent="submit">
+        <form @submit.prevent="submit" class="space-y-4">
             <div>
-                <InputLabel for="password" value="Password" />
+                <InputLabel for="password" value="Kata Sandi" />
                 <TextInput
                     id="password"
                     type="password"
-                    class="mt-1 block w-full"
+                    class="w-full"
                     v-model="form.password"
                     required
                     autocomplete="current-password"
                     autofocus
+                    placeholder="••••••••"
                 />
-                <InputError class="mt-2" :message="form.errors.password" />
+                <InputError :message="form.errors.password" />
             </div>
 
-            <div class="mt-4 flex justify-end">
+            <div class="pt-2">
                 <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
+                    class="w-full py-3 text-base"
                     :disabled="form.processing"
                 >
-                    Confirm
+                    <span v-if="form.processing">Mengonfirmasi...</span>
+                    <span v-else>Konfirmasi Kata Sandi</span>
                 </PrimaryButton>
             </div>
         </form>

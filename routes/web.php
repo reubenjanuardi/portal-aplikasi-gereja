@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/jurnal-umum/excel', [LaporanExcelController::class, 'jurnalUmum'])->name('laporan.jurnal-umum.excel');
     Route::get('/laporan/realisasi-mingguan/pdf', [LaporanPdfController::class, 'realisasiMingguan'])->name('laporan.realisasi-mingguan.pdf');
     Route::get('/laporan/realisasi-mingguan/excel', [LaporanExcelController::class, 'realisasiMingguan'])->name('laporan.realisasi-mingguan.excel');
+    Route::post('/settings/users/{user}/generate-reset-link', [\App\Http\Controllers\Admin\UserPasswordResetController::class, 'generate'])->name('admin.users.generate-reset-link');
 });
 
 

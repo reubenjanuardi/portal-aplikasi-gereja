@@ -35,4 +35,13 @@ class UserPolicy
 
         return $user->can('portal.user.manage');
     }
+
+    public function resetPassword(User $user, User $model): bool
+    {
+        if (! $model->is_active) {
+            return false;
+        }
+
+        return $user->can('portal.user.manage');
+    }
 }

@@ -155,3 +155,30 @@ test('activity log records automatically when voucher is created and updated', f
         ->and($logUpdate->properties)->toHaveKey('old')
         ->and($logUpdate->properties['attributes']['pihak_terkait'])->toBe('Donatur Test Log Updated');
 });
+
+test('admin can create new user through UserResource with roles and password', function () {
+    \Filament\Facades\Filament::setCurrentPanel(\Filament\Facades\Filament::getPanel('settings'));
+
+    $admin = User::where('email', 'admin@gpibhosiana.org')->first();
+    $role = \Spatie\Permission\Models\Role::where('name', 'Operator Kasir')->first();
+
+    \Livewire\Livewire::actingAs($admin)
+        ->test(\App\Filament\Settings\Resources\UserResource\Pages\CreateUser::class)
+        ->fillForm([
+            'name' => 'Pendeta Baru',
+            'email' => 'pendeta@gpibhosiana.org',
+            'password' => 'SecurePass123!',
+            'is_active' => true,
+            'roles' => [$role->id],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $newUser = User::where('email', 'pendeta@gpibhosiana.org')->first();
+    expect($newUser)->not->toBeNull()
+        ->and($newUser->name)->toBe('Pendeta Baru')
+        ->and($newUser->is_active)->toBeTrue()
+        ->and($newUser->hasRole('Operator Kasir'))->toBeTrue()
+        ->and(\Illuminate\Support\Facades\Hash::check('SecurePass123!', $newUser->password))->toBeTrue();
+});
+
