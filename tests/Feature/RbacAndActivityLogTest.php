@@ -182,3 +182,20 @@ test('admin can create new user through UserResource with roles and password', f
         ->and(\Illuminate\Support\Facades\Hash::check('SecurePass123!', $newUser->password))->toBeTrue();
 });
 
+test('application timezone is WIB and activity log timestamps are recorded in Asia/Jakarta', function () {
+    expect(config('app.timezone'))->toBe('Asia/Jakarta')
+        ->and(now()->timezoneName)->toBe('Asia/Jakarta');
+
+    $log = ActivityLog::log('Tes timezone WIB');
+
+    expect($log->created_at)->not->toBeNull()
+        ->and($log->created_at->timezoneName)->toBe('Asia/Jakarta');
+
+    $utcNow = now('UTC');
+    $wibNow = now('Asia/Jakarta');
+
+    expect($log->created_at->diffInHours($utcNow, absolute: true) ?: 0)
+        ->toBeLessThan(2)
+        ->and(abs($log->created_at->timestamp - $wibNow->timestamp))->toBeLessThan(2);
+});
+

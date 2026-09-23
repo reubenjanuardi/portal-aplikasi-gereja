@@ -94,6 +94,7 @@ APP_ENV=production
 APP_KEY=base64:GENERATE_PRODUCTION_KEY_DENGAN_ARTISAN_KEY_GENERATE
 APP_DEBUG=false
 APP_URL=https://keuangan.domain-gereja.org
+APP_TIMEZONE=Asia/Jakarta
 
 # Supabase PostgreSQL
 DB_CONNECTION=pgsql

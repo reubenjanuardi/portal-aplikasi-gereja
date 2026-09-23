@@ -23,5 +23,8 @@
 /vendor
 _ide_helper.php
 Homestead.json
-Homestead.yaml
 Thumbs.db
+*.zip
+/backups
+/storage/app/backups
+/storage/app/backup-temp

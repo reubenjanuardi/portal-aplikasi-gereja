@@ -44,8 +44,8 @@ class ActivityLogResource extends Resource
             Section::make('Rincian Log Aktivitas')
                 ->schema([
                     TextInput::make('created_at')
-                        ->label('Waktu Kejadian')
-                        ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->translatedFormat('d F Y, H:i:s') : '-')
+                        ->label('Waktu Kejadian (WIB)')
+                        ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->setTimezone('Asia/Jakarta')->translatedFormat('d F Y, H:i:s') . ' WIB' : '-')
                         ->disabled(),
 
                     TextInput::make('causer.name')
@@ -88,10 +88,10 @@ class ActivityLogResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('created_at')
-                    ->label('Waktu')
-                    ->dateTime('d M Y, H:i:s')
+                    ->label('Waktu (WIB)')
+                    ->dateTime('d M Y, H:i:s', 'Asia/Jakarta')
                     ->sortable()
-                    ->width('160px'),
+                    ->width('180px'),
 
                 TextColumn::make('user.name')
                     ->label('Pengguna')

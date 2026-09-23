@@ -1,332 +1,175 @@
-# 🚀 Implementation Plan — Penyelesaian MVP SIKG
+# 🚀 Implementation Plan — SIKG (Sistem Informasi Keuangan Gereja)
 
-> Dibuat berdasarkan: [Audit Report](file:///C:/Users/Pongo/.gemini/antigravity-ide/brain/5db7e64b-23ba-4398-a0da-2d8a3cf21096/audit_report.md)
-> Tanggal: 2026-07-30
+> Dibuat berdasarkan: [Audit Report](./audit_report.md)
+> Terakhir diperbarui: 2026-09-23 (berdasarkan git history `main`)
 
 ---
 
-## Status MVP Saat Ini: 🟢 100% Selesai (MVP Fitur Utama Siap Release)
+## Status Proyek: 🟢 LIVE IN PRODUCTION
 
 ```
-Phase 1 — Gap Closure        ██████████  (100% Selesai - 30 Juli 2026)
-Auth Fix — Redirect Bug      ██████████  (100% Selesai - 31 Juli 2026)
-Phase 2 — Pelaporan PDF      ██████████  (100% Selesai - 31 Juli 2026)
-Phase 3 — Buku Besar & Jurnal██████████  (100% Selesai - 31 Juli 2026)
-Phase 4 — RBAC               ░░░░░░░░░░  (Fase Lanjutan / Opsional)
-Phase 5 — Multi-Tenant       ░░░░░░░░░░  (Fase Lanjutan / Opsional)
+Phase 1 — Gap Closure            ██████████  (100% — 30 Jul 2026)
+Auth Fix — Redirect Bug           ██████████  (100% — 31 Jul 2026)
+Phase 2 — Pelaporan PDF           ██████████  (100% — 31 Jul 2026)
+Phase 3 — Buku Besar & Jurnal     ██████████  (100% — 31 Jul 2026)
+Infra — Docker, CI/CD & Deploy    ██████████  (100% — Agu 2026)
+Phase 4 — RBAC + Audit Log        ██████████  (100% — 24 Agu 2026)
+Portal — Landing, Dashboard, etc  ██████████  (100% — Agu–Sep 2026)
+Auth Hardening — Phase A–D        ██████████  (100% — 19 Sep 2026)
+Phase 5 — Multi-Tenant            ░░░░░░░░░░  (Fase Lanjutan / Opsional — belum dikerjakan)
 ```
 
----
-
-## 🟢 PHASE 1 — Penutupan Gap Kritis MVP (SELESAI)
-**Status: ✅ 100% Selesai | Selesai pada: 30 Juli 2026**
-
-> [!NOTE]
-> Seluruh gap kritis integritas data telah selesai diimplementasikan dan diverifikasi dengan baik.
-
-### Task 1.1 — Restrict on Delete: Layer Database
-
-**File:** [MODIFY] [2026_07_29_033112_create_transactions_table.php](file:///c:/laragon/www/keuangan-gereja/database/migrations/2026_07_29_033112_create_transactions_table.php)
-
-Tambahkan `->restrictOnDelete()` secara eksplisit pada FK `kode_akun`:
-
-```php
-$table->foreign('kode_akun')
-    ->references('kode_akun')
-    ->on('chart_of_accounts')
-    ->cascadeOnUpdate()
-    ->restrictOnDelete(); // ← tambahkan ini
-```
-
-> [!NOTE]
-> Karena migration sudah dijalankan, buat **migration baru** untuk alter FK daripada mengubah file lama:
-> ```bash
-> php artisan make:migration add_restrict_delete_to_transactions_kode_akun
-> ```
+**MVP + ekstensi inti dianggap selesai.** Sistem berjalan di produksi dengan pipeline deploy otomatis. Sisa pekerjaan bersifat opsional (multi-tenancy) dan maintenance rutin.
 
 ---
 
-### Task 1.2 — Restrict on Delete: Layer Aplikasi (Filament Guard)
+## 🏗️ Arsitektur Produksi (Aktif)
 
-**File:** [MODIFY] [ChartOfAccountResource.php](file:///c:/laragon/www/keuangan-gereja/app/Filament/Resources/ChartOfAccountResource.php)
-
-Tambahkan validasi `before()` pada `DeleteAction` di tabel dan pada header halaman Edit:
-
-```php
-use Filament\Notifications\Notification;
-
-// Di recordActions() table:
-DeleteAction::make()
-    ->before(function (ChartOfAccount $record, \Filament\Actions\Action $action) {
-        if ($record->transactions()->exists()) {
-            Notification::make()
-                ->danger()
-                ->title('Akun Tidak Dapat Dihapus')
-                ->body('Akun "' . $record->nama_akun . '" sudah memiliki riwayat transaksi.')
-                ->send();
-            $action->cancel();
-        }
-        // Cek juga apakah punya anak (child accounts)
-        if (ChartOfAccount::where('parent_code', $record->kode_akun)->exists()) {
-            Notification::make()
-                ->danger()
-                ->title('Akun Tidak Dapat Dihapus')
-                ->body('Akun ini masih memiliki akun anak. Hapus akun anak terlebih dahulu.')
-                ->send();
-            $action->cancel();
-        }
-    }),
-```
-
-**File:** [MODIFY] [EditChartOfAccount.php](file:///c:/laragon/www/keuangan-gereja/app/Filament/Resources/ChartOfAccountResource/Pages/EditChartOfAccount.php)
-
-Terapkan guard yang sama pada `DeleteAction` di header halaman Edit.
-
----
-
-### Task 1.3 — DB Transaction Wrapping pada Voucher
-
-**File:** [MODIFY] [CreateVoucher.php](file:///c:/laragon/www/keuangan-gereja/app/Filament/Resources/VoucherResource/Pages/CreateVoucher.php)
-
-```php
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
-
-protected function handleRecordCreation(array $data): Model
-{
-    return DB::transaction(function () use ($data) {
-        return parent::handleRecordCreation($data);
-    });
-}
-```
-
-**File:** [MODIFY] [EditVoucher.php](file:///c:/laragon/www/keuangan-gereja/app/Filament/Resources/VoucherResource/Pages/EditVoucher.php)
-
-```php
-use Illuminate\Support\Facades\DB;
-
-protected function handleRecordUpdate(Model $record, array $data): Model
-{
-    return DB::transaction(function () use ($record, $data) {
-        return parent::handleRecordUpdate($record, $data);
-    });
-}
-```
-
----
-
-### Verifikasi Phase 1
-- [x] Coba hapus akun CoA yang sudah punya transaksi → muncul notification error & aksi dibatalkan (Verified)
-- [x] Coba hapus akun CoA yang punya anak → muncul notification error & aksi dibatalkan (Verified)
-- [x] DB Transaction wrapping pada save & edit voucher → data rollback jika terjadi failure (Verified)
-
----
-
-## 🟢 BUG FIX — Fix Redirect Inertia ke Filament Admin Panel (SELESAI)
-**Status: ✅ 100% Selesai | Selesai pada: 31 Juli 2026**
-
-> [!NOTE]
-> Memperbaiki bug di mana setelah login pada endpoint `/login` (Inertia.js), halaman tidak melakukan redirect penuh ke Filament Admin Panel (`/admin`), melainkan memunculkan UI Dashboard di dalam modal preview Inertia.
-
-**File Terkait:**
-- [MODIFY] [AuthenticatedSessionController.php](file:///c:/laragon/www/keuangan-gereja/app/Http/Controllers/Auth/AuthenticatedSessionController.php) — Menggunakan `Inertia::location(redirect()->intended('/admin'))` agar mengirimkan header `X-Inertia-Location` (HTTP 409) untuk memicu `window.location.href` penuh.
-- [MODIFY] [RegisteredUserController.php](file:///c:/laragon/www/keuangan-gereja/app/Http/Controllers/Auth/RegisteredUserController.php) — Terapkan `Inertia::location()` pada alur registrasi.
-- [MODIFY] [ConfirmablePasswordController.php](file:///c:/laragon/www/keuangan-gereja/app/Http/Controllers/Auth/ConfirmablePasswordController.php) — Terapkan `Inertia::location()` pada alur konfirmasi password.
-
----
-
-## 🟢 PHASE 2 — Cetak Bukti Voucher ke PDF (SELESAI)
-**Status: ✅ 100% Selesai | Selesai pada: 31 Juli 2026**
-
-> [!NOTE]
-> Fitur pencetakan dokumen voucher dalam format PDF telah selesai diimplementasikan, mencakup tombol aksi di tabel Filament dan halaman Edit, Blade template profesional, route stream/download, dan pengujian otomatis.
-
-### Task 2.1 — Install Package PDF
-
-```bash
-composer require barryvdh/laravel-dompdf
-```
-
-Package `barryvdh/laravel-dompdf` v3.1.2 telah berhasil diinstall.
-
----
-
-### Task 2.2 — Buat Blade Template Dokumen Voucher
-
-**File:** [NEW] [voucher.blade.php](file:///c:/laragon/www/keuangan-gereja/resources/views/pdf/voucher.blade.php)
-
-Layout dokumen kas profesional:
-- Header: Nama Gereja ("GEREJA KEUANGAN") & SIKG, Judul dokumen ("BUKTI KAS MASUK / KELUAR")
-- Info Header Voucher: No Bukti, Tanggal, Pihak Terkait, Jenis Voucher
-- Tabel Detail Transaksi: Kode Akun, Nama Akun, Uraian, Nominal
-- Footer: Total Nominal & 3 Kolom Tanda Tangan (Dibuat Oleh / Disetujui Oleh / Diterima/Diserahkan Oleh)
-
----
-
-### Task 2.3 — Buat PDF Controller / Route
-
-**File:** [NEW] [VoucherPdfController.php](file:///c:/laragon/www/keuangan-gereja/app/Http/Controllers/VoucherPdfController.php)
-**File:** [MODIFY] [web.php](file:///c:/laragon/www/keuangan-gereja/routes/web.php)
-
-Route:
-```php
-Route::get('/vouchers/{voucher}/pdf', [VoucherPdfController::class, 'stream'])->name('vouchers.pdf')->middleware('auth');
-```
-
----
-
-### Task 2.4 — Tambahkan Tombol "Cetak PDF" di Filament
-
-**File:** [MODIFY] [VoucherResource.php](file:///c:/laragon/www/keuangan-gereja/app/Filament/Resources/VoucherResource.php) — Tambahkan `Action::make('cetak_pdf')` pada `recordActions()`.
-**File:** [MODIFY] [EditVoucher.php](file:///c:/laragon/www/keuangan-gereja/app/Filament/Resources/VoucherResource/Pages/EditVoucher.php) — Tambahkan `Action::make('cetak_pdf')` pada `getHeaderActions()`.
-
----
-
-### Verifikasi Phase 2
-- [x] Klik "Cetak PDF" pada voucher di tabel Filament / halaman Edit → PDF terbuka di tab baru untuk dicetak/view (Verified)
-- [x] Verifikasi layout: No Bukti, Tanggal, Pihak Terkait, detail transaksi, & total nominal terformat dengan rapi (Verified)
-- [x] Kolom tanda tangan tercetak di posisi bawah dokumen (Verified)
-- [x] Automated Feature Test `VoucherPdfTest.php` passing 100% (Verified)
-
----
-
-## 🟢 PHASE 3 — Laporan Buku Besar & Jurnal (SELESAI)
-**Status: ✅ 100% Selesai | Selesai pada: 31 Juli 2026**
-
-> [!NOTE]
-> Modul laporan Buku Besar dan Jurnal Transaksi telah selesai dibuat dengan fitur filter interaktif di Filament Admin Panel dan fasilitas cetak PDF lanskap.
-
-### Task 3.1 & 3.2 & 3.3 — Laporan Buku Besar
-
-**File:** [NEW] [LaporanBukuBesar.php](file:///c:/laragon/www/keuangan-gereja/app/Filament/Pages/LaporanBukuBesar.php)
-**File:** [NEW] [laporan-buku-besar.blade.php](file:///c:/laragon/www/keuangan-gereja/resources/views/filament/pages/laporan-buku-besar.blade.php)
-
-- Menampilkan mutasi transaksi per akun (grouped by `kode_akun`).
-- Filter: Dari Tanggal, Sampai Tanggal, Kode Akun (Searchable), dan Jenis Voucher.
-- Subtotal Total Masuk & Total Keluar per Akun.
-
----
-
-### Task 3.4 — Laporan Jurnal Transaksi
-
-**File:** [NEW] [LaporanJurnal.php](file:///c:/laragon/www/keuangan-gereja/app/Filament/Pages/LaporanJurnal.php)
-**File:** [NEW] [laporan-jurnal.blade.php](file:///c:/laragon/www/keuangan-gereja/resources/views/filament/pages/laporan-jurnal.blade.php)
-
-- Menampilkan seluruh jurnal transaksi secara kronologis.
-- Filter: Rentang Tanggal & Kategori Akun.
-- Menampilkan Grand Total Nominal.
-
----
-
-### Task 3.5 — Ekspor Laporan ke PDF
-
-**File:** [NEW] [LaporanPdfController.php](file:///c:/laragon/www/keuangan-gereja/app/Http/Controllers/LaporanPdfController.php)
-**File:** [NEW] [laporan-buku-besar.blade.php (PDF)](file:///c:/laragon/www/keuangan-gereja/resources/views/pdf/laporan-buku-besar.blade.php)
-**File:** [NEW] [laporan-jurnal.blade.php (PDF)](file:///c:/laragon/www/keuangan-gereja/resources/views/pdf/laporan-jurnal.blade.php)
-
----
-
-### Verifikasi Phase 3
-- [x] Filter periode & akun menampilkan data transaksi yang sesuai (Verified)
-- [x] Total per akun dan grand total terhitung dengan benar (Verified)
-- [x] Ekspor PDF Buku Besar & Jurnal berfungsi lancar dengan format landscape yang rapi (Verified)
-- [x] Automated Feature Test `LaporanReportTest.php` passing 100% (Verified)
-
----
-
-## 🔵 PHASE 4 — Role-Based Access Control (RBAC)
-**Estimasi: 3–4 hari kerja | Prioritas: Sedang (PRD Seksi 5 — Fase Lanjutan)**
-
-> [!NOTE]
-> Phase ini masuk dalam Roadmap Ekstensibilitas PRD. Dapat dikerjakan setelah Phase 1–3 selesai dan sistem sudah digunakan secara aktif.
-
-### Task 4.1 — Install spatie/laravel-permission
-
-```bash
-composer require spatie/laravel-permission
-php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
-php artisan migrate
-```
-
----
-
-### Task 4.2 — Definisikan Role & Permission
-
-| Role | Akses |
+| Lapisan | Teknologi |
 |---|---|
-| `super_admin` | Full access semua fitur |
-| `kasir` | Create & Edit Voucher, View CoA |
-| `verifikator` | View semua + approve/reject voucher |
-| `auditor` | View-only semua laporan, tidak bisa create/edit |
+| Runtime | Docker (multi-stage image PHP 8.4 + Node 22) |
+| Registry | GitHub Container Registry (`ghcr.io/.../portal-aplikasi-gereja`) |
+| CI/CD | GitHub Actions → test → build & push → SSH deploy (`.github/workflows/deploy.yml`) |
+| Database | Supabase PostgreSQL (managed, SSL required) |
+| Object Storage | Cloudflare R2 (S3-compatible) / local public disk untuk logo |
+| Edge & SSL | Cloudflare proxy + Cloudflare Tunnel (`cloudflared` sidecar) |
+| Server | VPS Ubuntu/Debian + Docker Compose (`docker-compose.prod.yml`) di `/opt/stacks/keuangan-gereja` |
+
+Panduan lengkap: [`deploy/README.md`](../deploy/README.md)
 
 ---
 
-### Task 4.3 — Integrasi dengan Filament
+## ✅ Riwayat Penyelesaian (Git History)
 
-Tambahkan `FilamentShield` atau implementasikan manual:
+### Fase Development (Jul 2026)
 
-```php
-// Di setiap Resource:
-public static function canCreate(): bool
-{
-    return auth()->user()->hasRole(['super_admin', 'kasir']);
-}
+#### Phase 1 — Penutupan Gap Kritis MVP (SELESAI — 30 Jul 2026)
+- **Restrict on Delete (DB)**: FK `kode_akun` → `chart_of_accounts` dengan `restrictOnDelete()` eksplisit.
+- **Restrict on Delete (App)**: Guard `before()` pada `DeleteAction` CoA (cek riwayat transaksi & akun anak).
+- **DB Transaction**: `DB::transaction()` membungkus `handleRecordCreation` / `handleRecordUpdate` pada Create & Edit Voucher.
 
-public static function canEdit(Model $record): bool
-{
-    return auth()->user()->hasRole(['super_admin', 'kasir']);
-}
+#### Bug Fix — Redirect Inertia ke Filament (SELESAI — 31 Jul 2026)
+- `Inertia::location()` pada login, registrasi, dan konfirmasi password agar redirect penuh ke `/admin`.
 
-public static function canDelete(Model $record): bool
-{
-    return auth()->user()->hasRole('super_admin');
-}
-```
+#### Phase 2 — Cetak Bukti Voucher PDF (SELESAI — 31 Jul 2026)
+- `barryvdh/laravel-dompdf`, Blade `resources/views/pdf/voucher.blade.php`, route `/vouchers/{voucher}/pdf`, tombol aksi di tabel & halaman Edit.
+
+#### Phase 3 — Laporan Buku Besar & Jurnal (SELESAI — 31 Jul 2026)
+- Halaman Filament `LaporanBukuBesar` & `LaporanJurnal` + ekspor PDF landscape (`LaporanPdfController`).
 
 ---
 
-### Task 4.4 — Halaman Manajemen User & Role
+### Fase Infrastruktur & Rilis (Agu 2026)
 
-**File:** [NEW] Filament Resource `UserResource.php`
-
-Tambahkan resource untuk manajemen user dengan fitur assign role.
+| Tanggal | Komit | Ringkasan |
+|---|---|---|
+| 05 Agu | `bf1a25f` | `init` repository |
+| 18 Agu | `ca33921`, `755d73e`, … | Sistem pelaporan + seeding CoA, CI/CD pipeline, Dockerization, PHP 8.4, perbaikan migration CoA |
+| 18 Agu | `1d68674`, `2de09dd` | Konfigurasi Nginx (cache/statik), adapter S3 Cloudflare R2 |
+| 19 Agu | `ee70641`, `e9bf61b` | Optimasi query CoA (eager loading rekursif + index `parent_code`), kolom anggaran |
+| 20 Agu | `7cb2b04`, `4ee9125`, `bd48b96` | Arsitektur aman via Cloudflare Tunnel, paksa HTTPS, trust reverse proxy |
+| 20 Agu | `c9bf011`…`9ad41ff` | Perbaikan bug voucher 500/Livewire, dukungan jenis voucher BKM/BKK/BBM/BBK |
+| 21 Agu | `fc1144c` | Landing page, grid launcher dashboard, routing panel keuangan |
 
 ---
 
-### Verifikasi Phase 4
-- [ ] Login sebagai kasir: hanya bisa akses Voucher (create/edit), tidak bisa hapus
-- [ ] Login sebagai auditor: semua halaman read-only
-- [ ] Login sebagai super_admin: full akses
+### Fase Ekstensi Fitur (Agu–Sep 2026)
+
+#### Phase 4 — RBAC, Audit Log & Settings Portal (SELESAI — 24 Agu 2026)
+Commit: `20b44b6`
+
+- **Package**: `spatie/laravel-permission` v8.3 + trait `HasRoles` di `User`.
+- **Roles** (berbeda dari nama draft awal — lihat `database/seeders/RbacSeeder.php`):
+
+  | Role | Akses |
+  |---|---|
+  | `Super Admin` | Full access semua modul, RBAC, audit log, pengaturan master |
+  | `Bendahara Keuangan` | CRUD penuh modul keuangan (voucher, CoA, laporan, cetak/ekspor) |
+  | `Operator Kasir` | View + create & print voucher saja; tanpa edit/hapus; tanpa Pengaturan Portal |
+  | `Majelis Peninjau` | Read-only transaksi + cetak/ekspor laporan |
+
+- **Policies**: `VoucherPolicy`, `ChartOfAccountPolicy`, `UserPolicy`, `RolePolicy`, `ActivityLogPolicy`.
+- **Panel Settings** (`/settings`, `SettingsPanelProvider`): `UserResource`, `RoleResource`, `ActivityLogResource`, pengaturan gereja.
+- **Audit logging**: trait `LogsActivity` + model `ActivityLog` (kolom `subject_id` string — commit `75c3e2e`).
+- **Tests**: `RbacAndActivityLogTest.php`.
+
+#### Ekspor Excel Semua Laporan (SELESAI — 24 Agu 2026)
+Commit: `5f026b2` — opsi ekspor `.xlsx` untuk seluruh laporan keuangan.
+
+#### Perbaikan Auth & Navigasi (SELESAI — 1 Sep 2026)
+- Redirect logo/navbar ke `/dashboard`, logout modul ke landing page, `Inertia::location` pada login.
+- Restorasi konfigurasi Pest untuk Feature tests di CI (`d32a642`).
+
+#### Peningkatan Voucher (SELESAI — 15–17 Sep 2026)
+- Input CoA ganda: **Kas/Bank** + **Mata Anggaran** (`f656c4d`, `0adee7d`).
+- Penomoran otomatis nomor bukti voucher (`4010998`).
+- Menu **Laporan Jurnal Umum** (`4010998`).
+- Rename image Docker → `portal-aplikasi-gereja` (`db13712`).
+
+#### Laporan Realisasi Mingguan (SELESAI — 18 Sep 2026)
+- Kolom realisasi diganti **saldo awal & saldo akhir** di Excel (`f0eaede`); perbaikan output buffer.
+- Test: `LaporanRealisasiExcelTest.php`.
+
+#### Auth Hardening — Phase A–D (SELESAI — 19 Sep 2026)
+Commit: `eb8f637`
+
+- **A**: Hapus registrasi publik & alur reset password via email.
+- **B**: Overhaul UI auth/profile dengan design system token GPIB Hosiana.
+- **C**: Halaman error server-rendered kustom (403, 404, 419, 429, 500, 503).
+- **D**: Reset password manual oleh admin via `UserResource` (modal interaktif, token aman, copy-to-clipboard, activity logging tersanitasi).
+- Test suite Pest komprehensif — **90 passing tests**.
 
 ---
 
-## 🟢 PHASE 5 — Multi-Tenancy
-**Estimasi: 5–7 hari kerja | Prioritas: Rendah (PRD Seksi 5 — Fase Lanjutan)**
+## 📦 Status Definition of Done
+
+### MVP (Selesai)
+- [x] CoA Management (hierarki, postable, read-only kode)
+- [x] Pencatatan Voucher dengan Repeater
+- [x] Validasi no bukti & kalkulasi real-time
+- [x] Restrict on Delete CoA (Phase 1)
+- [x] DB Transaction pada save Voucher (Phase 1)
+- [x] Fix Redirect Inertia ke Filament Admin Panel
+- [x] Cetak bukti Voucher ke PDF (Phase 2)
+- [x] Laporan Buku Besar (Phase 3)
+- [x] Laporan Jurnal (Phase 3)
+
+### Rilis Produksi (Selesai)
+- [x] Docker image multi-stage + Nginx-ready
+- [x] CI/CD GitHub Actions → GHCR → deploy SSH ke VPS
+- [x] Database produksi Supabase PostgreSQL
+- [x] Storage Cloudflare R2 + tunnel Cloudflare (HTTPS)
+- [x] Landing page & dashboard launcher
+- [x] RBAC + Audit Log + Settings Portal (Phase 4)
+- [x] Ekspor Excel semua laporan
+- [x] Laporan Jurnal Umum & Realisasi Mingguan
+- [x] Voucher dual CoA (Kas/Bank + Mata Anggaran) + auto nomor bukti
+- [x] Auth hardening Phase A–D + custom error pages + manual password recovery
+- [x] 90 Pest feature tests passing
+
+### Sisa / Opsional
+- [ ] **Phase 5 — Multi-Tenancy** (belum dikerjakan; butuh perubahan skema `entity_id` — lihat seksi di bawah)
+- [ ] Monitoring & backup rutin produksi (log rotation sudah diset di compose; backup DB/storage manual via Supabase/R2)
+- [ ] Evaluasi kebutuhan RBAC halus (permission per-resource sudah ada; disesuaikan operasional gereja)
+
+---
+
+## 🔵 PHASE 5 — Multi-Tenancy (OPSIONAL, BELUM DIMULAI)
+**Estimasi: 5–7 hari kerja | Prioritas: Rendah (PRD Seksi 5 — Roadmap)**
 
 > [!WARNING]
-> Phase ini membutuhkan **perubahan skema database yang signifikan**. Lakukan hanya setelah evaluasi kebutuhan bisnis yang jelas (berapa entitas/pos pelayanan yang akan menggunakan sistem?).
+> Membutuhkan **perubahan skema database yang signifikan**. Lakukan hanya setelah evaluasi kebutuhan bisnis yang jelas (berapa entitas/pos pelayanan yang memakai sistem?).
 
 ### Task 5.1 — Evaluasi & Desain Arsitektur Multi-Tenant
-
 Pilih pendekatan:
-- **Single DB + `entity_id` column** (sederhana, cocok untuk skala kecil)
-- **Separate schema per tenant** (menggunakan `stancl/tenancy`)
+- **Single DB + kolom `entity_id`** (sederhana, cocok skala kecil)
+- **Separate schema per tenant** (mis. `stancl/tenancy`)
 
----
-
-### Task 5.2 — Tambahkan Kolom `entity_id` (Jika Pakai Single DB)
-
-Buat migration untuk menambahkan `entity_id` ke semua tabel utama:
-- `chart_of_accounts`
-- `vouchers`
-- `transactions`
-
----
+### Task 5.2 — Tambahkan Kolom `entity_id` (Jika Single DB)
+Migration ke tabel utama: `chart_of_accounts`, `vouchers`, `transactions`.
 
 ### Task 5.3 — Global Scope untuk Filtering Otomatis
-
 ```php
-// Model akan otomatis filter berdasarkan entity login
 protected static function booted(): void
 {
     static::addGlobalScope('entity', function (Builder $builder) {
@@ -335,37 +178,20 @@ protected static function booted(): void
 }
 ```
 
----
-
 ### Verifikasi Phase 5
-- [ ] User dari Entity A tidak bisa melihat data Entity B
-- [ ] CoA masing-masing entitas terpisah
-- [ ] Laporan hanya menampilkan data entitas yang sedang login
+- [ ] User Entity A tidak melihat data Entity B
+- [ ] CoA per entitas terpisah
+- [ ] Laporan hanya menampilkan data entitas yang login
 
 ---
 
-## 📅 Timeline Rekomendasi
+## 📅 Timeline Aktual (Ringkas)
 
 ```
-Minggu 1  │ Phase 1 (Gap Closure)          ██████████ WAJIB
-Minggu 2  │ Phase 2 (PDF)                  ██████████
-Minggu 3-4│ Phase 3 (Buku Besar & Jurnal)  ████████████████████
-Minggu 5-6│ Phase 4 (RBAC)                 ████████████████████
-Minggu 7+ │ Phase 5 (Multi-Tenant)         ████████████████████ (opsional)
+Jul 2026     │ Phase 1–3: gap closure, PDF voucher, Buku Besar & Jurnal  ██████████
+Agu 2026     │ Init repo, CI/CD, Docker, Nginx, R2, tunnel, landing      ██████████
+Agu 2026     │ Phase 4: RBAC + audit log + /settings                     ██████████
+Sep 2026     │ Dual CoA voucher, jurnal umum, realisasi mingguan (xlsx)   ██████████
+19 Sep 2026  │ Auth hardening Phase A–D + design system + error pages    ██████████
+Selanjutnya  │ Phase 5 multi-tenant (opsional) / maintenance produksi    ░░░░░░░░░░
 ```
-
----
-
-## ✅ Definition of Done — MVP Selesai
-
-MVP dianggap **selesai dan siap production** ketika:
-
-- [x] CoA Management (hierarki, postable, read-only kode) ← *sudah*
-- [x] Pencatatan Voucher dengan Repeater ← *sudah*
-- [x] Validasi no bukti & kalkulasi real-time ← *sudah*
-- [x] **Restrict on Delete CoA** (Phase 1) ← *selesai (30 Juli 2026)*
-- [x] **DB Transaction pada save Voucher** (Phase 1) ← *selesai (30 Juli 2026)*
-- [x] **Fix Redirect Inertia ke Filament Admin Panel** ← *selesai (31 Juli 2026)*
-- [x] **Cetak bukti Voucher ke PDF** (Phase 2) ← *selesai (31 Juli 2026)*
-- [x] **Laporan Buku Besar** (Phase 3) ← *selesai (31 Juli 2026)*
-- [x] **Laporan Jurnal** (Phase 3) ← *selesai (31 Juli 2026)*

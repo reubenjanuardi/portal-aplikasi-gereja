@@ -113,20 +113,27 @@ jobs:
             echo "🚀 Starting Deployment on VPS..."
             cd ${{ secrets.VPS_DEPLOY_PATH || '/opt/stacks/keuangan-gereja' }}
             
-            echo "📥 Pulling latest Docker image from GHCR..."
+            echo "📥 1/6 Pulling latest Docker image from GHCR..."
             docker compose pull app
             
-            echo "📦 Running Database Migrations (Supabase)..."
+            echo "💾 2/6 Creating Pre-Deployment Database Backup..."
+            mkdir -p ./backups
+            docker compose run --rm app php artisan backup:run --only-db || {
+                echo "⚠️ Warning: Pre-deployment backup encountered an issue. Continuing..."
+            }
+            find ./backups -type f -name "*.zip" -mtime +14 -delete 2>/dev/null || true
+            
+            echo "📦 3/6 Running Database Migrations (Supabase)..."
             docker compose run --rm app php artisan migrate --force
             
-            echo "🔄 Restarting application container..."
+            echo "🔄 4/6 Restarting application container..."
             docker compose up -d --remove-orphans app
             
-            echo "⚡ Optimizing Laravel caches..."
+            echo "⚡ 5/6 Optimizing Laravel caches..."
             docker compose exec -T app php artisan optimize
             docker compose exec -T app php artisan filament:cache-components || true
             
-            echo "🧹 Cleaning up dangling Docker images..."
+            echo "🧹 6/6 Cleaning up dangling Docker images..."
             docker image prune -f
             
             echo "✅ Deployment completed successfully!"

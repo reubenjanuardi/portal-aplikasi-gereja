@@ -24,7 +24,7 @@ fi
 # 4. Create deployment directories
 DEPLOY_DIR="/opt/stacks/keuangan-gereja"
 echo "📁 Creating stack directories at $DEPLOY_DIR..."
-sudo mkdir -p "$DEPLOY_DIR/storage/logs"
+sudo mkdir -p "$DEPLOY_DIR/storage/logs" "$DEPLOY_DIR/backups"
 sudo chown -R $USER:$USER "$DEPLOY_DIR"
 sudo chmod -R 775 "$DEPLOY_DIR"
 
