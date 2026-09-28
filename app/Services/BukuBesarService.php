@@ -48,17 +48,25 @@ class BukuBesarService
 
         // Saldo awal dihitung dari dua sumber:
         //  1. Saldo awal yang ditetapkan pengguna pada tabel `opening_balances`.
-        //  2. Seluruh mutasi yang tercatat sebelum tanggal awal periode.
+        //  2. Mutasi yang tercatat setelah tanggal saldo awal dan sebelum periode.
         //
-        // Filter jenis voucher ikut diterapkan pada mutasi agar "saldo akhir"
-        // tetap konsisten dengan total mutasi yang benar-benar ditampilkan.
-        $opening = $this->fetchMutations(null, $this->dayBefore($startDate), $jenisVoucher, $kasBankCodes, $mataAnggaranCodes);
+        // Bila saldo awal manual tersedia, mutasi pada atau sebelum tanggalnya
+        // TIDAK dijumlahkan karena sudah tercakup dalam angka saldo awal.
+        // Filter jenis voucher tetap diterapkan agar "saldo akhir" konsisten
+        // dengan total mutasi yang benar-benar ditampilkan.
+        $manualOpening = $this->fetchManualOpeningBalances($startDate);
+        $mutationStart = $manualOpening->isNotEmpty()
+            ? $this->dayAfter($manualOpening->first()['periode'])
+            : null;
+
+        $opening = $this->fetchMutations($mutationStart, $this->dayBefore($startDate), $jenisVoucher, $kasBankCodes, $mataAnggaranCodes);
         $during = $this->fetchMutations($startDate, $endDate, $jenisVoucher, $kasBankCodes, $mataAnggaranCodes);
 
-        // Saldo awal manual ditambahkan sebagai pembatas agar tidak terhitung dua kali
-        // dengan mutasi transaksi yang tanggalnya sudah tercakup di dalamnya.
-        foreach ($this->fetchManualOpeningBalances($startDate) as $mutation) {
-            $opening->push($mutation);
+        foreach ($manualOpening as $mutation) {
+            $opening->push([
+                'kode_akun' => $mutation['kode_akun'],
+                'delta'     => $mutation['delta'],
+            ]);
         }
 
         // Akun dikelompokkan pada array biasa agar mutasi bisa ditambahkan tanpa
@@ -286,6 +294,14 @@ class BukuBesarService
     }
 
     /**
+     * Tanggal satu hari setelah tanggal yang diberikan (WIB).
+     */
+    protected function dayAfter(string $date): string
+    {
+        return Carbon::parse($date)->addDay()->toDateString();
+    }
+
+    /**
      * Ambil saldo awal manual dari tabel `opening_balances` yang berlaku
      * pada atau sebelum tanggal awal periode laporan.
      *
@@ -298,24 +314,23 @@ class BukuBesarService
      */
     protected function fetchManualOpeningBalances(string $startDate): Collection
     {
-        $rows = OpeningBalance::query()
+        $basePeriode = OpeningBalance::query()
             ->whereDate('periode', '<=', $startDate)
-            ->orderBy('periode')
-            ->get();
+            ->orderByDesc('periode')
+            ->value('periode');
 
-        if ($rows->isEmpty()) {
+        if (! $basePeriode) {
             return collect();
         }
 
-        // Periode paling awal menjadi titik awal pembukuan.
-        $basePeriode = Carbon::parse($rows->first()->periode)->toDateString();
-
-        return $rows
-            ->filter(fn (OpeningBalance $ob): bool
-                => Carbon::parse($ob->periode)->toDateString() === $basePeriode)
+        // Periode terakhir yang berlaku sebelum tanggal laporan menjadi titik awal.
+        return OpeningBalance::query()
+            ->whereDate('periode', Carbon::parse($basePeriode)->toDateString())
+            ->get()
             ->map(fn (OpeningBalance $ob): array => [
                 'kode_akun' => $ob->kode_akun,
                 'delta'     => (float) $ob->saldo_awal,
+                'periode'   => Carbon::parse($basePeriode)->toDateString(),
             ])
             ->values();
     }
