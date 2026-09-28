@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ChartOfAccount;
+use App\Models\OpeningBalance;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -45,12 +46,20 @@ class BukuBesarService
             return ['accounts' => collect()];
         }
 
-        // Saldo awal dihitung dari seluruh mutasi sebelum tanggal awal periode.
-        // Filter jenis voucher ikut diterapkan agar "saldo akhir" tetap konsisten
-        // dengan total mutasi yang benar-benar ditampilkan.
+        // Saldo awal dihitung dari dua sumber:
+        //  1. Saldo awal yang ditetapkan pengguna pada tabel `opening_balances`.
+        //  2. Seluruh mutasi yang tercatat sebelum tanggal awal periode.
+        //
+        // Filter jenis voucher ikut diterapkan pada mutasi agar "saldo akhir"
+        // tetap konsisten dengan total mutasi yang benar-benar ditampilkan.
         $opening = $this->fetchMutations(null, $this->dayBefore($startDate), $jenisVoucher, $kasBankCodes, $mataAnggaranCodes);
-        // Mutasi pada periode berjalan.
         $during = $this->fetchMutations($startDate, $endDate, $jenisVoucher, $kasBankCodes, $mataAnggaranCodes);
+
+        // Saldo awal manual ditambahkan sebagai pembatas agar tidak terhitung dua kali
+        // dengan mutasi transaksi yang tanggalnya sudah tercakup di dalamnya.
+        foreach ($this->fetchManualOpeningBalances($startDate) as $mutation) {
+            $opening->push($mutation);
+        }
 
         // Akun dikelompokkan pada array biasa agar mutasi bisa ditambahkan tanpa
         // masalah "indirect modification" yang terjadi pada Collection.
@@ -92,8 +101,11 @@ class BukuBesarService
 
                 return $account;
             })
-            // Akun tanpa mutasi pada periode ini tidak perlu ditampilkan.
-            ->filter(fn (array $account): bool => $account['lines']->isNotEmpty())
+            // Akun ditampilkan bila punya mutasi pada periode ini ATAU punya
+            // saldo awal. Akun kas/bank seperti BOTI atau deposito bisa saja
+            // tidak pernah bertransaksi, tetapi saldonya tetap harus terlihat.
+            ->filter(fn (array $account): bool => $account['lines']->isNotEmpty()
+                || round($account['saldo_awal'], 2) !== 0.0)
             ->values();
 
         if ($kodeAkun) {
@@ -271,5 +283,40 @@ class BukuBesarService
     protected function dayBefore(string $date): string
     {
         return Carbon::parse($date)->subDay()->toDateString();
+    }
+
+    /**
+     * Ambil saldo awal manual dari tabel `opening_balances` yang berlaku
+     * pada atau sebelum tanggal awal periode laporan.
+     *
+     * Tanggal paling awal yang tercatat diperlakukan sebagai titik awal
+     * (mis. 1 Juli 2026), sedangkan tanggal-tanggal setelah itu dianggap
+     * hasil tutup buku dan dijumlahkan. Dengan begitu angka yang sudah
+     * tercatat sebagai mutasi transaksi tidak terhitung dua kali.
+     *
+     * @return Collection<int, array<string, mixed>>
+     */
+    protected function fetchManualOpeningBalances(string $startDate): Collection
+    {
+        $rows = OpeningBalance::query()
+            ->whereDate('periode', '<=', $startDate)
+            ->orderBy('periode')
+            ->get();
+
+        if ($rows->isEmpty()) {
+            return collect();
+        }
+
+        // Periode paling awal menjadi titik awal pembukuan.
+        $basePeriode = Carbon::parse($rows->first()->periode)->toDateString();
+
+        return $rows
+            ->filter(fn (OpeningBalance $ob): bool
+                => Carbon::parse($ob->periode)->toDateString() === $basePeriode)
+            ->map(fn (OpeningBalance $ob): array => [
+                'kode_akun' => $ob->kode_akun,
+                'delta'     => (float) $ob->saldo_awal,
+            ])
+            ->values();
     }
 }
