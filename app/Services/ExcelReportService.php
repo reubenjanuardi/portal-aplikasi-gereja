@@ -161,7 +161,7 @@ class ExcelReportService
      * Generate XLSX for Laporan Buku Besar
      */
     public function generateBukuBesarXlsx(
-        Collection $reportData,
+        Collection $accounts,
         string $startDate,
         string $endDate,
         ?string $kodeAkun = null,
@@ -193,14 +193,15 @@ class ExcelReportService
         $grandDebit = 0;
         $grandKredit = 0;
 
-        foreach ($reportData as $accCode => $transactions) {
-            $firstTx = $transactions->first();
-            $coaName = $firstTx?->chartOfAccount?->nama_akun ?? $accCode;
-            $kategori = $firstTx?->chartOfAccount?->kategori ?? '-';
+        foreach ($accounts as $account) {
+            $accCode = $account['kode_akun'];
+
+            $kategori = $account['kategori'] ?? '-';
+            $tipe = $account['is_kas_bank'] ? ' [Kas & Bank]' : '';
 
             // Account Header
             $writer->addRow(Row::fromValues([
-                "AKUN: {$accCode} - {$coaName} (Kategori: {$kategori})",
+                "AKUN: {$accCode} - {$account['nama_akun']} (Kategori: {$kategori}){$tipe}",
                 '', '', '', '', '', ''
             ], $this->getSectionHeaderStyle()));
 
@@ -212,41 +213,35 @@ class ExcelReportService
                 'Uraian / Keterangan Transaksi',
                 'Debit (Rp)',
                 'Kredit (Rp)',
-                'Saldo Akumulasi (Rp)',
+                'Saldo (Rp)',
             ], $this->getTableHeaderStyle()));
 
-            $runningBalance = 0;
-            $subDebit = 0;
-            $subKredit = 0;
+            $runningBalance = (float) $account['saldo_awal'];
 
-            foreach ($transactions as $tx) {
-                $voucher = $tx->voucher;
-                $tgl = $voucher?->tanggal ? Carbon::parse($voucher->tanggal)->translatedFormat('d/m/Y') : '-';
-                $noBukti = $tx->no_bukti ?? '-';
-                $jenis = $voucher?->jenis_voucher ?? '-';
-                $uraian = $tx->uraian ?: ($voucher?->keterangan ?? '-');
-                $nominal = (float) $tx->nominal;
+            // Baris saldo awal periode
+            if (round($runningBalance, 2) !== 0.0) {
+                $writer->addRow(new Row([
+                    Cell::fromValue(Carbon::parse($startDate)->translatedFormat('d/m/Y'), $this->getDataRowStyle()),
+                    Cell::fromValue('-', $this->getDataRowStyle()),
+                    Cell::fromValue('-', $this->getDataRowStyle()),
+                    Cell::fromValue('Saldo awal', $this->getDataRowStyle()),
+                    Cell::fromValue('', $this->getNumberStyle()),
+                    Cell::fromValue('', $this->getNumberStyle()),
+                    Cell::fromValue($runningBalance, $this->getNumberStyle()),
+                ]));
+            }
 
-                // Tentukan Debit / Kredit berdasarkan jenis voucher atau kategori
-                $isDebit = in_array($jenis, ['BKK', 'BBK', 'Keluar']) || in_array($kategori, ['Pengeluaran']);
-                $debit = $isDebit ? $nominal : 0;
-                $kredit = ! $isDebit ? $nominal : 0;
+            foreach ($account['lines'] as $line) {
+                $debit = (float) $line['debit'];
+                $kredit = (float) $line['kredit'];
 
-                $subDebit += $debit;
-                $subKredit += $kredit;
-
-                // Hitung running balance
-                if ($kategori === 'Penerimaan') {
-                    $runningBalance += ($kredit - $debit);
-                } else {
-                    $runningBalance += ($debit - $kredit);
-                }
+                $runningBalance += $debit - $kredit;
 
                 $cells = [
-                    Cell::fromValue($tgl, $this->getDataRowStyle()),
-                    Cell::fromValue($noBukti, $this->getDataRowStyle()),
-                    Cell::fromValue($jenis, $this->getDataRowStyle()),
-                    Cell::fromValue($uraian, $this->getDataRowStyle()),
+                    Cell::fromValue(Carbon::parse($line['tanggal'])->translatedFormat('d/m/Y'), $this->getDataRowStyle()),
+                    Cell::fromValue($line['no_bukti'] ?? '-', $this->getDataRowStyle()),
+                    Cell::fromValue($line['jenis_voucher'] ?? '-', $this->getDataRowStyle()),
+                    Cell::fromValue($line['uraian'] ?: ($line['pihak_terkait'] ?? '-'), $this->getDataRowStyle()),
                     Cell::fromValue($debit, $this->getNumberStyle()),
                     Cell::fromValue($kredit, $this->getNumberStyle()),
                     Cell::fromValue($runningBalance, $this->getNumberStyle()),
@@ -254,8 +249,8 @@ class ExcelReportService
                 $writer->addRow(new Row($cells));
             }
 
-            $grandDebit += $subDebit;
-            $grandKredit += $subKredit;
+            $grandDebit += (float) $account['total_debit'];
+            $grandKredit += (float) $account['total_kredit'];
 
             // Subtotal Row per Akun
             $subtotalCells = [
@@ -263,9 +258,9 @@ class ExcelReportService
                 Cell::fromValue('', $this->getSubtotalRowStyle()),
                 Cell::fromValue('', $this->getSubtotalRowStyle()),
                 Cell::fromValue('', $this->getSubtotalRowStyle()),
-                Cell::fromValue($subDebit, $this->getSubtotalNumberStyle()),
-                Cell::fromValue($subKredit, $this->getSubtotalNumberStyle()),
-                Cell::fromValue($runningBalance, $this->getSubtotalNumberStyle()),
+                Cell::fromValue($account['total_debit'], $this->getSubtotalNumberStyle()),
+                Cell::fromValue($account['total_kredit'], $this->getSubtotalNumberStyle()),
+                Cell::fromValue($account['saldo_akhir'], $this->getSubtotalNumberStyle()),
             ];
             $writer->addRow(new Row($subtotalCells));
             $writer->addRow(Row::fromValues([''])); // Blank row after account

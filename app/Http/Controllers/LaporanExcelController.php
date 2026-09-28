@@ -34,22 +34,12 @@ class LaporanExcelController extends Controller
         $kodeAkun = $request->query('kodeAkun');
         $jenisVoucher = $request->query('jenisVoucher');
 
-        $reportData = Transaction::query()
-            ->with(['chartOfAccount', 'voucher'])
-            ->whereHas('voucher', function ($q) use ($startDate, $endDate, $jenisVoucher) {
-                if ($startDate) {
-                    $q->where('tanggal', '>=', $startDate);
-                }
-                if ($endDate) {
-                    $q->where('tanggal', '<=', $endDate);
-                }
-                if ($jenisVoucher) {
-                    $q->where('jenis_voucher', $jenisVoucher);
-                }
-            })
-            ->when($kodeAkun, fn ($q) => $q->where('kode_akun', $kodeAkun))
-            ->get()
-            ->groupBy('kode_akun');
+        $reportData = app(\App\Services\BukuBesarService::class)->getReportData(
+            startDate: $startDate,
+            endDate: $endDate,
+            kodeAkun: $kodeAkun,
+            jenisVoucher: $jenisVoucher,
+        )['accounts'];
 
         $filePath = $this->excelReportService->generateBukuBesarXlsx(
             $reportData,

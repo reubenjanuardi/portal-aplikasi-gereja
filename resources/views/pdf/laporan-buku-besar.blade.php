@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <title>Laporan Buku Besar</title>
     <style>
         @page {
@@ -48,6 +48,32 @@
             margin-bottom: 14px;
         }
 
+        /* ── RINGKASAN KAS & BANK ─────────────────────────── */
+        .kasbank-summary {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 14px;
+        }
+        .kasbank-summary th,
+        .kasbank-summary td {
+            border: 1px solid #cbd5e1;
+            padding: 4px 7px;
+            font-size: 8pt;
+        }
+        .kasbank-summary th {
+            background-color: #f1f5f9;
+            text-transform: uppercase;
+            font-size: 7.5pt;
+        }
+        .kasbank-summary td.num {
+            text-align: right;
+            font-family: monospace;
+        }
+        .kasbank-summary tr.total td {
+            font-weight: bold;
+            background-color: #e2e8f0;
+        }
+
         /* ── ACCOUNT BOX & TABLES ──────────────────────────── */
         .account-box {
             margin-bottom: 14px;
@@ -64,6 +90,16 @@
             padding: 5px 8px;
             font-size: 9pt;
             font-weight: bold;
+        }
+        .kasbank-tag {
+            display: inline-block;
+            border: 1px solid #cbd5e1;
+            background-color: #ede9fe;
+            color: #5b21b6;
+            padding: 0 4px;
+            font-size: 7pt;
+            font-weight: bold;
+            text-transform: uppercase;
         }
         table.data-table {
             width: 100%;
@@ -86,6 +122,11 @@
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         .font-mono { font-family: monospace; }
+        .row-opening td {
+            font-style: italic;
+            color: #555;
+            background-color: #f8fafc;
+        }
         .total-row td {
             font-weight: bold;
             background-color: #f8fafc;
@@ -124,24 +165,60 @@
         @endif
     </div>
 
-    @forelse($reportData as $kode => $transactions)
+    {{-- Ringkasan saldo akun Kas & Bank --}}
+    @php
+        $kasBankAccounts = $reportData->where('is_kas_bank', true)->values();
+        $totalSaldoKasBank = (float) $kasBankAccounts->sum('saldo_akhir');
+    @endphp
+
+    @if($kasBankAccounts->isNotEmpty())
+        <table class="kasbank-summary">
+            <thead>
+                <tr>
+                    <th style="width: 14%;">Kode Akun</th>
+                    <th style="width: 36%;">Nama Akun Kas / Bank</th>
+                    <th style="width: 17%;" class="text-right">Masuk (Debet)</th>
+                    <th style="width: 17%;" class="text-right">Keluar (Kredit)</th>
+                    <th style="width: 16%;" class="text-right">Saldo Akhir</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($kasBankAccounts as $kasBank)
+                    <tr>
+                        <td class="font-mono">{{ $kasBank['kode_akun'] }}</td>
+                        <td>{{ $kasBank['nama_akun'] }}</td>
+                        <td class="num">{{ number_format($kasBank['total_masuk'], 0, ',', '.') }}</td>
+                        <td class="num">{{ number_format($kasBank['total_keluar'], 0, ',', '.') }}</td>
+                        <td class="num">{{ number_format($kasBank['saldo_akhir'], 0, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+                <tr class="total">
+                    <td colspan="4" class="text-right">TOTAL SALDO KAS &amp; BANK</td>
+                    <td class="num">{{ number_format($totalSaldoKasBank, 0, ',', '.') }}</td>
+                </tr>
+            </tbody>
+        </table>
+    @endif
+
+    @forelse($reportData as $account)
         @php
-            $firstCoa = $transactions->first()->chartOfAccount ?? null;
-            $totalMasuk = $transactions->filter(fn($t) => in_array($t->voucher->jenis_voucher ?? '', ['Masuk', 'BKM', 'BBM'], true))->sum('nominal');
-            $totalKeluar = $transactions->filter(fn($t) => in_array($t->voucher->jenis_voucher ?? '', ['Keluar', 'BKK', 'BBK'], true))->sum('nominal');
-            $netSaldo = $totalMasuk - $totalKeluar;
+            $runningBalance = (float) $account['saldo_awal'];
         @endphp
         <div class="account-box">
             <table class="account-header-table">
                 <tr>
                     <td style="width: 60%;">
-                        Akun: <span class="font-mono">{{ $kode }}</span> - {{ $firstCoa->nama_akun ?? 'Akun' }}
-                        <span style="font-weight: normal; font-size: 8pt; color: #555;">(Kategori: {{ $firstCoa->kategori ?? '-' }})</span>
+                        Akun: <span class="font-mono">{{ $account['kode_akun'] }}</span> - {{ $account['nama_akun'] }}
+                        <span style="font-weight: normal; font-size: 8pt; color: #555;">(Kategori: {{ $account['kategori'] ?? '-' }})</span>
+                        @if($account['is_kas_bank'])
+                            <span class="kasbank-tag">Kas &amp; Bank</span>
+                        @endif
                     </td>
                     <td style="width: 40%; text-align: right; font-size: 8pt;">
-                        Masuk: Rp {{ number_format($totalMasuk, 0, ',', '.') }} |
-                        Keluar: Rp {{ number_format($totalKeluar, 0, ',', '.') }} |
-                        Saldo: Rp {{ number_format($netSaldo, 0, ',', '.') }}
+                        Saldo Awal: Rp {{ number_format($account['saldo_awal'], 0, ',', '.') }} |
+                        Masuk: Rp {{ number_format($account['total_masuk'], 0, ',', '.') }} |
+                        Keluar: Rp {{ number_format($account['total_keluar'], 0, ',', '.') }} |
+                        Saldo: Rp {{ number_format($account['saldo_akhir'], 0, ',', '.') }}
                     </td>
                 </tr>
             </table>
@@ -152,31 +229,46 @@
                         <th style="width: 12%;">No. Bukti</th>
                         <th style="width: 9%;" class="text-center">Tanggal</th>
                         <th style="width: 18%;">Pihak Terkait</th>
-                        <th style="width: 37%;">Uraian</th>
-                        <th style="width: 12%;" class="text-right">Masuk (Debet)</th>
-                        <th style="width: 12%;" class="text-right">Keluar (Kredit)</th>
+                        <th style="width: 31%;">Uraian</th>
+                        <th style="width: 10%;" class="text-right">Debet</th>
+                        <th style="width: 10%;" class="text-right">Kredit</th>
+                        <th style="width: 10%;" class="text-right">Saldo</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($transactions as $tx)
+                    @if(round($account['saldo_awal'], 2) !== 0.0)
+                        <tr class="row-opening">
+                            <td colspan="6" class="text-right">
+                                Saldo awal per {{ \Carbon\Carbon::parse($startDate)->translatedFormat('d F Y') }}
+                            </td>
+                            <td class="text-right font-mono">{{ number_format($account['saldo_awal'], 0, ',', '.') }}</td>
+                        </tr>
+                    @endif
+
+                    @foreach($account['lines'] as $line)
                         @php
-                            $isMasuk = in_array($tx->voucher->jenis_voucher ?? '', ['Masuk', 'BKM', 'BBM'], true);
+                            $runningBalance += $line['debit'] - $line['kredit'];
                         @endphp
                         <tr>
-                            <td class="font-mono" style="font-weight: bold;">{{ $tx->no_bukti }}</td>
-                            <td class="text-center">{{ \Carbon\Carbon::parse($tx->voucher->tanggal ?? now())->format('d/m/Y') }}</td>
-                            <td>{{ $tx->voucher->pihak_terkait ?? '-' }}</td>
-                            <td>{{ $tx->uraian }}</td>
-                            <td class="text-right font-mono">{{ $isMasuk ? number_format($tx->nominal, 0, ',', '.') : '-' }}</td>
-                            <td class="text-right font-mono">{{ !$isMasuk ? number_format($tx->nominal, 0, ',', '.') : '-' }}</td>
+                            <td class="font-mono" style="font-weight: bold;">{{ $line['no_bukti'] }}</td>
+                            <td class="text-center">{{ \Carbon\Carbon::parse($line['tanggal'])->format('d/m/Y') }}</td>
+                            <td>{{ $line['pihak_terkait'] ?? '-' }}</td>
+                            <td>
+                                {{ $line['uraian'] }}
+                                <span style="font-size: 7pt; color: #666;">({{ $line['jenis_voucher'] }})</span>
+                            </td>
+                            <td class="text-right font-mono">{{ $line['debit'] > 0 ? number_format($line['debit'], 0, ',', '.') : '-' }}</td>
+                            <td class="text-right font-mono">{{ $line['kredit'] > 0 ? number_format($line['kredit'], 0, ',', '.') : '-' }}</td>
+                            <td class="text-right font-mono">{{ number_format($runningBalance, 0, ',', '.') }}</td>
                         </tr>
                     @endforeach
                 </tbody>
                 <tfoot>
                     <tr class="total-row">
-                        <td colspan="4" class="text-right uppercase">Subtotal {{ $kode }}:</td>
-                        <td class="text-right font-mono">Rp {{ number_format($totalMasuk, 0, ',', '.') }}</td>
-                        <td class="text-right font-mono">Rp {{ number_format($totalKeluar, 0, ',', '.') }}</td>
+                        <td colspan="4" class="text-right uppercase">Subtotal {{ $account['kode_akun'] }}:</td>
+                        <td class="text-right font-mono">{{ number_format($account['total_masuk'], 0, ',', '.') }}</td>
+                        <td class="text-right font-mono">{{ number_format($account['total_keluar'], 0, ',', '.') }}</td>
+                        <td class="text-right font-mono">{{ number_format($account['saldo_akhir'], 0, ',', '.') }}</td>
                     </tr>
                 </tfoot>
             </table>
