@@ -3,7 +3,8 @@
 namespace App\Filament\Pages;
 
 use App\Models\ChartOfAccount;
-use App\Models\Transaction;
+use App\Services\BukuBesarService;
+use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -11,9 +12,8 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
-use BackedEnum;
-use UnitEnum;
 use Illuminate\Support\Collection;
+use UnitEnum;
 
 class LaporanBukuBesar extends Page implements HasForms
 {
@@ -75,6 +75,7 @@ class LaporanBukuBesar extends Page implements HasForms
                             ->mapWithKeys(fn (ChartOfAccount $coa) => [$coa->kode_akun => "{$coa->kode_akun} - {$coa->nama_akun}"])
                             ->toArray()
                     )
+                    ->helperText('Akun Kas & Bank (mis. 111.02 Kas Kecil) menampilkan saldo dari mutasi kas masuk & kas keluar.')
                     ->live(),
 
                 Select::make('jenisVoucher')
@@ -93,24 +94,42 @@ class LaporanBukuBesar extends Page implements HasForms
             ->columns(4);
     }
 
+    /**
+     * Data buku besar per akun (mata anggaran + akun Kas & Bank).
+     *
+     * @return Collection<int, array<string, mixed>>
+     */
     public function getReportDataProperty(): Collection
     {
-        return Transaction::query()
-            ->with(['chartOfAccount', 'voucher'])
-            ->whereHas('voucher', function ($q) {
-                if ($this->startDate) {
-                    $q->where('tanggal', '>=', $this->startDate);
-                }
-                if ($this->endDate) {
-                    $q->where('tanggal', '<=', $this->endDate);
-                }
-                if ($this->jenisVoucher) {
-                    $q->where('jenis_voucher', $this->jenisVoucher);
-                }
-            })
-            ->when($this->kodeAkun, fn ($q) => $q->where('kode_akun', $this->kodeAkun))
-            ->get()
-            ->groupBy('kode_akun');
+        return app(BukuBesarService::class)
+            ->getReportData(
+                startDate: $this->startDate ?: now()->startOfMonth()->toDateString(),
+                endDate: $this->endDate ?: now()->endOfMonth()->toDateString(),
+                kodeAkun: $this->kodeAkun,
+                jenisVoucher: $this->jenisVoucher,
+            )['accounts'];
+    }
+
+    /**
+     * Total saldo akhir seluruh akun Kas & Bank pada periode berjalan.
+     */
+    public function getTotalSaldoKasBankProperty(): float
+    {
+        return (float) $this->reportData
+            ->where('is_kas_bank', true)
+            ->sum('saldo_akhir');
+    }
+
+    /**
+     * Ringkasan saldo akun Kas & Bank untuk ditampilkan di bagian atas laporan.
+     *
+     * @return Collection<int, array<string, mixed>>
+     */
+    public function getKasBankAccountsProperty(): Collection
+    {
+        return $this->reportData
+            ->where('is_kas_bank', true)
+            ->values();
     }
 
     protected function getHeaderActions(): array
@@ -120,25 +139,30 @@ class LaporanBukuBesar extends Page implements HasForms
                 ->label('Export Excel')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('success')
-                ->url(fn (): string => route('laporan.buku-besar.excel', [
-                    'startDate' => $this->startDate ?? '',
-                    'endDate' => $this->endDate ?? '',
-                    'kodeAkun' => $this->kodeAkun ?? '',
-                    'jenisVoucher' => $this->jenisVoucher ?? '',
-                ]))
+                ->url(fn (): string => route('laporan.buku-besar.excel', $this->exportParams()))
                 ->openUrlInNewTab(),
 
             Action::make('cetak_pdf')
                 ->label('Cetak PDF')
                 ->icon('heroicon-o-printer')
                 ->color('info')
-                ->url(fn (): string => route('laporan.buku-besar.pdf', [
-                    'startDate' => $this->startDate ?? '',
-                    'endDate' => $this->endDate ?? '',
-                    'kodeAkun' => $this->kodeAkun ?? '',
-                    'jenisVoucher' => $this->jenisVoucher ?? '',
-                ]))
+                ->url(fn (): string => route('laporan.buku-besar.pdf', $this->exportParams()))
                 ->openUrlInNewTab(),
+        ];
+    }
+
+    /**
+     * Parameter yang diteruskan ke route export PDF & Excel.
+     *
+     * @return array<string, string>
+     */
+    protected function exportParams(): array
+    {
+        return [
+            'startDate' => $this->startDate ?? '',
+            'endDate' => $this->endDate ?? '',
+            'kodeAkun' => $this->kodeAkun ?? '',
+            'jenisVoucher' => $this->jenisVoucher ?? '',
         ];
     }
 }
