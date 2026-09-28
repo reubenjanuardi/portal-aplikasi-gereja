@@ -144,8 +144,12 @@ test('saldo awal periode ikut terhitung dari mutasi sebelum periode berjalan', f
     )['accounts'];
 
     $kasKecil = $data->firstWhere('kode_akun', '111.02');
-    // Tidak ada mutasi bulan ini, jadi akun tidak ditampilkan
-    expect($kasKecil)->toBeNull();
+    // Tidak ada mutasi bulan ini, tapi saldo mutasi bulan lalu tetap dihitung
+    // sebagai saldo awal sehingga akun tetap terlihat.
+    expect($kasKecil)->not->toBeNull();
+    expect($kasKecil['lines'])->toHaveCount(0);
+    expect((float) $kasKecil['saldo_awal'])->toBe(500_000.0);
+    expect((float) $kasKecil['saldo_akhir'])->toBe(500_000.0);
 
     // Tapi ketika ditransaksikan bulan ini, saldo awal terbawa
     buatVoucher('BKK-T3-INI', 'BKK', now()->startOfMonth()->toDateString(), '111.02', '362.01.01', 100_000, 'Listrik');

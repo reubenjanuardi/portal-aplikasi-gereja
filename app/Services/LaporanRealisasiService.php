@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ChartOfAccount;
+use App\Models\OpeningBalance;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -196,6 +197,29 @@ class LaporanRealisasiService
     /**
      * Get Kas & Bank position report (Saldo Awal vs Saldo Akhir).
      */
+    protected function getOpeningBalances(string $startDate, array $allCodes): array
+    {
+        $basePeriode = OpeningBalance::query()
+            ->whereDate('periode', '<=', $startDate)
+            ->orderByDesc('periode')
+            ->value('periode');
+
+        if (! $basePeriode) {
+            return ['periode' => null, 'saldos' => []];
+        }
+
+        $basePeriode = Carbon::parse($basePeriode)->toDateString();
+
+        $saldos = OpeningBalance::query()
+            ->whereDate('periode', $basePeriode)
+            ->whereIn('kode_akun', $allCodes)
+            ->pluck('saldo_awal', 'kode_akun')
+            ->map(fn ($value): float => (float) $value)
+            ->all();
+
+        return ['periode' => $basePeriode, 'saldos' => $saldos];
+    }
+
     protected function getKasBankReport(string $startDate, string $endDate): array
     {
         $accounts = ChartOfAccount::whereIn('kategori', ['Kas & Bank', 'Hutang / Piutang'])
@@ -215,11 +239,25 @@ class LaporanRealisasiService
 
         $allCodes = $accounts->pluck('kode_akun')->toArray();
 
+        // Saldo awal yang ditetapkan pengguna (mis. rekap 30 Juni 2026) dipakai
+        // sebagai titik awal pembukuan. Mutasi yang sudah tercatat pada atau
+        // sebelum tanggal saldo awal TIDAK dijumlahkan lagi agar tidak
+        // terhitung dua kali.
+        $opening = $this->getOpeningBalances($startDate, $allCodes);
+        $openingPeriode = $opening['periode'];
+
+        // Batas bawah mutasi: jika ada saldo awal manual, mutasi hanya dihitung
+        // dari tanggal setelah saldo awal tersebut.
+        $mutationStart = $openingPeriode !== null
+            ? Carbon::parse($openingPeriode)->addDay()->toDateString()
+            : null;
+
         // 1. Transactions before startDate (for Saldo Awal)
         $txBefore = Transaction::query()
             ->selectRaw('COALESCE(vouchers.kode_akun_kas_bank, transactions.kode_akun) as kas_kode_akun, vouchers.jenis_voucher, SUM(transactions.nominal) as total')
             ->join('vouchers', 'vouchers.no_bukti', '=', 'transactions.no_bukti')
             ->where('vouchers.tanggal', '<', $startDate)
+            ->when($mutationStart, fn ($q) => $q->where('vouchers.tanggal', '>=', $mutationStart))
             ->where(function ($q) use ($allCodes) {
                 $q->whereIn('vouchers.kode_akun_kas_bank', $allCodes)
                   ->orWhere(function ($q2) use ($allCodes) {
@@ -243,6 +281,7 @@ class LaporanRealisasiService
             ->selectRaw('transactions.kode_akun as kas_kode_akun, vouchers.jenis_voucher, SUM(transactions.nominal) as total')
             ->join('vouchers', 'vouchers.no_bukti', '=', 'transactions.no_bukti')
             ->where('vouchers.tanggal', '<', $startDate)
+            ->when($mutationStart, fn ($q) => $q->where('vouchers.tanggal', '>=', $mutationStart))
             ->whereNotNull('vouchers.kode_akun_kas_bank')
             ->whereColumn('transactions.kode_akun', '!=', 'vouchers.kode_akun_kas_bank')
             ->whereIn('transactions.kode_akun', $allCodes)
@@ -254,6 +293,12 @@ class LaporanRealisasiService
             $current = $saldoAwalMap[$row->kas_kode_akun] ?? 0.0;
             $isKeluar = in_array($row->jenis_voucher, ['Keluar', 'BKK', 'BBK'], true);
             $saldoAwalMap[$row->kas_kode_akun] = $current + ($isKeluar ? $nominal : -$nominal);
+        }
+
+        // 1c. Saldo awal manual menjadi pembuka, ditambahkan di atas mutasi
+        // yang terjadi setelah tanggal saldo awal.
+        foreach ($opening['saldos'] as $kode => $nominal) {
+            $saldoAwalMap[$kode] = ($saldoAwalMap[$kode] ?? 0.0) + $nominal;
         }
 
         // 2. Transactions during period [startDate, endDate]
