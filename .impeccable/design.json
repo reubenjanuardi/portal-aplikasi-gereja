@@ -1,0 +1,367 @@
+﻿{
+    "schemaVersion":  2,
+    "generatedAt":  "2026-09-28T20:50:54.848Z",
+    "title":  "Design System: Kotak Persembahan",
+    "extensions":  {
+                       "colorMeta":  {
+                                         "paper":  {
+                                                       "role":  "neutral",
+                                                       "displayName":  "Document Stock",
+                                                       "canonical":  "#F6F5F1",
+                                                       "tonalRamp":  [
+                                                                         "#0C0B09",
+                                                                         "#21201E",
+                                                                         "#393835",
+                                                                         "#53524F",
+                                                                         "#71706D",
+                                                                         "#93928E",
+                                                                         "#BBBAB7",
+                                                                         "#ECEBE7"
+                                                                     ]
+                                                   },
+                                         "paper-deep":  {
+                                                            "role":  "neutral",
+                                                            "displayName":  "Foolscap",
+                                                            "canonical":  "#ECE9E1",
+                                                            "tonalRamp":  [
+                                                                              "#0D0B06",
+                                                                              "#22201A",
+                                                                              "#3A3831",
+                                                                              "#55524C",
+                                                                              "#737069",
+                                                                              "#95928B",
+                                                                              "#BDBAB3",
+                                                                              "#EEEBE3"
+                                                                          ]
+                                                        },
+                                         "ink":  {
+                                                     "role":  "primary",
+                                                     "displayName":  "Seal Navy",
+                                                     "canonical":  "#0A1D3D",
+                                                     "tonalRamp":  [
+                                                                       "#000826",
+                                                                       "#0C1F40",
+                                                                       "#23385A",
+                                                                       "#3D5377",
+                                                                       "#5A7197",
+                                                                       "#7B93BB",
+                                                                       "#A2BCE6",
+                                                                       "#E0ECFF"
+                                                                   ]
+                                                 },
+                                         "ink-lift":  {
+                                                          "role":  "primary",
+                                                          "displayName":  "Lifted Ink",
+                                                          "canonical":  "#132A52",
+                                                          "tonalRamp":  [
+                                                                            "#00062B",
+                                                                            "#081E45",
+                                                                            "#1F3760",
+                                                                            "#39527E",
+                                                                            "#55709E",
+                                                                            "#7793C3",
+                                                                            "#9EBCEE",
+                                                                            "#E0ECFF"
+                                                                        ]
+                                                      },
+                                         "brass":  {
+                                                       "role":  "secondary",
+                                                       "displayName":  "Communion Brass",
+                                                       "canonical":  "#C0973A",
+                                                       "tonalRamp":  [
+                                                                         "#120900",
+                                                                         "#2C1E00",
+                                                                         "#493400",
+                                                                         "#6A4D00",
+                                                                         "#8E6900",
+                                                                         "#B48B2C",
+                                                                         "#DEB459",
+                                                                         "#FFE9BC"
+                                                                     ]
+                                                   },
+                                         "brass-deep":  {
+                                                            "role":  "secondary",
+                                                            "displayName":  "Engraved Brass",
+                                                            "canonical":  "#8A6624",
+                                                            "tonalRamp":  [
+                                                                              "#140900",
+                                                                              "#2E1D00",
+                                                                              "#4C3300",
+                                                                              "#6D4B00",
+                                                                              "#8D6928",
+                                                                              "#B18B4C",
+                                                                              "#DBB474",
+                                                                              "#FFE8C3"
+                                                                          ]
+                                                        },
+                                         "brass-rule":  {
+                                                            "role":  "secondary",
+                                                            "displayName":  "Crease Brass",
+                                                            "canonical":  "#A97F2E",
+                                                            "tonalRamp":  [
+                                                                              "#130900",
+                                                                              "#2D1D00",
+                                                                              "#4B3300",
+                                                                              "#6C4C00",
+                                                                              "#91680C",
+                                                                              "#B58A3B",
+                                                                              "#DFB365",
+                                                                              "#FFE8C2"
+                                                                          ]
+                                                        },
+                                         "slate":  {
+                                                       "role":  "neutral",
+                                                       "displayName":  "Ledger Slate",
+                                                       "canonical":  "#5A6A8C",
+                                                       "tonalRamp":  [
+                                                                         "#020823",
+                                                                         "#131F3C",
+                                                                         "#293756",
+                                                                         "#435273",
+                                                                         "#607092",
+                                                                         "#8192B6",
+                                                                         "#A9BBE0",
+                                                                         "#E2EBFF"
+                                                                     ]
+                                                   },
+                                         "mist":  {
+                                                      "role":  "neutral",
+                                                      "displayName":  "Register Mist",
+                                                      "canonical":  "#93A3C0",
+                                                      "tonalRamp":  [
+                                                                        "#030A1E",
+                                                                        "#142036",
+                                                                        "#2B3850",
+                                                                        "#45536C",
+                                                                        "#62718C",
+                                                                        "#8393AF",
+                                                                        "#ABBBD9",
+                                                                        "#E1ECFF"
+                                                                    ]
+                                                  }
+                                     },
+                       "typographyMeta":  {
+                                              "display":  {
+                                                              "displayName":  "Display — Bodoni Moda 500",
+                                                              "purpose":  "The argument. One line, at most two, owning the field it sits in. The turning word is set in the 500 italic and given the brass accent. Steps 2.6rem / 3.6rem at sm / 4.6rem at lg / 5.3rem at xl, line-height 1.02, tracking -0.02em."
+                                                          },
+                                              "headline":  {
+                                                               "displayName":  "Headline — Bodoni Moda 400",
+                                                               "purpose":  "A section\u0027s claim. Never centred, never numbered, never preceded by a kicker. 2.1rem to 3.1rem, line-height 1.1, tracking -0.015em, text-wrap: balance."
+                                                           },
+                                              "title":  {
+                                                            "displayName":  "Title — Archivo 600",
+                                                            "purpose":  "The name of a report, a module, a row. 1.0625rem in ink on paper."
+                                                        },
+                                              "body":  {
+                                                           "displayName":  "Body — Archivo 400",
+                                                           "purpose":  "Prose, up to 65ch. mist on the ink field, slate on paper. Small print steps to 1rem then 0.8125rem."
+                                                       },
+                                              "label":  {
+                                                            "displayName":  "Label — Archivo Narrow 500, uppercase",
+                                                            "purpose":  "Letterpress label furniture: column heads, module status, export formats, the slot\u0027s qualifier, the church\u0027s own name. 0.6875rem, tracking 0.18em, line-height 1.1. Tightens to 0.12em only when a label must hold a narrow column."
+                                                        },
+                                              "figure":  {
+                                                             "displayName":  "Figure — Archivo with tnum",
+                                                             "purpose":  "Every number compared vertically: account codes, debit, kredit, running balance. font-variant-numeric: tabular-nums. No monospace face exists in this system."
+                                                         },
+                                              "app-ui":  {
+                                                             "displayName":  "App UI — Figtree (incumbent, outside this world)",
+                                                             "purpose":  "fontFamily.sans is unchanged and remains what Laravel, Inertia and Filament use. The Breeze auth screens are stock Figtree. This world governs the redesigned public surface only; it is not an application-wide rebrand."
+                                                         }
+                                          },
+                       "shadows":  [
+
+                                   ],
+                       "motion":  [
+                                      {
+                                          "name":  "crease-draw",
+                                          "value":  "scaleX(0) -\u003e scaleX(1), 620ms cubic-bezier(0.16, 1, 0.3, 1)",
+                                          "purpose":  "The only authored motion in the system. On hover or focus the slot\u0027s ::after draws the full-strength brass rule across itself from the left; the .slot-arrow travels 0.5rem on the same curve."
+                                      },
+                                      {
+                                          "name":  "ease-exponential-out",
+                                          "value":  "cubic-bezier(0.16, 1, 0.3, 1)",
+                                          "purpose":  "The system\u0027s single easing curve — a long exponential deceleration. No bounce, no overshoot, no second curve anywhere."
+                                      },
+                                      {
+                                          "name":  "no-entrance-animation",
+                                          "value":  "none",
+                                          "purpose":  "Nothing animates on arrival. The resting state is already the resting state; motion only ever answers a pointer or the keyboard. The crease, the plate, the ledger and the leader are all inert."
+                                      },
+                                      {
+                                          "name":  "scroll-smooth",
+                                          "value":  "smooth",
+                                          "purpose":  "html { scroll-behavior: smooth }. Set to auto under prefers-reduced-motion."
+                                      },
+                                      {
+                                          "name":  "reduced-motion",
+                                          "value":  "0.01ms",
+                                          "purpose":  "@media (prefers-reduced-motion: reduce) collapses every animation-duration, animation-iteration-count and transition-duration to 0.01ms !important and sets scroll-behavior: auto. The slot\u0027s draw is the only thing that has to honour it."
+                                      }
+                                  ],
+                       "breakpoints":  [
+                                           {
+                                               "name":  "sm",
+                                               "value":  "640px"
+                                           },
+                                           {
+                                               "name":  "lg",
+                                               "value":  "1024px"
+                                           },
+                                           {
+                                               "name":  "xl",
+                                               "value":  "1280px"
+                                           }
+                                       ]
+                   },
+    "components":  [
+                       {
+                           "name":  "Slot Action",
+                           "kind":  "button",
+                           "refersTo":  "slot-action",
+                           "description":  "The page\u0027s one action: a full-width anchor whose label rides a brass hairline, with a 1.5px arrow that travels on hover/focus. The instrument console, not a lifestyle button. Authored to sit on the ink field, so the snippet states that ground itself.",
+                           "html":  "\u003ca href=\u0027#\u0027 class=\u0027ds-slot\u0027\u003e\u003cspan class=\u0027ds-slot-label\u0027\u003eMasuk Portal\u003c/span\u003e\u003cspan class=\u0027ds-slot-meta\u0027\u003e\u003cspan class=\u0027ds-slot-qualifier\u0027\u003eAkun gereja\u003c/span\u003e\u003csvg class=\u0027ds-slot-arrow\u0027 viewBox=\u00270 0 24 24\u0027 width=\u002720\u0027 height=\u002720\u0027 fill=\u0027none\u0027 stroke=\u0027currentColor\u0027 stroke-width=\u00271.5\u0027 aria-hidden=\u0027true\u0027\u003e\u003cpath stroke-linecap=\u0027round\u0027 d=\u0027M4 12h15M13 6l6 6-6 6\u0027\u003e\u003c/path\u003e\u003c/svg\u003e\u003c/span\u003e\u003c/a\u003e",
+                           "css":  ".ds-slot{position:relative;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;width:100%;margin-top:2.75rem;padding:1.35rem 0;border-top:1px solid rgba(192,151,58,0.45);background-color:#0A1D3D;color:#F6F5F1;text-decoration:none;isolation:isolate}.ds-slot::after{content:\u0027\u0027;position:absolute;inset:-1px 0 auto 0;height:1px;background-color:#C0973A;transform:scaleX(0);transform-origin:left center;transition:transform 620ms cubic-bezier(0.16,1,0.3,1)}.ds-slot:hover::after,.ds-slot:focus-visible::after{transform:scaleX(1)}.ds-slot:hover .ds-slot-arrow,.ds-slot:focus-visible .ds-slot-arrow{transform:translateX(0.5rem)}.ds-slot-label{font-family:\u0027Bodoni Moda\u0027,Georgia,serif;font-size:1.75rem;font-weight:500;letter-spacing:-0.01em;line-height:1.1}.ds-slot-meta{display:flex;align-items:center;gap:1rem}.ds-slot-qualifier{font-family:\u0027Archivo Narrow\u0027,\u0027Archivo\u0027,ui-sans-serif,system-ui,sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:0.18em;font-size:0.6875rem;line-height:1.1;color:#93A3C0}.ds-slot-arrow{flex:none;width:1.25rem;height:1.25rem;color:#C0973A;transition:transform 620ms cubic-bezier(0.16,1,0.3,1)}.ds-slot:focus-visible{outline:2px solid #C0973A;outline-offset:3px}.ds-slot:focus{outline:none}@media (prefers-reduced-motion:reduce){.ds-slot::after,.ds-slot-arrow{transition-duration:0.01ms}}"
+                       },
+                       {
+                           "name":  "Ruled Ledger",
+                           "kind":  "card",
+                           "refersTo":  "ledger-cell",
+                           "description":  "The proof table: account code, uraian, debit, kredit and the running balance, closing on a 2px brass total rule. Every cell is nowrap with tabular figures. Rows do not tint, lift or highlight on hover — the world has exactly one interaction and it is the slot.",
+                           "html":  "\u003cdiv class=\u0027ds-ledger\u0027\u003e\u003cdiv class=\u0027ds-ledger-head\u0027\u003e\u003cp class=\u0027ds-ledger-cap\u0027\u003eContoh pencatatan\u003c/p\u003e\u003cp class=\u0027ds-ledger-cap ds-ledger-cap-brass\u0027\u003eBuku Besar\u003c/p\u003e\u003c/div\u003e\u003ctable class=\u0027ds-ledger-table\u0027\u003e\u003cthead\u003e\u003ctr\u003e\u003cth scope=\u0027col\u0027\u003eKode\u003c/th\u003e\u003cth scope=\u0027col\u0027\u003eUraian\u003c/th\u003e\u003cth scope=\u0027col\u0027 class=\u0027ds-ta-r\u0027\u003eDebit\u003c/th\u003e\u003cth scope=\u0027col\u0027 class=\u0027ds-ta-r\u0027\u003eKredit\u003c/th\u003e\u003cth scope=\u0027col\u0027 class=\u0027ds-ta-r\u0027\u003eSaldo\u003c/th\u003e\u003c/tr\u003e\u003c/thead\u003e\u003ctbody\u003e\u003ctr\u003e\u003ctd class=\u0027ds-mist\u0027\u003e111.01\u003c/td\u003e\u003ctd\u003eKas Besar\u003c/td\u003e\u003ctd\u003e\u003c/td\u003e\u003ctd\u003e\u003c/td\u003e\u003ctd class=\u0027ds-ta-r\u0027\u003e12.450.000\u003c/td\u003e\u003c/tr\u003e\u003ctr\u003e\u003ctd class=\u0027ds-mist\u0027\u003e21.01.01\u003c/td\u003e\u003ctd\u003eIbadah Minggu Pagi\u003c/td\u003e\u003ctd class=\u0027ds-ta-r\u0027\u003e8.750.000\u003c/td\u003e\u003ctd\u003e\u003c/td\u003e\u003ctd class=\u0027ds-ta-r\u0027\u003e21.200.000\u003c/td\u003e\u003c/tr\u003e\u003ctr class=\u0027ds-last-data\u0027\u003e\u003ctd class=\u0027ds-mist\u0027\u003e21.08\u003c/td\u003e\u003ctd\u003ePersembahan Persepuluhan\u003c/td\u003e\u003ctd class=\u0027ds-ta-r\u0027\u003e3.200.000\u003c/td\u003e\u003ctd\u003e\u003c/td\u003e\u003ctd class=\u0027ds-ta-r\u0027\u003e24.400.000\u003c/td\u003e\u003c/tr\u003e\u003ctr class=\u0027ds-total\u0027\u003e\u003ctd class=\u0027ds-mist\u0027\u003e111.01\u003c/td\u003e\u003ctd class=\u0027ds-brass ds-medium\u0027\u003eSaldo berjalan\u003c/td\u003e\u003ctd\u003e\u003c/td\u003e\u003ctd\u003e\u003c/td\u003e\u003ctd class=\u0027ds-ta-r ds-brass ds-medium\u0027\u003e18.350.000\u003c/td\u003e\u003c/tr\u003e\u003c/tbody\u003e\u003c/table\u003e\u003cp class=\u0027ds-ledger-foot\u0027\u003eIlustrasi susunan pencatatan. Angka diperagakan sebagai contoh.\u003c/p\u003e\u003c/div\u003e",
+                           "css":  ".ds-ledger{background-color:#0A1D3D;border:1px solid rgba(255,255,255,0.10);color:#F6F5F1;font-family:\u0027Archivo\u0027,\u0027Archivo Fallback\u0027,ui-sans-serif,system-ui,sans-serif;font-variant-numeric:tabular-nums;font-feature-settings:\u0027tnum\u0027 1}.ds-ledger-cap{font-family:\u0027Archivo Narrow\u0027,\u0027Archivo\u0027,ui-sans-serif,system-ui,sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:0.18em;font-size:0.6875rem;line-height:1.1;color:#93A3C0}.ds-ledger-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;padding:1rem 1.25rem;border-bottom:1px solid rgba(255,255,255,0.10)}.ds-ledger-cap-brass{color:#C0973A}.ds-ledger-table{width:100%;border-collapse:collapse;font-size:0.75rem;line-height:1.5}.ds-ledger-table th{font-family:\u0027Archivo Narrow\u0027,\u0027Archivo\u0027,ui-sans-serif,system-ui,sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:0.18em;font-size:0.6875rem;line-height:1.1;color:#93A3C0;text-align:left;padding:0.75rem 0.375rem;border-bottom:1px solid rgba(255,255,255,0.10);white-space:nowrap}.ds-ledger-table td{padding:0.75rem 0.375rem;white-space:nowrap;color:rgba(246,245,241,0.90);border-bottom:1px solid rgba(255,255,255,0.05)}.ds-ledger-table th:first-child,.ds-ledger-table td:first-child{padding-left:0.75rem}.ds-ledger-table th:last-child,.ds-ledger-table td:last-child{padding-right:0.75rem}.ds-ledger-table tbody tr.ds-last-data td{border-bottom:none}.ds-ledger-table tbody tr.ds-total td{border-top:2px solid rgba(192,151,58,0.70);border-bottom:none}.ds-ta-r{text-align:right}.ds-brass{color:#C0973A}.ds-mist{color:#93A3C0}.ds-medium{font-weight:500}.ds-ledger-foot{margin:0;padding:0.875rem 1.25rem;border-top:1px solid rgba(255,255,255,0.10);font-size:0.75rem;line-height:1.625;color:#93A3C0}"
+                       },
+                       {
+                           "name":  "Ruled Report Row",
+                           "kind":  "custom",
+                           "refersTo":  "report-row-title",
+                           "description":  "A two-column row under a shared hairline: the report\u0027s name and description on the left, an export-format tag right-aligned. Square, flat, no hover state — the rule is the structure.",
+                           "html":  "\u003cul class=\u0027ds-report-list\u0027\u003e\u003cli class=\u0027ds-report-row\u0027\u003e\u003cdiv\u003e\u003ch3 class=\u0027ds-report-title\u0027\u003eBuku Besar\u003c/h3\u003e\u003cp class=\u0027ds-report-note\u0027\u003eRekapitulasi seluruh mutasi per kode akun, dengan saldo berjalan di setiap baris.\u003c/p\u003e\u003c/div\u003e\u003cp class=\u0027ds-report-tag\u0027\u003ePDF · Excel\u003c/p\u003e\u003c/li\u003e\u003cli class=\u0027ds-report-row\u0027\u003e\u003cdiv\u003e\u003ch3 class=\u0027ds-report-title\u0027\u003eRealisasi Mingguan\u003c/h3\u003e\u003cp class=\u0027ds-report-note\u0027\u003ePerbandingan realisasi terhadap anggaran, mingguan, untuk pengawas pos.\u003c/p\u003e\u003c/div\u003e\u003cp class=\u0027ds-report-tag\u0027\u003ePDF · Excel\u003c/p\u003e\u003c/li\u003e\u003c/ul\u003e",
+                           "css":  ".ds-report-list{list-style:none;margin:0;padding:0;background:#F6F5F1;font-family:\u0027Archivo\u0027,\u0027Archivo Fallback\u0027,ui-sans-serif,system-ui,sans-serif;border-top:1px solid rgba(10,29,61,0.14)}.ds-report-row{display:grid;grid-template-columns:1fr;align-items:baseline;column-gap:1.5rem;padding:1.5rem 0;border-bottom:1px solid rgba(10,29,61,0.14)}@media (min-width:640px){.ds-report-row{grid-template-columns:1fr auto}}.ds-report-title{margin:0;font-size:1.0625rem;font-weight:600;line-height:1.5;color:#0A1D3D}.ds-report-note{margin:0.375rem 0 0;max-width:65ch;font-size:1rem;line-height:1.625;color:#5A6A8C}.ds-report-tag{margin:0;font-family:\u0027Archivo Narrow\u0027,\u0027Archivo\u0027,ui-sans-serif,system-ui,sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:0.18em;font-size:0.6875rem;line-height:1.1;color:#5A6A8C;white-space:nowrap}.ds-report-row a:focus-visible,.ds-report-row :focus-visible{outline:2px solid #0A1D3D;outline-offset:3px;border-radius:1px}"
+                       },
+                       {
+                           "name":  "Module Index Row",
+                           "kind":  "custom",
+                           "refersTo":  "module-status-active",
+                           "description":  "Four baseline-aligned fields: module name, scope, a dotted leader that fills the space, and a status right-aligned. Aktif is the one place brass-deep is set as text; Segera recedes to slate. The leader is a drawn rule, not a tonal gradient.",
+                           "html":  "\u003cul class=\u0027ds-module-list\u0027\u003e\u003cli class=\u0027ds-module-row\u0027\u003e\u003cspan class=\u0027ds-module-name\u0027\u003eKeuangan\u003c/span\u003e\u003cspan class=\u0027ds-module-scope\u0027\u003eJurnal, buku besar, voucher, dan anggaran\u003c/span\u003e\u003cspan class=\u0027ds-leader\u0027\u003e\u003c/span\u003e\u003cspan class=\u0027ds-module-status-active\u0027\u003eAktif\u003c/span\u003e\u003c/li\u003e\u003cli class=\u0027ds-module-row\u0027\u003e\u003cspan class=\u0027ds-module-name\u0027\u003eData Jemaat\u003c/span\u003e\u003cspan class=\u0027ds-module-scope\u0027\u003eSidi, baptis, mutasi, dan atestasi\u003c/span\u003e\u003cspan class=\u0027ds-leader\u0027\u003e\u003c/span\u003e\u003cspan class=\u0027ds-module-status-pending\u0027\u003eSegera\u003c/span\u003e\u003c/li\u003e\u003c/ul\u003e",
+                           "css":  ".ds-module-list{list-style:none;margin:0;padding:0;background:#F6F5F1;font-family:\u0027Archivo\u0027,\u0027Archivo Fallback\u0027,ui-sans-serif,system-ui,sans-serif;border-top:1px solid rgba(10,29,61,0.14)}.ds-module-row{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:1.25rem;padding:1rem 0;border-bottom:1px solid rgba(10,29,61,0.14)}.ds-module-name{font-size:0.9375rem;font-weight:500;line-height:1.375;color:#0A1D3D}.ds-module-scope{order:3;width:100%;margin-top:0.375rem;font-size:0.8125rem;line-height:1.375;color:#5A6A8C;max-width:19rem}.ds-leader{order:4;display:none;flex:1 1 1rem;min-width:1rem;height:1px;transform:translateY(-0.3em);background-image:linear-gradient(to right,rgba(10,29,61,0.28) 0,rgba(10,29,61,0.28) 1px,transparent 1px,transparent 3px);background-size:3px 1px;background-repeat:repeat-x;background-position:0 50%}.ds-module-row .ds-module-status-active,.ds-module-row .ds-module-status-pending{margin-left:auto;font-family:\u0027Archivo Narrow\u0027,\u0027Archivo\u0027,ui-sans-serif,system-ui,sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:0.18em;font-size:0.6875rem;line-height:1.1}.ds-module-status-active{color:#8A6624}.ds-module-status-pending{color:#5A6A8C}@media (min-width:640px){.ds-module-scope{order:2;width:auto;margin-top:0}.ds-leader{order:3;display:block}}"
+                       },
+                       {
+                           "name":  "Label Cap",
+                           "kind":  "custom",
+                           "description":  "The system\u0027s most repeated furniture. Same face, two steps of tracking; its colour is always a tint of the ground it sits on — mist on ink, slate on paper, brass when it names the live report, paper/90 for the church\u0027s own identity.",
+                           "html":  "\u003cdiv class=\u0027ds-cap-demo ds-cap-demo-ink\u0027\u003e\u003cp class=\u0027ds-cap-on-ink\u0027\u003eContoh pencatatan\u003c/p\u003e\u003cp class=\u0027ds-cap-on-ink ds-cap-brass\u0027\u003eBuku Besar\u003c/p\u003e\u003c/div\u003e\u003cdiv class=\u0027ds-cap-demo ds-cap-demo-paper\u0027\u003e\u003cp class=\u0027ds-cap-on-paper\u0027\u003ePDF · Excel\u003c/p\u003e\u003cp class=\u0027ds-cap-on-paper ds-cap-brass-deep\u0027\u003eAktif\u003c/p\u003e\u003c/div\u003e",
+                           "css":  ".ds-cap-demo{padding:1.25rem;display:flex;gap:2rem;flex-wrap:wrap}.ds-cap-demo-ink{background:#0A1D3D}.ds-cap-demo-paper{background:#F6F5F1;border-top:1px solid rgba(10,29,61,0.14)}.ds-cap-on-ink,.ds-cap-on-paper{font-family:\u0027Archivo Narrow\u0027,\u0027Archivo\u0027,ui-sans-serif,system-ui,sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:0.18em;font-size:0.6875rem;line-height:1.1;margin:0}.ds-cap-on-ink{color:#93A3C0}.ds-cap-on-paper{color:#5A6A8C}.ds-cap-brass{color:#C0973A}.ds-cap-brass-deep{color:#8A6624}.ds-cap-demo-ink .ds-cap-on-ink.ds-cap-brass{color:#C0973A}"
+                       },
+                       {
+                           "name":  "Crease",
+                           "kind":  "custom",
+                           "description":  "The system\u0027s only ornament and its only section boundary. An inline SVG arc at 1.5px with preserveAspectRatio=\u0027none\u0027 so it stretches, and vector-effect=\u0027non-scaling-stroke\u0027 so the line keeps the same weight at 375px and at 1600px. The field crease also carries a filled ink path so the navy plane ends on a curve; the closing crease is stroke-only.",
+                           "html":  "\u003cdiv class=\u0027ds-crease-field\u0027\u003e\u003csvg class=\u0027ds-crease\u0027 viewBox=\u00270 0 1440 160\u0027 preserveAspectRatio=\u0027none\u0027 aria-hidden=\u0027true\u0027\u003e\u003cpath d=\u0027M0,44 C180,72 420,96 720,86 C1000,77 1240,44 1440,22 L1440,0 L0,0 Z\u0027 fill=\u0027#0A1D3D\u0027\u003e\u003c/path\u003e\u003cpath d=\u0027M0,44 C180,72 420,96 720,86 C1000,77 1240,44 1440,22\u0027 fill=\u0027none\u0027 stroke=\u0027currentColor\u0027 stroke-width=\u00271.5\u0027 vector-effect=\u0027non-scaling-stroke\u0027\u003e\u003c/path\u003e\u003c/svg\u003e\u003cdiv class=\u0027ds-crease-body\u0027\u003e\u003cp class=\u0027ds-crease-note\u0027\u003eSatu portal, bertahap dibuka\u003c/p\u003e\u003c/div\u003e\u003c/div\u003e",
+                           "css":  ".ds-crease-field{background:#0A1D3D}.ds-crease{display:block;width:100%;height:4rem;color:#A97F2E}@media (min-width:640px){.ds-crease{height:6rem}}@media (min-width:1024px){.ds-crease{height:8rem}}.ds-crease-body{background:#F6F5F1;padding:1.5rem 0}.ds-crease-note{margin:0;font-family:\u0027Archivo Narrow\u0027,\u0027Archivo\u0027,ui-sans-serif,system-ui,sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:0.18em;font-size:0.6875rem;line-height:1.1;color:#5A6A8C}"
+                       },
+                       {
+                           "name":  "Plate",
+                           "kind":  "custom",
+                           "refersTo":  "plate",
+                           "description":  "A full circle of paper that the seal sits on: 2.75rem in the top rail, 3.5rem in the closing field, object-contain, overflow hidden. The raster cannot ship inside a sidecar, so the snippet shows the empty disc — the plate\u0027s job is the disc, not the artwork.",
+                           "html":  "\u003cdiv class=\u0027ds-plate-row\u0027\u003e\u003cspan class=\u0027ds-plate\u0027\u003e\u003c/span\u003e\u003cspan class=\u0027ds-plate-cap\u0027\u003eGPIB Jemaat Hosiana Jakarta\u003c/span\u003e\u003c/div\u003e",
+                           "css":  ".ds-plate-row{display:flex;align-items:center;gap:0.875rem;background:#0A1D3D;padding:1.5rem 1.25rem}.ds-plate{display:inline-block;flex:none;width:2.75rem;height:2.75rem;background:#F6F5F1;border-radius:9999px;overflow:hidden}.ds-plate-cap{font-family:\u0027Archivo Narrow\u0027,\u0027Archivo\u0027,ui-sans-serif,system-ui,sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:0.18em;font-size:0.6875rem;line-height:1.5;color:rgba(246,245,241,0.90)}"
+                       },
+                       {
+                           "name":  "Back to Top",
+                           "kind":  "button",
+                           "refersTo":  "back-to-top",
+                           "description":  "Fixed back-to-top control, top right. Hidden (and out of the tab order) until the first viewport is scrolled past.",
+                           "html":  "\u003cbutton type=\"button\" class=\"ds-to-top\" aria-label=\"Kembali ke atas\"\u003e\u003csvg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"\u003e\u003cpath d=\"M12 19V5M6 11l6-6 6 6\"/\u003e\u003c/svg\u003e\u003c/button\u003e",
+                           "css":  ".ds-to-top { position: fixed; top: 24px; right: 24px; display: grid; place-items: center; width: 44px; height: 44px; background: #0A1D3D; color: #C0973A; border: 1px solid rgba(192,151,58,0.45); border-radius: 9999px; } .ds-to-top:hover, .ds-to-top:focus-visible { border-color: #C0973A; } .ds-to-top svg { transition: transform 620ms cubic-bezier(0.16,1,0.3,1); } .ds-to-top:hover svg, .ds-to-top:focus-visible svg { transform: translateY(-4px); }"
+                       },
+                       {
+                           "name":  "Skip Link",
+                           "kind":  "nav",
+                           "refersTo":  "skip-link",
+                           "description":  "Lewati ke konten utama — visually hidden until focused, then fixed at 1.5rem from the top-left on the ink ground in paper, with a brass focus ring. Styled as .label-cap because the keyboard path is styled like the rest of the system.",
+                           "html":  "\u003ca href=\u0027#utama\u0027 class=\u0027ds-skip\u0027\u003eLewati ke konten utama\u003c/a\u003e",
+                           "css":  ".ds-skip{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;background:transparent;font-family:\u0027Archivo Narrow\u0027,\u0027Archivo\u0027,ui-sans-serif,system-ui,sans-serif;font-weight:500;text-transform:uppercase;letter-spacing:0.18em;font-size:0.6875rem;line-height:1.1;color:#0A1D3D;text-decoration:none}.ds-skip:focus-visible{position:fixed;left:1.5rem;top:1.5rem;z-index:50;width:auto;height:auto;margin:0;overflow:visible;clip:auto;padding:0.75rem 1rem;background:#0A1D3D;color:#F6F5F1;outline:2px solid #C0973A;outline-offset:3px}"
+                       }
+                   ],
+    "narrative":  {
+                      "northStar":  "Kotak Persembahan — the offering box, ruled by one crease.",
+                      "overview":  "The offering box and the engraved document are the same object. Indonesian rupiah banknotes and the GPIB church seal are both line work cut in a single ink — hatching, guilloche, concentric lettering, a plate mark around the vignette — so this system\u0027s material is *engraving*, not interface chrome. Everything here is a consequence of that: hairline rules instead of filled bars, ruled columns that hold their measure, right-aligned figures set in tabular numerals, and a mark that sits on its own paper plate. Density is a ledger\u0027s density, not a dashboard\u0027s. The reading order is the treasurer\u0027s: here is the account code, here is the debit, here is the running balance.\n\nThe palette is committed to two grounds and one accent. Deep ink navy owns the first viewport as a full-bleed field; cool paper white — a stock, not a cream — is the document ground the reader is returned to; brass is the single accent, and it is spent like foil: a rule, a status, an arrow, one italic word. There is no third ground and no second accent. Elevation is flat in the strict sense: there is no `box-shadow` anywhere in this system, and depth is carried instead by tonal layering (`ink` against `paper`, `paper-deep`, `slate`, `mist` for recession), by hairline rules, and by the plate.\n\nThe category\u0027s defaults are refused, and the refusals are the craft floor, not preferences. No centred hero with a pill badge. No three same-size icon + heading + text cards used as page structure. No glowing financial-dashboard hero with coin icons. No gradient, mesh, glow, blur, or glass. No section numbers, no kicker or eyebrow above a heading, no hard offset shadows, no monospace worn as a costume, no unicode or emoji glyphs standing in for icons. Scope is stated honestly: this world governs the redesigned public surface. The application\u0027s `fontFamily.sans` is still Figtree and still is what Laravel, Inertia and Filament use; Filament\u0027s own primary is still `Color::Indigo` on `/keuangan` and `Color::Slate` on `/settings`; the auth screens are stock Breeze in Figtree. Those are incumbent, and they are not part of this world.",
+                      "keyCharacteristics":  [
+                                                 "Flat ink. Every colour field is a plane. No gradient, mesh, glow, blur, or glass anywhere.",
+                                                 "One accent, spent like foil. Brass marks, strokes, or words. It never fills a field.",
+                                                 "Hairlines, not bars. Boundaries are 1px. The single 2px rule in the system is a ledger\u0027s brass total.",
+                                                 "Figures never move. Tabular numerals inside `whitespace-nowrap` cells; a column holds its measure.",
+                                                 "Square corners. The only circles in the system are the seal\u0027s paper plate and a 6px brass dot.",
+                                                 "One authored motion, and it answers only hover or focus.",
+                                                 "Indonesian copy, set verbatim. This document is written in English; the interface is not."
+                                             ],
+                      "rules":  [
+                                    {
+                                        "name":  "The Flat Ink Rule",
+                                        "body":  "Every colour field is a plane. There is no gradient, no mesh, no glow, no blur, no glass, anywhere, including inside the ink field. The single `linear-gradient` in the system is the 3px dotted leader, which is a *drawn* rule, not a tonal blend.",
+                                        "section":  "colors"
+                                    },
+                                    {
+                                        "name":  "The One Accent Rule",
+                                        "body":  "Brass is the only accent, and it is always a mark, a stroke, or a word — never a fill. If a brass element is wide enough to read as a surface, it is wrong.",
+                                        "section":  "colors"
+                                    },
+                                    {
+                                        "name":  "The Seal\u0027s Own Ink Rule",
+                                        "body":  "Ink is the GPIB seal\u0027s own blue carried onto the page, and the paper is a cool stock, not a cream. Do not warm the neutrals toward beige and do not re-tint the navy toward a generic blue; the two colours come from the same institution.",
+                                        "section":  "colors"
+                                    },
+                                    {
+                                        "name":  "The Scaling Cell Rule",
+                                        "body":  "A ledger column holds its measure. Figures are tabular and the cells around them are `whitespace-nowrap`, so a column never wraps, re-flows, or re-aligns as its content changes. Below `sm` the ledger drops its Debit and Kredit columns rather than letting a column bend, and folds the figure into the description cell as `D 8.750.000`.",
+                                        "section":  "typography"
+                                    },
+                                    {
+                                        "name":  "The Three Voices Rule",
+                                        "body":  "Display, figure, and label are this world\u0027s three voices and nothing else joins them. `fontFamily.sans` remains Figtree; this is an additive set of families for a redesigned surface, not an application-wide rebrand. Do not reach for a fourth voice — no serif body, no geometric sans, no mono.",
+                                        "section":  "typography"
+                                    },
+                                    {
+                                        "name":  "The No Shadow Rule",
+                                        "body":  "There is no `box-shadow` in this system and no token to add one to. If a surface appears to need lifting, it needs a different tone of plane, a hairline, or a plate — not a shadow.",
+                                        "section":  "elevation"
+                                    },
+                                    {
+                                        "name":  "The One Arc, Not a Grid Rule",
+                                        "body":  "No section boundary is a straight rule. Planes part company on a single sweeping brass crease — a 1.5px stroke with `vector-effect=\"non-scaling-stroke\"`, so the line is the same weight at 375px and at 1600px. The crease is the only ornament the system allows itself.",
+                                        "section":  "elevation"
+                                    },
+                                    {
+                                        "name":  "The Single Interaction Rule",
+                                        "body":  "Exactly one thing moves: the slot\u0027s `::after` scales from `scaleX(0)` to `scaleX(1)` and its arrow travels 0.5rem, both over 620ms on `cubic-bezier(0.16, 1, 0.3, 1)` — an exponential ease-out, no bounce, no overshoot. Nothing animates on arrival; the resting state is already the resting state. `prefers-reduced-motion: reduce` collapses every animation and transition duration to 0.01ms and sets `scroll-behavior: auto`, and the slot\u0027s motion is the only thing that has to honour it.",
+                                        "section":  "elevation"
+                                    }
+                                ],
+                      "dos":  [
+                                  "Do carry the ledger before the claim. Any figure shown is set in `.num` inside a `whitespace-nowrap` ruled column, and anything that is an illustration says so in Indonesian underneath the table.",
+                                  "Do part two planes on a crease — one inline SVG arc at 1.5px with `preserveAspectRatio=\"none\"` and `vector-effect=\"non-scaling-stroke\"`, never a straight section rule.",
+                                  "Do spend brass as a mark: a rule, a status, an arrow, a dot, or one italic word. It never becomes a fill.",
+                                  "Do keep the focus ring legible on whichever ground it lands: 2px solid ink with `outline-offset: 3px` on paper, brass inside `[data-surface=\u0027ink\u0027]`.",
+                                  "Do set every label in `.label-cap` and keep the church\u0027s own Indonesian copy verbatim.",
+                                  "Do author at `max-w-rule` (78rem) and let 1280, 1440 and 1600 share identical computed geometry.",
+                                  "Do reach for depth by changing tone — a different plane, `slate` or `mist`, a hairline, or the plate."
+                              ],
+                      "donts":  [
+                                    "Don\u0027t add a shadow. There is no shadow vocabulary to extend, and none should be created.",
+                                    "Don\u0027t use a gradient, mesh, glow, blur, or glass as atmosphere. The only `linear-gradient` allowed is the 3px dotted leader, which is a drawn rule.",
+                                    "Don\u0027t centre a hero, hang a pill badge above it, put a kicker or eyebrow above a heading, or number the sections.",
+                                    "Don\u0027t build a page out of three same-size icon + heading + text feature cards, or a row of stat tiles.",
+                                    "Don\u0027t reach for the glowing financial-dashboard motif, coin icons, or chart chrome. This is the front of a treasury, not a product page.",
+                                    "Don\u0027t set a UI number in a monospace face for costume. Tabular figures come from Archivo\u0027s `tnum`, and no mono face exists in this system.",
+                                    "Don\u0027t use a unicode or emoji glyph as an icon. Inline an SVG at 1.5px stroke, or use nothing.",
+                                    "Don\u0027t animate anything on arrival. The only motion in the system answers hover or focus, on the slot alone, at 620ms `cubic-bezier(0.16, 1, 0.3, 1)`, and it must honour `prefers-reduced-motion`.",
+                                    "Don\u0027t let a ruled column wrap, and don\u0027t let a cell\u0027s figures change width as its value changes.",
+                                    "Don\u0027t round a corner. The only radii in the system are the 1px focus-ring corner and the full circle of the plate and the brass dots.",
+                                    "Don\u0027t rebrand the application. `fontFamily.sans` is still Figtree, Filament\u0027s primary is still `Color::Indigo` on `/keuangan` and `Color::Slate` on `/settings`, and the auth screens are stock Breeze in Figtree. Those are incumbent, outside this world."
+                                ]
+                  }
+}

@@ -1,0 +1,134 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font-size",
+        "value": "2.6rem",
+        "files": [
+          "resources/views/welcome.blade.php"
+        ],
+        "createdAt": "2026-09-28T20:57:41.066Z",
+        "reason": "Responsive step of a role ladder documented in DESIGN.md typography.fontSize"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "3.6rem",
+        "files": [
+          "resources/views/welcome.blade.php"
+        ],
+        "createdAt": "2026-09-28T20:57:41.120Z",
+        "reason": "Responsive step of a role ladder documented in DESIGN.md typography.fontSize"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "4.6rem",
+        "files": [
+          "resources/views/welcome.blade.php"
+        ],
+        "createdAt": "2026-09-28T20:57:41.161Z",
+        "reason": "Responsive step of a role ladder documented in DESIGN.md typography.fontSize"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "5.3rem",
+        "files": [
+          "resources/views/welcome.blade.php"
+        ],
+        "createdAt": "2026-09-28T20:57:41.203Z",
+        "reason": "Responsive step of a role ladder documented in DESIGN.md typography.fontSize"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "2.1rem",
+        "files": [
+          "resources/views/welcome.blade.php"
+        ],
+        "createdAt": "2026-09-28T20:57:41.245Z",
+        "reason": "Responsive step of a role ladder documented in DESIGN.md typography.fontSize"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "2.5rem",
+        "files": [
+          "resources/views/welcome.blade.php"
+        ],
+        "createdAt": "2026-09-28T20:57:41.286Z",
+        "reason": "Responsive step of a role ladder documented in DESIGN.md typography.fontSize"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "2.7rem",
+        "files": [
+          "resources/views/welcome.blade.php"
+        ],
+        "createdAt": "2026-09-28T20:57:41.328Z",
+        "reason": "Responsive step of a role ladder documented in DESIGN.md typography.fontSize"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "3.1rem",
+        "files": [
+          "resources/views/welcome.blade.php"
+        ],
+        "createdAt": "2026-09-28T20:57:41.369Z",
+        "reason": "Responsive step of a role ladder documented in DESIGN.md typography.fontSize"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.6rem",
+        "files": [
+          "resources/views/welcome.blade.php"
+        ],
+        "createdAt": "2026-09-28T20:57:41.410Z",
+        "reason": "Responsive step of a role ladder documented in DESIGN.md typography.fontSize"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.75rem",
+        "files": [
+          "resources/views/welcome.blade.php"
+        ],
+        "createdAt": "2026-09-28T20:57:41.451Z",
+        "reason": "Responsive step of a role ladder documented in DESIGN.md typography.fontSize"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.0625rem",
+        "files": [
+          "resources/views/welcome.blade.php"
+        ],
+        "createdAt": "2026-09-28T20:57:41.491Z",
+        "reason": "Responsive step of a role ladder documented in DESIGN.md typography.fontSize"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.9375rem",
+        "files": [
+          "resources/views/welcome.blade.php"
+        ],
+        "createdAt": "2026-09-28T20:57:41.531Z",
+        "reason": "Responsive step of a role ladder documented in DESIGN.md typography.fontSize"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.8125rem",
+        "files": [
+          "resources/views/welcome.blade.php"
+        ],
+        "createdAt": "2026-09-28T20:57:41.572Z",
+        "reason": "Responsive step of a role ladder documented in DESIGN.md typography.fontSize"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.75rem",
+        "files": [
+          "resources/views/welcome.blade.php"
+        ],
+        "createdAt": "2026-09-28T20:57:41.614Z",
+        "reason": "Responsive step of a role ladder documented in DESIGN.md typography.fontSize"
+      }
+    ]
+  }
+}
