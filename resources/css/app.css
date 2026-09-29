@@ -1,3 +1,339 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * "Kotak Persembahan" — the engraved-document world.
+ * Faces are self-hosted from public/fonts so the Didone that carries the
+ * page's display voice is guaranteed, not swapped in from a CDN.
+ */
+@font-face {
+    font-family: 'Bodoni Moda';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/bodoni-moda-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Bodoni Moda';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../fonts/bodoni-moda-latin-500-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Bodoni Moda';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('../fonts/bodoni-moda-latin-600-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Bodoni Moda';
+    font-style: italic;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/bodoni-moda-latin-400-italic.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Bodoni Moda';
+    font-style: italic;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../fonts/bodoni-moda-latin-500-italic.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Archivo';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/archivo-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Archivo';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../fonts/archivo-latin-500-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Archivo';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('../fonts/archivo-latin-600-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Archivo';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../fonts/archivo-latin-700-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Archivo Narrow';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/archivo-narrow-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Archivo Narrow';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../fonts/archivo-narrow-latin-500-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Archivo Narrow';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('../fonts/archivo-narrow-latin-600-normal.woff2') format('woff2');
+}
+
+@layer base {
+    /*
+     * Metric-matched fallbacks. If a local face ever fails, the page holds its
+     * measure instead of reflowing to a different face's proportions.
+     */
+    @font-face {
+        font-family: 'Bodoni Moda Fallback';
+        src: local('Times New Roman'), local('Times'), local('Liberation Serif');
+        size-adjust: 96%;
+        ascent-override: 92%;
+        descent-override: 24%;
+        line-gap-override: 0%;
+    }
+
+    @font-face {
+        font-family: 'Archivo Fallback';
+        src: local('Helvetica Neue'), local('Arial'), local('Liberation Sans');
+        size-adjust: 99%;
+        ascent-override: 96%;
+        descent-override: 26%;
+        line-gap-override: 0%;
+    }
+
+    /*
+     * Browser surfaces carry the design: selection, caret, scrollbars,
+     * focus rings and underline offset all ship from the same ink.
+     */
+    ::selection {
+        background-color: #c0973a;
+        color: #0a1d3d;
+    }
+
+    :root {
+        caret-color: #a97f2e; /* brass.rule */
+        /* The scrollbar track is paper-deep, the thumb is ink. Both values are
+           pinned to their tokens in tailwind.config.js; CSS has no way to read
+           a Tailwind token, so keep these two literals in step with it. */
+        scrollbar-color: #0a1d3d #ece9e1;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+
+    /*
+     * The focus ring meets 3:1 on whichever ground it lands: ink on paper,
+     * brass on the navy field. A single brass ring only worked on one of them.
+     */
+    :focus-visible {
+        outline: 2px solid #0a1d3d;
+        outline-offset: 3px;
+        border-radius: 1px;
+    }
+
+    [data-surface='ink'] :focus-visible {
+        outline-color: #c0973a;
+    }
+
+    u,
+    a {
+        text-underline-offset: 0.22em;
+        text-decoration-thickness: 1px;
+    }
+}
+
+@layer components {
+    /* Letterpress label furniture: narrow, uppercase, widely tracked. */
+    .label-cap {
+        font-family: 'Archivo Narrow', 'Archivo Fallback', ui-sans-serif, system-ui,
+            sans-serif;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 0.6875rem;
+        line-height: 1.1;
+    }
+
+    /*
+     * The display voice is a Tailwind font-family utility, not a component class,
+     * so its stack (including the metric-matched fallback) is owned by
+     * tailwind.config.js. Do not redeclare .font-display here: the utilities
+     * layer wins and would silently shadow it.
+     */
+
+    /* The column instrument: figures never leave their place. */
+    .num {
+        font-family: 'Archivo', 'Archivo Fallback', ui-sans-serif, system-ui,
+            sans-serif;
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: 'tnum' 1;
+    }
+
+    /* Engraved hairlines. No gradients, no blur, no glow. */
+    .hairline {
+        border-color: rgb(10 29 61 / 0.14);
+    }
+
+    .hairline-invert {
+        border-color: rgb(246 245 241 / 0.16);
+    }
+
+    /* Dotted leader, as used in a printed index. */
+    .leader {
+        background-image: linear-gradient(
+            to right,
+            rgb(10 29 61 / 0.28) 0,
+            rgb(10 29 61 / 0.28) 1px,
+            transparent 1px,
+            transparent 3px
+        );
+        background-size: 3px 1px;
+        background-repeat: repeat-x;
+        background-position: 0 50%;
+    }
+
+    /*
+     * The slot — the page's one action. A brass hairline the label rides.
+     * On hover or focus the crease draws itself across, and the arrow
+     * travels the arc. This is the only authored motion on the page.
+     */
+    .slot {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        width: 100%;
+        padding: 1.35rem 0;
+        border-top: 1px solid rgb(192 151 58 / 0.45);
+        color: #f6f5f1;
+        text-decoration: none;
+        isolation: isolate;
+    }
+
+    .slot::after {
+        content: '';
+        position: absolute;
+        inset: -1px 0 auto 0;
+        height: 1px;
+        background-color: #c0973a;
+        transform: scaleX(0);
+        transform-origin: left center;
+        transition: transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .slot:hover::after,
+    .slot:focus-visible::after {
+        transform: scaleX(1);
+    }
+
+    .slot-arrow {
+        flex: none;
+        transition: transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .slot:hover .slot-arrow,
+    .slot:focus-visible .slot-arrow {
+        transform: translateX(0.5rem);
+    }
+
+    /* The plate: a seal impression sits on its own paper. */
+    .plate {
+        background-color: #f6f5f1;
+        border-radius: 9999px;
+    }
+
+    /* The crease: one arc, never a straight rule, at a section boundary. */
+    .crease {
+        display: block;
+        width: 100%;
+        height: auto;
+        color: #a97f2e; /* brass.rule */
+    }
+
+    /*
+     * Back-to-top. The same gesture as the slot: a brass hairline that draws
+     * itself, and an arrow that travels. Ink ground, brass stroke, no fill.
+     * Hidden with visibility so it leaves the tab order entirely.
+     */
+    .to-top {
+        position: fixed;
+        top: 1.5rem;
+        right: 1.5rem;
+        z-index: 50;
+        display: grid;
+        height: 2.75rem;
+        width: 2.75rem;
+        place-items: center;
+        background-color: #0a1d3d;
+        color: #c0973a;
+        border: 1px solid rgb(192 151 58 / 0.45);
+        border-radius: 9999px;
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+            opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+            border-color 320ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .to-top.is-shown {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .to-top:hover,
+    .to-top:focus-visible {
+        border-color: #c0973a;
+    }
+
+    .to-top svg {
+        transition: transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .to-top:hover svg,
+    .to-top:focus-visible svg {
+        transform: translateY(-0.25rem);
+    }
+}
