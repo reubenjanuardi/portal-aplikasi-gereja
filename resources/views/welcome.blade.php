@@ -50,16 +50,11 @@
         <div class="bg-ink text-paper" data-surface="ink">
             <div class="mx-auto w-full max-w-rule px-5 sm:px-8 lg:px-10">
 
-                <!-- Top rail: identity only. The page's one action lives in the field below. -->
-                <div class="flex items-center justify-between gap-6 border-b border-white/10 py-6">
-                    <div class="flex items-center gap-3.5">
-                        <span class="plate grid h-11 w-11 place-items-center shrink-0 overflow-hidden">
-                            <img src="{{ $logo }}" alt="Lambang GPIB" class="h-full w-full object-contain" onerror="this.onerror=null;this.src='{{ asset('favicon.png') }}'">
-                        </span>
-                        <span class="label-cap max-w-[14rem] leading-[1.5] text-paper/90">
-                            {{ $churchName }}
-                        </span>
-                    </div>
+                <!-- Top rail: the church's own mark, full and uncropped. The page's one action lives in the field below. -->
+                <div class="flex items-center justify-between gap-6 border-b border-white/10 py-5">
+                    <span class="plate grid shrink-0 place-items-center p-1.5">
+                        <img src="{{ $logo }}" alt="Lambang {{ $churchName }}" class="h-12 w-auto max-w-[18rem] object-contain" onerror="this.onerror=null;this.src='{{ asset('favicon.png') }}'">
+                    </span>
                     <p class="hidden text-right text-[0.8125rem] leading-relaxed text-mist sm:block">
                         {{ $churchAddress1 }}<br>{{ $churchAddress2 }}
                     </p>
@@ -310,9 +305,9 @@
                         </div>
 
                         <div class="lg:col-span-5">
-                            <div class="flex items-start gap-4">
-                                <span class="plate grid h-14 w-14 shrink-0 place-items-center overflow-hidden">
-                                    <img src="{{ $logo }}" alt="" class="h-full w-full object-contain" onerror="this.onerror=null;this.src='{{ asset('favicon.png') }}'">
+                            <div class="flex items-start gap-5">
+                                <span class="plate grid shrink-0 place-items-center p-2">
+                                    <img src="{{ $logo }}" alt="Lambang {{ $churchName }}" class="h-16 w-auto max-w-[20rem] object-contain" onerror="this.onerror=null;this.src='{{ asset('favicon.png') }}'">
                                 </span>
                                 <div>
                                     <p class="label-cap leading-[1.6] text-paper/90">{{ $churchName }}</p>
