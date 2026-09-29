@@ -247,8 +247,30 @@ class BukuBesarService
             ->whereIn('vouchers.kode_akun_kas_bank', $kasBankCodes->keys()->all())
             ->get();
 
+        // Sumber 3: transfer antar akun Kas & Bank (mis. tarik tunai bank ke kas).
+        // Satu voucher sudah mewakili dua sisi sekaligus: akun sumber di
+        // `vouchers.kode_akun_kas_bank` dan akun tujuan di `transactions.kode_akun`.
+        // Sisi tujuan dihitung dengan arah berlawanan supaya perpindahan uang
+        // tidak terhitung dua kali.
+        $transferRows = $baseQuery()
+            ->select([
+                'transactions.kode_akun as kode_akun',
+                'vouchers.kode_akun_kas_bank as sumber_akun',
+                'vouchers.tanggal as tanggal',
+                'transactions.no_bukti as no_bukti',
+                'vouchers.jenis_voucher as jenis_voucher',
+                'vouchers.pihak_terkait as pihak_terkait',
+                'transactions.uraian as uraian',
+                'transactions.nominal as nominal',
+            ])
+            ->whereNotNull('vouchers.kode_akun_kas_bank')
+            ->whereColumn('transactions.kode_akun', '!=', 'vouchers.kode_akun_kas_bank')
+            ->whereIn('transactions.kode_akun', $kasBankCodes->keys()->all())
+            ->get();
+
         return $mataAnggaranRows
             ->concat($kasBankRows)
+            ->concat($transferRows)
             ->map(fn ($row): array => $this->mapMutation($row, $kasBankCodes))
             ->values();
     }
@@ -264,11 +286,27 @@ class BukuBesarService
         $isMasuk = in_array($row->jenis_voucher, self::VOUCHER_MASUK, true);
         $isKasBank = $kasBankCodes->has($row->kode_akun);
 
+        // Sisi tujuan transfer antar kas/bank memiliki arah berlawanan dengan
+        // sisi sumber pada voucher yang sama. Tanpa ini, perpindahan uang
+        // akan terhitung sebagai masuk pada kedua akun sekaligus.
+        $isTransferTujuan = ($row->sumber_akun ?? null) !== null
+            && $row->sumber_akun !== $row->kode_akun;
+
         // Akun Kas & Bank: penerimaan = Debet, pengeluaran = Kredit.
         // Akun mata anggaran: kebalikannya (Penerimaan = Kredit, Pengeluaran = Debet).
-        $delta = $isKasBank
-            ? ($isMasuk ? $nominal : -$nominal)
-            : ($isMasuk ? -$nominal : $nominal);
+        if ($isTransferTujuan) {
+            $delta = $isMasuk ? -$nominal : $nominal;
+            $debit = $isMasuk ? 0.0 : $nominal;
+            $kredit = $isMasuk ? $nominal : 0.0;
+        } elseif ($isKasBank) {
+            $delta = $isMasuk ? $nominal : -$nominal;
+            $debit = $isMasuk ? $nominal : 0.0;
+            $kredit = $isMasuk ? 0.0 : $nominal;
+        } else {
+            $delta = $isMasuk ? -$nominal : $nominal;
+            $debit = $isMasuk ? 0.0 : $nominal;
+            $kredit = $isMasuk ? $nominal : 0.0;
+        }
 
         return [
             'kode_akun'     => $row->kode_akun,
@@ -279,8 +317,8 @@ class BukuBesarService
             'uraian'        => $row->uraian,
             'nominal'       => $nominal,
             'is_masuk'      => $isMasuk,
-            'debit'         => $isMasuk === $isKasBank ? $nominal : 0.0,
-            'kredit'        => $isMasuk === $isKasBank ? 0.0 : $nominal,
+            'debit'         => $debit,
+            'kredit'        => $kredit,
             'delta'         => $delta,
         ];
     }

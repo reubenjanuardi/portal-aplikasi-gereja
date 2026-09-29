@@ -152,6 +152,16 @@ class SaldoAwal extends Page implements HasForms, HasTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->recordActions([
+                Action::make('hapus')
+                    ->label('Hapus')
+                    ->icon('heroicon-m-trash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Hapus Saldo Awal')
+                    ->modalDescription('Buku Besar akan kembali menghitung saldo akun ini dari mutasi transaksi saja. Lanjutkan?')
+                    ->action(fn (OpeningBalance $record) => $this->deleteAction((int) $record->getKey())),
+            ])
             ->defaultSort('kode_akun')
             ->paginated([10, 25, 50, 100]);
     }
@@ -192,9 +202,21 @@ class SaldoAwal extends Page implements HasForms, HasTable
 
     public function deleteAction(int $id): void
     {
-        OpeningBalance::find($id)?->delete();
+        $row = OpeningBalance::find($id);
 
-        Notification::make()->success()->title('Saldo Awal Dihapus')->send();
+        if (! $row) {
+            Notification::make()->danger()->title('Data tidak ditemukan')->send();
+            return;
+        }
+
+        $nama = $row->chartOfAccount?->nama_akun ?? $row->kode_akun;
+        $row->delete();
+
+        Notification::make()
+            ->success()
+            ->title('Saldo Awal Dihapus')
+            ->body("{$nama} ({$row->kode_akun}) kembali dihitung dari mutasi transaksi saja.")
+            ->send();
     }
 
     /**
