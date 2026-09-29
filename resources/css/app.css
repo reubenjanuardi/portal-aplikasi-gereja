@@ -278,14 +278,15 @@
     }
 
     /*
-     * The plate: the seal sits on its own paper, square like everything else in
-     * this world. It is deliberately NOT a circle — a round clip crops the
-     * church's real logo down to an unreadable disc, and the whole mark needs
-     * to be legible at rail size.
+     * The mark sits directly on the field — no plate, no backing, no box.
+     * The church's logo is its own artwork and carries whatever background it
+     * was exported with; a paper-coloured holder behind it only framed it as
+     * a foreign object pasted onto the ink.
+     *
+     * It must also never be cropped: the image is sized by height with
+     * `w-auto` and capped by `max-w-*`, so the logo's own aspect ratio
+     * survives whatever shape the church uploads.
      */
-    .plate {
-        background-color: #f6f5f1;
-    }
 
     /* The crease: one arc, never a straight rule, at a section boundary. */
     .crease {
