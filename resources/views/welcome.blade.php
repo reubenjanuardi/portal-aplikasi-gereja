@@ -52,9 +52,7 @@
 
                 <!-- Top rail: the church's own mark, full and uncropped. The page's one action lives in the field below. -->
                 <div class="flex items-center justify-between gap-6 border-b border-white/10 py-5">
-                    <span class="plate grid shrink-0 place-items-center p-1.5">
-                        <img src="{{ $logo }}" alt="Lambang {{ $churchName }}" class="h-12 w-auto max-w-[18rem] object-contain" onerror="this.onerror=null;this.src='{{ asset('favicon.png') }}'">
-                    </span>
+                    <img src="{{ $logo }}" alt="Lambang {{ $churchName }}" class="h-12 w-auto max-w-[18rem] shrink-0 object-contain" onerror="this.onerror=null;this.src='{{ asset('brand/gpib-seal.png') }}'">
                     <p class="hidden text-right text-[0.8125rem] leading-relaxed text-mist sm:block">
                         {{ $churchAddress1 }}<br>{{ $churchAddress2 }}
                     </p>
@@ -306,9 +304,7 @@
 
                         <div class="lg:col-span-5">
                             <div class="flex items-start gap-5">
-                                <span class="plate grid shrink-0 place-items-center p-2">
-                                    <img src="{{ $logo }}" alt="Lambang {{ $churchName }}" class="h-16 w-auto max-w-[20rem] object-contain" onerror="this.onerror=null;this.src='{{ asset('favicon.png') }}'">
-                                </span>
+                                <img src="{{ $logo }}" alt="Lambang {{ $churchName }}" class="h-16 w-auto max-w-[20rem] shrink-0 object-contain" onerror="this.onerror=null;this.src='{{ asset('brand/gpib-seal.png') }}'">
                                 <div>
                                     <p class="label-cap leading-[1.6] text-paper/90">{{ $churchName }}</p>
                                     <p class="mt-2 text-[0.8125rem] leading-relaxed text-mist">
