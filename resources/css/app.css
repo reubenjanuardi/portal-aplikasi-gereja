@@ -277,10 +277,14 @@
         transform: translateX(0.5rem);
     }
 
-    /* The plate: a seal impression sits on its own paper. */
+    /*
+     * The plate: the seal sits on its own paper, square like everything else in
+     * this world. It is deliberately NOT a circle — a round clip crops the
+     * church's real logo down to an unreadable disc, and the whole mark needs
+     * to be legible at rail size.
+     */
     .plate {
         background-color: #f6f5f1;
-        border-radius: 9999px;
     }
 
     /* The crease: one arc, never a straight rule, at a section boundary. */

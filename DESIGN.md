@@ -192,7 +192,9 @@ None. The vocabulary is empty by design, not by omission. Depth comes from tone,
 
 ## Shapes
 
-Square corners. `border-radius: 0` is the default and is not revisited. The only two radii in the system are the 1px corner on the focus ring — which keeps a hard ring from fusing with the rule it sits on — and the full circle (9999px) on the plate and the back-to-top control. There are no rounded rectangles, no pills, no badges, no icon tiles.
+Square corners. `border-radius: 0` is the default and is not revisited. The only two radii in the system are the 1px corner on the focus ring — which keeps a hard ring from fusing with the rule it sits on — and the full circle (9999px) on the back-to-top control. There are no rounded rectangles, no pills, no badges, no icon tiles.
+
+The plate is a square of `paper` behind the church's mark, not a disc. A round clip crops the real logo down to an unreadable circle, and the mark has to stay legible at rail size — so the plate hugs the image (`h-*` with `w-auto`, capped by `max-w-*`) and the backing is just padding. The image is never resized into a fixed box, so the logo's own aspect ratio survives whatever shape the church uploads.
 
 Strokes are hairlines: 1px by default, 1.5px for the crease, 2px only for a ledger's total. The slot's resting rule is 1px brass at 45% alpha, so the accent is present before it is earned; the crease draws the full-strength line over it on hover or focus. The ledger's internal row rules step down to 5% paper so the table reads as a field of rules rather than a stack of them.
 
