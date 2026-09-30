@@ -92,8 +92,6 @@ class BukuBesarService
             }
 
             $grouped[$kode]['lines']->push($mutation);
-            $grouped[$kode]['total_masuk'] += $mutation['is_masuk'] ? $mutation['nominal'] : 0.0;
-            $grouped[$kode]['total_keluar'] += $mutation['is_masuk'] ? 0.0 : $mutation['nominal'];
             $grouped[$kode]['total_debit'] += $mutation['debit'];
             $grouped[$kode]['total_kredit'] += $mutation['kredit'];
         }
@@ -103,6 +101,11 @@ class BukuBesarService
                 $account['lines'] = $account['lines']
                     ->sortBy(fn (array $line): string => $line['tanggal'] . '|' . $line['no_bukti'])
                     ->values();
+                // Ringkasan "Masuk/Keluar" mengikuti kolom Debet/Kredit, bukan
+                // jenis voucher. Untuk transfer antar kas/bank, voucher BBK
+                // tetap menambah kas kecil (debet) walau jenisnya "keluar".
+                $account['total_masuk'] = $account['total_debit'];
+                $account['total_keluar'] = $account['total_kredit'];
                 // Saldo normal akuntansi: akun Kas & Bank dan pos Pengeluaran
                 // bersaldo Debit, akun Penerimaan bersaldo Kredit.
                 $account['saldo_akhir'] = $account['saldo_awal'] + $account['total_debit'] - $account['total_kredit'];

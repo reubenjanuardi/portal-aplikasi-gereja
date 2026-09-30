@@ -75,6 +75,31 @@ test('tarik tunai bank ke kas cukup SATU voucher BBK', function () {
     expect($bank['akhir'])->toBe(7_500_000.0);
 });
 
+test('ringkasan Masuk/Keluar sama dengan kolom Debet/Kredit untuk akun kas', function () {
+    OpeningBalance::create(['kode_akun' => '111.02', 'periode' => '2026-06-30', 'saldo_awal' => 102_087]);
+    OpeningBalance::create(['kode_akun' => '112.02', 'periode' => '2026-06-30', 'saldo_awal' => 14_364_337]);
+
+    // Tarik tunai 2.500.000 dengan BBK: untuk Kas Kecil ini adalah DEBET
+    // walau jenis vouchernya "keluar".
+    buatVoucherX('BBK-101', '2026-07-01', 'BBK', '112.02', '111.02', 2_500_000);
+
+    // Transaksi kas biasa: masuk 570.000 dan keluar 65.700
+    buatVoucherX('BKM-101', '2026-07-03', 'BKM', '111.02', '21.01.01', 570_000);
+    buatVoucherX('BKK-101', '2026-07-03', 'BKK', '111.02', '362.01.01', 65_700);
+
+    $r = app(BukuBesarService::class)
+        ->getReportData('2026-07-01', '2026-07-08')['accounts']
+        ->firstWhere('kode_akun', '111.02');
+
+    // Ringkasan harus mengikuti kolom debit/kredit, bukan jenis voucher.
+    expect((float) $r['total_masuk'])->toBe((float) $r['total_debit']);
+    expect((float) $r['total_keluar'])->toBe((float) $r['total_kredit']);
+
+    expect((float) $r['total_masuk'])->toBe(3_070_000.0);
+    expect((float) $r['total_keluar'])->toBe(65_700.0);
+    expect((float) $r['saldo_akhir'])->toBe((float) (102_087 + 3_070_000 - 65_700));
+});
+
 test('setor kas kecil ke bank cukup SATU voucher BKM', function () {
     OpeningBalance::create(['kode_akun' => '111.02', 'periode' => '2026-06-30', 'saldo_awal' => 10_000_000]);
     OpeningBalance::create(['kode_akun' => '112.02', 'periode' => '2026-06-30', 'saldo_awal' => 1_000_000]);
