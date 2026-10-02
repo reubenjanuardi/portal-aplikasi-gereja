@@ -278,7 +278,7 @@
                 <tr class="item-row">
                     <td class="no-col">{{ $idx + 1 }}</td>
                     <td class="desc-col">{{ $tx->uraian }}</td>
-                    <td class="amt-col">{{ number_format($tx->nominal, 0, ',', '.') }}</td>
+                    <td class="amt-col">{{ \App\Filament\Resources\VoucherResource::formatNominal((float) $tx->nominal) }}</td>
                 </tr>
             @endforeach
 
@@ -295,7 +295,7 @@
         <tfoot>
             <tr class="total-row">
                 <td colspan="2" class="total-label">TOTAL</td>
-                <td class="total-amount">Rp{{ number_format($voucher->total_nominal, 0, ',', '.') }}</td>
+                <td class="total-amount">Rp{{ \App\Filament\Resources\VoucherResource::formatNominal((float) $voucher->total_nominal) }}</td>
             </tr>
         </tfoot>
     </table>

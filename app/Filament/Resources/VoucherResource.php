@@ -195,7 +195,8 @@ class VoucherResource extends Resource
                 ->content(function (Get $get): string {
                     $transactions = $get('transactions') ?? [];
                     $total = static::calculateTotalNominal($transactions);
-                    return 'Rp ' . number_format($total, 0, ',', '.');
+
+                    return 'Rp ' . static::formatNominal($total);
                 }),
         ]);
     }
@@ -251,7 +252,7 @@ class VoucherResource extends Resource
                     ->label('Total Nominal')
                     ->sortable()
                     ->alignEnd()
-                    ->formatStateUsing(fn($state): string => 'Rp ' . number_format((float) $state, 0, ',', '.')),
+                    ->formatStateUsing(fn($state): string => 'Rp ' . static::formatNominal((float) $state)),
             ])
             ->filters([
                 SelectFilter::make('kode_akun_kas_bank')
@@ -290,6 +291,20 @@ class VoucherResource extends Resource
             'create' => Pages\CreateVoucher::route('/create'),
             'edit' => Pages\EditVoucher::route('/{record}/edit'),
         ];
+    }
+
+    /**
+     * Format nominal rupiah, mempertahankan angka desimal bila ada.
+     *
+     * Nominal bank kadang punya pecahan (mis. 531.553,99), sehingga
+     * pembulatan ke rupiah terdekat akan membuat selisih yang tidak terlihat
+     * saat dicocokkan dengan mutasi rekening.
+     */
+    public static function formatNominal(float $amount): string
+    {
+        $hasFraction = round($amount - floor($amount), 2) !== 0.0;
+
+        return number_format($amount, $hasFraction ? 2 : 0, ',', '.');
     }
 
     public static function calculateTotalNominal(mixed $transactions): float
@@ -488,4 +503,3 @@ class VoucherResource extends Resource
         return sprintf('%s%03d-%s', $prefix, $nextSeq, $suffix);
     }
 }
-
