@@ -174,11 +174,11 @@
                         {{ $kasBank['kode_akun'] }} - {{ $kasBank['nama_akun'] }}
                     </span>
                     <span class="{{ $kasBank['saldo_akhir'] >= 0 ? 'badge-saldo-pos' : 'badge-saldo-neg' }} text-xs font-bold px-2.5 py-1 rounded-md">
-                        Saldo: Rp {{ number_format($kasBank['saldo_akhir'], 0, ',', '.') }}
+                        Saldo: Rp {{ \App\Support\Format::nominal($kasBank['saldo_akhir']) }}
                     </span>
                 @endforeach
                 <span class="badge-saldo-pos text-xs font-bold px-2.5 py-1 rounded-md">
-                    Total Saldo Kas &amp; Bank: Rp {{ number_format($this->totalSaldoKasBank, 0, ',', '.') }}
+                    Total Saldo Kas &amp; Bank: Rp {{ \App\Support\Format::nominal($this->totalSaldoKasBank) }}
                 </span>
             </div>
         </x-filament::section>
@@ -212,13 +212,13 @@
 
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <span class="badge-masuk-summary text-xs font-semibold px-2.5 py-1 rounded-md">
-                            Masuk: Rp {{ number_format($account['total_masuk'], 0, ',', '.') }}
+                            Masuk: Rp {{ \App\Support\Format::nominal($account['total_masuk']) }}
                         </span>
                         <span class="badge-keluar-summary text-xs font-semibold px-2.5 py-1 rounded-md">
-                            Keluar: Rp {{ number_format($account['total_keluar'], 0, ',', '.') }}
+                            Keluar: Rp {{ \App\Support\Format::nominal($account['total_keluar']) }}
                         </span>
                         <span class="{{ $account['saldo_akhir'] >= 0 ? 'badge-saldo-pos' : 'badge-saldo-neg' }} text-xs font-bold px-2.5 py-1 rounded-md">
-                            Saldo: Rp {{ number_format($account['saldo_akhir'], 0, ',', '.') }}
+                            Saldo: Rp {{ \App\Support\Format::nominal($account['saldo_akhir']) }}
                         </span>
                     </div>
                 </div>
@@ -243,7 +243,7 @@
                                         Saldo awal per {{ \Carbon\Carbon::parse($this->startDate)->translatedFormat('d F Y') }}
                                     </td>
                                     <td class="col-num italic text-gray-500 dark:text-gray-400">
-                                        {{ number_format($account['saldo_awal'], 0, ',', '.') }}
+                                        {{ \App\Support\Format::nominal($account['saldo_awal']) }}
                                     </td>
                                 </tr>
                             @endif
@@ -265,13 +265,13 @@
                                         </span>
                                     </td>
                                     <td class="col-num font-semibold {{ $line['debit'] > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-gray-600' }}">
-                                        {{ $line['debit'] > 0 ? number_format($line['debit'], 0, ',', '.') : '-' }}
+                                        {{ $line['debit'] > 0 ? \App\Support\Format::nominal($line['debit']) : '-' }}
                                     </td>
                                     <td class="col-num font-semibold {{ $line['kredit'] > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400 dark:text-gray-600' }}">
-                                        {{ $line['kredit'] > 0 ? number_format($line['kredit'], 0, ',', '.') : '-' }}
+                                        {{ $line['kredit'] > 0 ? \App\Support\Format::nominal($line['kredit']) : '-' }}
                                     </td>
                                     <td class="col-num {{ $runningBalance < 0 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-700 dark:text-gray-300' }}">
-                                        {{ number_format($runningBalance, 0, ',', '.') }}
+                                        {{ \App\Support\Format::nominal($runningBalance) }}
                                     </td>
                                 </tr>
                             @endforeach
@@ -282,13 +282,13 @@
                                     Subtotal {{ $account['kode_akun'] }}:
                                 </td>
                                 <td class="col-num text-emerald-600 dark:text-emerald-400 font-extrabold text-sm">
-                                    {{ number_format($account['total_masuk'], 0, ',', '.') }}
+                                    {{ \App\Support\Format::nominal($account['total_masuk']) }}
                                 </td>
                                 <td class="col-num text-rose-600 dark:text-rose-400 font-extrabold text-sm">
-                                    {{ number_format($account['total_keluar'], 0, ',', '.') }}
+                                    {{ \App\Support\Format::nominal($account['total_keluar']) }}
                                 </td>
                                 <td class="col-num text-gray-900 dark:text-white font-extrabold text-sm">
-                                    {{ number_format($account['saldo_akhir'], 0, ',', '.') }}
+                                    {{ \App\Support\Format::nominal($account['saldo_akhir']) }}
                                 </td>
                             </tr>
                         </tfoot>

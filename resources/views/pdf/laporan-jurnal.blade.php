@@ -146,7 +146,7 @@
                     </td>
                     <td>{{ $tx->uraian }}</td>
                     <td class="text-right font-mono font-bold">
-                        {{ number_format($tx->nominal, 0, ',', '.') }}
+                        {{ \App\Support\Format::nominal($tx->nominal) }}
                     </td>
                 </tr>
             @empty
@@ -162,7 +162,7 @@
                 <tr class="total-row">
                     <td colspan="6" class="text-right uppercase">GRAND TOTAL NOMINAL:</td>
                     <td class="text-right font-mono" style="font-size: 9pt;">
-                        Rp {{ number_format($grandTotal, 0, ',', '.') }}
+                        Rp {{ \App\Support\Format::nominal($grandTotal) }}
                     </td>
                 </tr>
             </tfoot>

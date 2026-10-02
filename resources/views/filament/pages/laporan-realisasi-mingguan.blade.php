@@ -292,7 +292,7 @@
                 </div>
             </div>
             <div class="mt-2 text-[22px] font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
-                Rp {{ number_format($totalPenerimaan, 0, ',', '.') }}
+                Rp {{ \App\Support\Format::nominal($totalPenerimaan) }}
             </div>
             <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
                 Realisasi periode berjalan
@@ -312,7 +312,7 @@
                 </div>
             </div>
             <div class="mt-2 text-[22px] font-extrabold text-rose-600 dark:text-rose-400 font-mono">
-                Rp {{ number_format($totalPengeluaran, 0, ',', '.') }}
+                Rp {{ \App\Support\Format::nominal($totalPengeluaran) }}
             </div>
             <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
                 Realisasi periode berjalan
@@ -332,7 +332,7 @@
                 </div>
             </div>
             <div class="mt-2 text-[22px] font-extrabold {{ $surplusDefisit >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-amber-600 dark:text-amber-400' }} font-mono">
-                Rp {{ number_format($surplusDefisit, 0, ',', '.') }}
+                Rp {{ \App\Support\Format::nominal($surplusDefisit) }}
             </div>
             <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
                 Penerimaan - Pengeluaran
@@ -352,7 +352,7 @@
                 </div>
             </div>
             <div class="mt-2 text-[22px] font-extrabold text-indigo-600 dark:text-indigo-400 font-mono">
-                Rp {{ number_format($totalSaldoAkhir, 0, ',', '.') }}
+                Rp {{ \App\Support\Format::nominal($totalSaldoAkhir) }}
             </div>
             <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
                 Posisi Kas & Bank per akhir periode
@@ -407,7 +407,7 @@
                     </div>
                 </div>
                 <div class="report-badge-penerimaan">
-                    Total: Rp {{ number_format($totalPenerimaan, 0, ',', '.') }}
+                    Total: Rp {{ \App\Support\Format::nominal($totalPenerimaan) }}
                 </div>
             </div>
 
@@ -436,7 +436,7 @@
                                     <span>{{ $row['nama_akun'] }}</span>
                                 </td>
                                 <td class="col-num {{ $row['amount'] > 0 ? 'font-bold text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-600' }}">
-                                    {{ number_format($row['amount'], 0, ',', '.') }}
+                                    {{ \App\Support\Format::nominal($row['amount']) }}
                                 </td>
                             </tr>
                         @empty
@@ -453,7 +453,7 @@
                                 TOTAL PENERIMAAN:
                             </td>
                             <td class="col-num text-emerald-600 dark:text-emerald-400 text-[15px] font-extrabold">
-                                Rp {{ number_format($totalPenerimaan, 0, ',', '.') }}
+                                Rp {{ \App\Support\Format::nominal($totalPenerimaan) }}
                             </td>
                         </tr>
                     </tfoot>
@@ -477,7 +477,7 @@
                     </div>
                 </div>
                 <div class="report-badge-pengeluaran">
-                    Total: Rp {{ number_format($totalPengeluaran, 0, ',', '.') }}
+                    Total: Rp {{ \App\Support\Format::nominal($totalPengeluaran) }}
                 </div>
             </div>
 
@@ -506,7 +506,7 @@
                                     <span>{{ $row['nama_akun'] }}</span>
                                 </td>
                                 <td class="col-num {{ $row['amount'] > 0 ? 'font-bold text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-600' }}">
-                                    {{ number_format($row['amount'], 0, ',', '.') }}
+                                    {{ \App\Support\Format::nominal($row['amount']) }}
                                 </td>
                             </tr>
                         @empty
@@ -523,7 +523,7 @@
                                 TOTAL PENGELUARAN:
                             </td>
                             <td class="col-num text-rose-600 dark:text-rose-400 text-[15px] font-extrabold">
-                                Rp {{ number_format($totalPengeluaran, 0, ',', '.') }}
+                                Rp {{ \App\Support\Format::nominal($totalPengeluaran) }}
                             </td>
                         </tr>
                     </tfoot>
@@ -547,10 +547,10 @@
                 </div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <span class="report-badge-saldo-awal">
-                        Saldo Awal: Rp {{ number_format($totalSaldoAwal, 0, ',', '.') }}
+                        Saldo Awal: Rp {{ \App\Support\Format::nominal($totalSaldoAwal) }}
                     </span>
                     <span class="report-badge-saldo-akhir">
-                        Saldo Akhir: Rp {{ number_format($totalSaldoAkhir, 0, ',', '.') }}
+                        Saldo Akhir: Rp {{ \App\Support\Format::nominal($totalSaldoAkhir) }}
                     </span>
                 </div>
             </div>
@@ -581,10 +581,10 @@
                                     <span>{{ $row['nama_akun'] }}</span>
                                 </td>
                                 <td class="col-num {{ $row['saldo_awal'] != 0 ? 'font-bold text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-600' }}">
-                                    {{ number_format($row['saldo_awal'], 0, ',', '.') }}
+                                    {{ \App\Support\Format::nominal($row['saldo_awal']) }}
                                 </td>
                                 <td class="col-num {{ $row['saldo_akhir'] != 0 ? 'font-bold text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-600' }}">
-                                    {{ number_format($row['saldo_akhir'], 0, ',', '.') }}
+                                    {{ \App\Support\Format::nominal($row['saldo_akhir']) }}
                                 </td>
                             </tr>
                         @empty
@@ -601,10 +601,10 @@
                                 TOTAL SALDO KAS & BANK:
                             </td>
                             <td class="col-num text-sm font-bold text-gray-700 dark:text-gray-300">
-                                Rp {{ number_format($totalSaldoAwal, 0, ',', '.') }}
+                                Rp {{ \App\Support\Format::nominal($totalSaldoAwal) }}
                             </td>
                             <td class="col-num text-sm font-extrabold text-indigo-600 dark:text-indigo-400">
-                                Rp {{ number_format($totalSaldoAkhir, 0, ',', '.') }}
+                                Rp {{ \App\Support\Format::nominal($totalSaldoAkhir) }}
                             </td>
                         </tr>
                     </tfoot>

@@ -183,7 +183,7 @@
                         {{ $entry['debit']['kode_akun'] }}
                     </td>
                     <td class="text-right font-mono font-bold">
-                        {{ number_format($entry['debit']['nominal'], 0, ',', '.') }}
+                        {{ \App\Support\Format::nominal($entry['debit']['nominal']) }}
                     </td>
                     <td class="text-right font-mono text-gray-400">
                         -
@@ -202,7 +202,7 @@
                         -
                     </td>
                     <td class="text-right font-mono font-bold">
-                        {{ number_format($entry['kredit']['nominal'], 0, ',', '.') }}
+                        {{ \App\Support\Format::nominal($entry['kredit']['nominal']) }}
                     </td>
                 </tr>
 
@@ -227,10 +227,10 @@
                         TOTAL DEBET & KREDIT:
                     </td>
                     <td class="text-right font-mono" style="font-size: 9pt;">
-                        Rp {{ number_format($totalDebit, 0, ',', '.') }}
+                        Rp {{ \App\Support\Format::nominal($totalDebit) }}
                     </td>
                     <td class="text-right font-mono" style="font-size: 9pt;">
-                        Rp {{ number_format($totalKredit, 0, ',', '.') }}
+                        Rp {{ \App\Support\Format::nominal($totalKredit) }}
                     </td>
                 </tr>
                 <tr style="background-color: #f1f5f9;">

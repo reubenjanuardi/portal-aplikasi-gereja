@@ -187,14 +187,14 @@
                     <tr>
                         <td class="font-mono">{{ $kasBank['kode_akun'] }}</td>
                         <td>{{ $kasBank['nama_akun'] }}</td>
-                        <td class="num">{{ number_format($kasBank['total_masuk'], 0, ',', '.') }}</td>
-                        <td class="num">{{ number_format($kasBank['total_keluar'], 0, ',', '.') }}</td>
-                        <td class="num">{{ number_format($kasBank['saldo_akhir'], 0, ',', '.') }}</td>
+                        <td class="num">{{ \App\Support\Format::nominal($kasBank['total_masuk']) }}</td>
+                        <td class="num">{{ \App\Support\Format::nominal($kasBank['total_keluar']) }}</td>
+                        <td class="num">{{ \App\Support\Format::nominal($kasBank['saldo_akhir']) }}</td>
                     </tr>
                 @endforeach
                 <tr class="total">
                     <td colspan="4" class="text-right">TOTAL SALDO KAS &amp; BANK</td>
-                    <td class="num">{{ number_format($totalSaldoKasBank, 0, ',', '.') }}</td>
+                    <td class="num">{{ \App\Support\Format::nominal($totalSaldoKasBank) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -215,10 +215,10 @@
                         @endif
                     </td>
                     <td style="width: 40%; text-align: right; font-size: 8pt;">
-                        Saldo Awal: Rp {{ number_format($account['saldo_awal'], 0, ',', '.') }} |
-                        Masuk: Rp {{ number_format($account['total_masuk'], 0, ',', '.') }} |
-                        Keluar: Rp {{ number_format($account['total_keluar'], 0, ',', '.') }} |
-                        Saldo: Rp {{ number_format($account['saldo_akhir'], 0, ',', '.') }}
+                        Saldo Awal: Rp {{ \App\Support\Format::nominal($account['saldo_awal']) }} |
+                        Masuk: Rp {{ \App\Support\Format::nominal($account['total_masuk']) }} |
+                        Keluar: Rp {{ \App\Support\Format::nominal($account['total_keluar']) }} |
+                        Saldo: Rp {{ \App\Support\Format::nominal($account['saldo_akhir']) }}
                     </td>
                 </tr>
             </table>
@@ -241,7 +241,7 @@
                             <td colspan="6" class="text-right">
                                 Saldo awal per {{ \Carbon\Carbon::parse($startDate)->translatedFormat('d F Y') }}
                             </td>
-                            <td class="text-right font-mono">{{ number_format($account['saldo_awal'], 0, ',', '.') }}</td>
+                            <td class="text-right font-mono">{{ \App\Support\Format::nominal($account['saldo_awal']) }}</td>
                         </tr>
                     @endif
 
@@ -257,18 +257,18 @@
                                 {{ $line['uraian'] }}
                                 <span style="font-size: 7pt; color: #666;">({{ $line['jenis_voucher'] }})</span>
                             </td>
-                            <td class="text-right font-mono">{{ $line['debit'] > 0 ? number_format($line['debit'], 0, ',', '.') : '-' }}</td>
-                            <td class="text-right font-mono">{{ $line['kredit'] > 0 ? number_format($line['kredit'], 0, ',', '.') : '-' }}</td>
-                            <td class="text-right font-mono">{{ number_format($runningBalance, 0, ',', '.') }}</td>
+                            <td class="text-right font-mono">{{ $line['debit'] > 0 ? \App\Support\Format::nominal($line['debit']) : '-' }}</td>
+                            <td class="text-right font-mono">{{ $line['kredit'] > 0 ? \App\Support\Format::nominal($line['kredit']) : '-' }}</td>
+                            <td class="text-right font-mono">{{ \App\Support\Format::nominal($runningBalance) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
                 <tfoot>
                     <tr class="total-row">
                         <td colspan="4" class="text-right uppercase">Subtotal {{ $account['kode_akun'] }}:</td>
-                        <td class="text-right font-mono">{{ number_format($account['total_masuk'], 0, ',', '.') }}</td>
-                        <td class="text-right font-mono">{{ number_format($account['total_keluar'], 0, ',', '.') }}</td>
-                        <td class="text-right font-mono">{{ number_format($account['saldo_akhir'], 0, ',', '.') }}</td>
+                        <td class="text-right font-mono">{{ \App\Support\Format::nominal($account['total_masuk']) }}</td>
+                        <td class="text-right font-mono">{{ \App\Support\Format::nominal($account['total_keluar']) }}</td>
+                        <td class="text-right font-mono">{{ \App\Support\Format::nominal($account['saldo_akhir']) }}</td>
                     </tr>
                 </tfoot>
             </table>

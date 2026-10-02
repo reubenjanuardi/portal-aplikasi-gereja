@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\VoucherResource\Pages;
 use App\Models\ChartOfAccount;
 use App\Models\Voucher;
+use App\Support\Format;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -302,9 +303,7 @@ class VoucherResource extends Resource
      */
     public static function formatNominal(float $amount): string
     {
-        $hasFraction = round($amount - floor($amount), 2) !== 0.0;
-
-        return number_format($amount, $hasFraction ? 2 : 0, ',', '.');
+        return Format::nominal($amount);
     }
 
     public static function calculateTotalNominal(mixed $transactions): float

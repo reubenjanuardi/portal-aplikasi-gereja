@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\ChartOfAccount;
 use App\Models\OpeningBalance;
+use App\Support\Format;
 use BackedEnum;
 use Carbon\Carbon;
 use Filament\Actions\Action;
@@ -138,7 +139,7 @@ class SaldoAwal extends Page implements HasForms, HasTable
                     ->label('Saldo Awal')
                     ->alignEnd()
                     ->sortable()
-                    ->formatStateUsing(fn ($state): string => 'Rp ' . number_format((float) $state, 0, ',', '.')),
+                ->formatStateUsing(fn ($state): string => Format::rupiah($state)),
 
                 TextColumn::make('keterangan')
                     ->label('Keterangan')

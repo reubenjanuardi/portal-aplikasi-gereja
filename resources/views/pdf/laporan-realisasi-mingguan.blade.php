@@ -147,19 +147,19 @@
         <table>
             <tr>
                 <td style="width: 25%;">Total Penerimaan:</td>
-                <td style="width: 25%; font-weight: bold;" class="text-right font-mono">Rp {{ number_format($reportData['totalPenerimaan'] ?? 0, 0, ',', '.') }}</td>
+                <td style="width: 25%; font-weight: bold;" class="text-right font-mono">Rp {{ \App\Support\Format::nominal($reportData['totalPenerimaan'] ?? 0) }}</td>
                 <td style="width: 25%;">Total Saldo Awal:</td>
-                <td style="width: 25%; font-weight: bold;" class="text-right font-mono">Rp {{ number_format($reportData['totalSaldoAwal'] ?? 0, 0, ',', '.') }}</td>
+                <td style="width: 25%; font-weight: bold;" class="text-right font-mono">Rp {{ \App\Support\Format::nominal($reportData['totalSaldoAwal'] ?? 0) }}</td>
             </tr>
             <tr>
                 <td>Total Pengeluaran:</td>
-                <td style="font-weight: bold;" class="text-right font-mono">Rp {{ number_format($reportData['totalPengeluaran'] ?? 0, 0, ',', '.') }}</td>
+                <td style="font-weight: bold;" class="text-right font-mono">Rp {{ \App\Support\Format::nominal($reportData['totalPengeluaran'] ?? 0) }}</td>
                 <td>Total Saldo Akhir:</td>
-                <td style="font-weight: bold;" class="text-right font-mono">Rp {{ number_format($reportData['totalSaldoAkhir'] ?? 0, 0, ',', '.') }}</td>
+                <td style="font-weight: bold;" class="text-right font-mono">Rp {{ \App\Support\Format::nominal($reportData['totalSaldoAkhir'] ?? 0) }}</td>
             </tr>
             <tr>
                 <td>{{ ($reportData['surplusDefisit'] ?? 0) >= 0 ? 'Surplus Mingguan:' : 'Defisit Mingguan:' }}</td>
-                <td style="font-weight: bold;" class="text-right font-mono">Rp {{ number_format($reportData['surplusDefisit'] ?? 0, 0, ',', '.') }}</td>
+                <td style="font-weight: bold;" class="text-right font-mono">Rp {{ \App\Support\Format::nominal($reportData['surplusDefisit'] ?? 0) }}</td>
                 <td colspan="2"></td>
             </tr>
         </table>
@@ -186,7 +186,7 @@
                     <td class="font-mono">{{ $row['kode_akun'] }}</td>
                     <td>{!! $indent !!}{{ $row['nama_akun'] }}</td>
                     <td class="text-right font-mono">
-                        {{ number_format($row['amount'], 0, ',', '.') }}
+                        {{ \App\Support\Format::nominal($row['amount']) }}
                     </td>
                 </tr>
             @empty
@@ -198,7 +198,7 @@
         <tfoot>
             <tr class="tfoot-total">
                 <td colspan="2" class="text-right uppercase">TOTAL PENERIMAAN:</td>
-                <td class="text-right font-mono">Rp {{ number_format($reportData['totalPenerimaan'] ?? 0, 0, ',', '.') }}</td>
+                <td class="text-right font-mono">Rp {{ \App\Support\Format::nominal($reportData['totalPenerimaan'] ?? 0) }}</td>
             </tr>
         </tfoot>
     </table>
@@ -226,7 +226,7 @@
                     <td class="font-mono">{{ $row['kode_akun'] }}</td>
                     <td>{!! $indent !!}{{ $row['nama_akun'] }}</td>
                     <td class="text-right font-mono">
-                        {{ number_format($row['amount'], 0, ',', '.') }}
+                        {{ \App\Support\Format::nominal($row['amount']) }}
                     </td>
                 </tr>
             @empty
@@ -238,7 +238,7 @@
         <tfoot>
             <tr class="tfoot-total">
                 <td colspan="2" class="text-right uppercase">TOTAL PENGELUARAN:</td>
-                <td class="text-right font-mono">Rp {{ number_format($reportData['totalPengeluaran'] ?? 0, 0, ',', '.') }}</td>
+                <td class="text-right font-mono">Rp {{ \App\Support\Format::nominal($reportData['totalPengeluaran'] ?? 0) }}</td>
             </tr>
         </tfoot>
     </table>
@@ -265,10 +265,10 @@
                     <td class="font-mono">{{ $row['kode_akun'] }}</td>
                     <td>{!! $indent !!}{{ $row['nama_akun'] }}</td>
                     <td class="text-right font-mono">
-                        {{ number_format($row['saldo_awal'], 0, ',', '.') }}
+                        {{ \App\Support\Format::nominal($row['saldo_awal']) }}
                     </td>
                     <td class="text-right font-mono">
-                        {{ number_format($row['saldo_akhir'], 0, ',', '.') }}
+                        {{ \App\Support\Format::nominal($row['saldo_akhir']) }}
                     </td>
                 </tr>
             @empty
@@ -280,8 +280,8 @@
         <tfoot>
             <tr class="tfoot-total">
                 <td colspan="2" class="text-right uppercase">TOTAL SALDO KAS & BANK:</td>
-                <td class="text-right font-mono">Rp {{ number_format($reportData['totalSaldoAwal'] ?? 0, 0, ',', '.') }}</td>
-                <td class="text-right font-mono">Rp {{ number_format($reportData['totalSaldoAkhir'] ?? 0, 0, ',', '.') }}</td>
+                <td class="text-right font-mono">Rp {{ \App\Support\Format::nominal($reportData['totalSaldoAwal'] ?? 0) }}</td>
+                <td class="text-right font-mono">Rp {{ \App\Support\Format::nominal($reportData['totalSaldoAkhir'] ?? 0) }}</td>
             </tr>
         </tfoot>
     </table>

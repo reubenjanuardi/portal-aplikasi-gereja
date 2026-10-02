@@ -11,15 +11,15 @@
             </div>
             <div class="rounded-lg border border-gray-200 dark:border-white/10 p-4">
                 <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Jumlah Akun</div>
-                <div class="text-lg font-bold text-gray-900 dark:text-white">{{ number_format($this->summary['jumlah'], 0, ',', '.') }}</div>
+                <div class="text-lg font-bold text-gray-900 dark:text-white">{{ \App\Support\Format::nominal($this->summary['jumlah']) }}</div>
             </div>
             <div class="rounded-lg border border-gray-200 dark:border-white/10 p-4">
                 <div class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Saldo Awal</div>
-                <div class="text-lg font-bold text-gray-900 dark:text-white">Rp {{ number_format($this->summary['total'], 0, ',', '.') }}</div>
+                <div class="text-lg font-bold text-gray-900 dark:text-white">Rp {{ \App\Support\Format::nominal($this->summary['total']) }}</div>
             </div>
             <div class="rounded-lg border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 p-4">
                 <div class="text-xs uppercase tracking-wide text-indigo-600 dark:text-indigo-300">Total Kas &amp; Bank</div>
-                <div class="text-lg font-bold text-indigo-700 dark:text-indigo-200">Rp {{ number_format($this->summary['totalKas'], 0, ',', '.') }}</div>
+                <div class="text-lg font-bold text-indigo-700 dark:text-indigo-200">Rp {{ \App\Support\Format::nominal($this->summary['totalKas']) }}</div>
             </div>
         </div>
     </x-filament::section>
