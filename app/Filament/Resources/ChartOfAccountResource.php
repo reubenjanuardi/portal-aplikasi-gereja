@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ChartOfAccountResource\Pages;
 use App\Models\ChartOfAccount;
+use App\Support\Format;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -104,7 +105,7 @@ class ChartOfAccountResource extends Resource
 
                 TextColumn::make('budget')
                     ->label('Budget (Anggaran)')
-                    ->formatStateUsing(fn ($state): string => 'Rp ' . number_format((float) ($state ?? 0), 0, ',', '.'))
+                ->formatStateUsing(fn ($state): string => Format::rupiah($state))
                     ->sortable()
                     ->alignEnd(),
 
