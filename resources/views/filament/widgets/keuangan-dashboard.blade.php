@@ -22,59 +22,59 @@
     };
 @endphp
 
-<div class="kd-page space-y-6">
-    <div class="kd-border flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-end sm:justify-between">
-        <div class="min-w-0">
-            <h2 class="kd-heading text-xl font-semibold tracking-tight sm:text-2xl">Ringkasan Keuangan</h2>
-            <p class="kd-muted mt-1 text-sm">Posisi kas, arus dana, dan voucher tercatat.</p>
+<div class="kd-page">
+    <header class="kd-header">
+        <div class="kd-header-main">
+            <h2 class="kd-title">Ringkasan Keuangan</h2>
+            <p class="kd-subtitle">Posisi kas, arus dana, dan voucher tercatat.</p>
         </div>
-        <label class="kd-body flex shrink-0 items-center gap-3 text-sm font-medium">
+        <label class="kd-range">
             <span>Rentang</span>
-            <select wire:model.live="rentang" class="kd-border rounded-lg border bg-transparent py-2 pl-3 pr-8 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--kd-series-in)] focus:ring-offset-0">
+            <select wire:model.live="rentang" class="kd-select">
                 <option value="minggu">Minggu ini</option>
                 <option value="bulan">Bulan ini</option>
                 <option value="tahun">Tahun ini</option>
             </select>
         </label>
+    </header>
+
+    <div class="kd-metrics">
+        <div class="kd-metric kd-metric--saldo">
+            <p class="kd-metric-label">Saldo kas &amp; bank</p>
+            <p class="kd-metric-value">Rp {{ Format::nominal($saldoKasBank) }}</p>
+            <p class="kd-metric-hint">Saldo akhir periode</p>
+        </div>
+        <div class="kd-metric kd-metric--masuk">
+            <p class="kd-metric-label">Penerimaan</p>
+            <p class="kd-metric-value">Rp {{ Format::nominal($totalMasuk) }}</p>
+            <p class="kd-metric-hint">{{ $periodLabel }}</p>
+        </div>
+        <div class="kd-metric kd-metric--keluar">
+            <p class="kd-metric-label">Pengeluaran</p>
+            <p class="kd-metric-value">Rp {{ Format::nominal($totalKeluar) }}</p>
+            <p class="kd-metric-hint">{{ $periodLabel }}</p>
+        </div>
+        <div class="kd-metric {{ $surplusDefisit < 0 ? 'kd-metric--defisit' : '' }}">
+            <p class="kd-metric-label">Surplus / defisit</p>
+            <p class="kd-metric-value">Rp {{ Format::nominal($surplusDefisit) }}</p>
+            <p class="kd-metric-hint">Penerimaan dikurangi pengeluaran</p>
+        </div>
     </div>
 
-    <div class="kd-border grid grid-cols-1 gap-x-6 gap-y-5 border-b pb-5 sm:grid-cols-2 xl:grid-cols-4">
-        <div class="kd-accent min-w-0 border-l-2 pl-4">
-            <p class="kd-muted text-sm">Saldo kas &amp; bank</p>
-            <p class="kd-heading kd-amount mt-2 text-xl font-semibold sm:text-2xl">Rp {{ Format::nominal($saldoKasBank) }}</p>
-            <p class="kd-muted mt-1 text-xs">Saldo akhir periode</p>
-        </div>
-        <div class="kd-divider min-w-0 border-l pl-4">
-            <p class="kd-muted text-sm">Penerimaan</p>
-            <p class="kd-heading kd-amount mt-2 text-lg font-semibold sm:text-xl">Rp {{ Format::nominal($totalMasuk) }}</p>
-            <p class="kd-muted mt-1 text-xs">{{ $periodLabel }}</p>
-        </div>
-        <div class="kd-divider min-w-0 border-l pl-4">
-            <p class="kd-muted text-sm">Pengeluaran</p>
-            <p class="kd-heading kd-amount mt-2 text-lg font-semibold sm:text-xl">Rp {{ Format::nominal($totalKeluar) }}</p>
-            <p class="kd-muted mt-1 text-xs">{{ $periodLabel }}</p>
-        </div>
-        <div class="kd-divider min-w-0 border-l pl-4">
-            <p class="kd-muted text-sm">Surplus / defisit</p>
-            <p class="kd-heading kd-amount mt-2 text-lg font-semibold sm:text-xl {{ $surplusDefisit < 0 ? 'kd-negative' : '' }}">Rp {{ Format::nominal($surplusDefisit) }}</p>
-            <p class="kd-muted mt-1 text-xs">Penerimaan dikurangi pengeluaran</p>
-        </div>
-    </div>
-
-    <section class="kd-card kd-border rounded-xl border p-5 shadow-sm sm:p-6" aria-labelledby="arus-dana-title">
-        <div class="flex flex-wrap items-start justify-between gap-4">
-            <div class="min-w-0">
-                <h3 id="arus-dana-title" class="kd-heading text-base font-semibold">Arus penerimaan &amp; pengeluaran</h3>
-                <p class="kd-muted mt-1 text-sm">{{ $periodLabel }} · berdasarkan tanggal voucher</p>
+    <section class="kd-section kd-section--padded" aria-labelledby="arus-dana-title">
+        <div class="kd-section-head">
+            <div class="kd-header-main">
+                <h3 id="arus-dana-title" class="kd-section-title">Arus penerimaan &amp; pengeluaran</h3>
+                <p class="kd-section-subtitle">{{ $periodLabel }} · berdasarkan tanggal voucher</p>
             </div>
-            <div class="kd-muted flex shrink-0 gap-4 text-xs">
-                <span class="inline-flex items-center gap-2"><span class="kd-dot-in h-2 w-2 rounded-full"></span>Penerimaan</span>
-                <span class="inline-flex items-center gap-2"><span class="kd-dot-out h-2 w-2 rounded-full"></span>Pengeluaran</span>
+            <div class="kd-legend">
+                <span class="kd-legend-item"><span class="kd-dot kd-dot-in"></span>Penerimaan</span>
+                <span class="kd-legend-item"><span class="kd-dot kd-dot-out"></span>Pengeluaran</span>
             </div>
         </div>
         @if ($totalVoucher > 0)
-            <div class="mt-5">
-                <svg viewBox="0 0 {{ $chartWidth }} {{ $chartHeight }}" role="img" aria-label="Grafik penerimaan dan pengeluaran {{ $periodLabel }}" class="block h-auto w-full">
+            <div class="kd-chart-wrap">
+                <svg viewBox="0 0 {{ $chartWidth }} {{ $chartHeight }}" role="img" aria-label="Grafik penerimaan dan pengeluaran {{ $periodLabel }}" class="kd-chart">
                     <line x1="20" y1="180" x2="880" y2="180" class="kd-grid-line" stroke-width="1" />
                     <line x1="20" y1="98" x2="880" y2="98" class="kd-grid-line" stroke-width="1" stroke-dasharray="3 5" />
                     <polyline points="{{ $pointsFor($chart['masuk']) }}" fill="none" class="kd-line-in" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
@@ -86,38 +86,38 @@
                 </svg>
             </div>
         @else
-            <div class="kd-border mt-5 border-t py-10 text-center">
-                <p class="kd-heading font-medium">Belum ada voucher pada rentang ini</p>
-                <p class="kd-muted mt-1 text-sm">Grafik akan tampil setelah transaksi tercatat.</p>
+            <div class="kd-empty">
+                <p class="kd-empty-title">Belum ada voucher pada rentang ini</p>
+                <p class="kd-empty-hint">Grafik akan tampil setelah transaksi tercatat.</p>
             </div>
         @endif
     </section>
 
-    <section class="kd-card kd-border overflow-hidden rounded-xl border" aria-labelledby="voucher-terbaru-title">
-        <div class="kd-border flex items-center justify-between gap-4 border-b px-5 py-4 sm:px-6">
-            <div class="min-w-0">
-                <h3 id="voucher-terbaru-title" class="kd-heading font-semibold">Voucher terbaru</h3>
-                <p class="kd-muted mt-1 text-sm">Transaksi terakhir yang tercatat</p>
+    <section class="kd-section" aria-labelledby="voucher-terbaru-title">
+        <header class="kd-section-head kd-section-head--border">
+            <div class="kd-header-main">
+                <h3 id="voucher-terbaru-title" class="kd-section-title">Voucher terbaru</h3>
+                <p class="kd-section-subtitle">Transaksi terakhir yang tercatat</p>
             </div>
-            <a href="{{ \App\Filament\Resources\VoucherResource::getUrl() }}" class="kd-link shrink-0 text-sm font-medium">Lihat semua</a>
-        </div>
+            <a href="{{ \App\Filament\Resources\VoucherResource::getUrl() }}" class="kd-link">Lihat semua</a>
+        </header>
         @if ($recentVouchers->isEmpty())
-            <div class="kd-muted px-5 py-8 text-center text-sm">Belum ada voucher. Buat voucher pertama untuk mulai mencatat transaksi.</div>
+            <p class="kd-empty kd-empty--inline">Belum ada voucher. Buat voucher pertama untuk mulai mencatat transaksi.</p>
         @else
-            <div class="overflow-x-auto">
+            <div class="kd-table-wrap">
                 <table class="kd-table">
                     <thead class="kd-thead">
-                        <tr><th>Tanggal</th><th>Nomor bukti</th><th>Pihak terkait</th><th class="text-right">Jenis</th><th class="text-right">Nominal</th></tr>
+                        <tr><th>Tanggal</th><th>Nomor bukti</th><th>Pihak terkait</th><th class="kd-num">Jenis</th><th class="kd-num">Nominal</th></tr>
                     </thead>
                     <tbody>
                         @foreach ($recentVouchers as $voucher)
                             @php $isKeluar = in_array($voucher->jenis_voucher, ['Keluar', 'BKK', 'BBK'], true); @endphp
                             <tr>
-                                <td class="whitespace-nowrap">{{ \Carbon\Carbon::parse($voucher->tanggal)->translatedFormat('d M Y') }}</td>
-                                <td class="kd-heading whitespace-nowrap font-bold">{{ $voucher->no_bukti }}</td>
-                                <td class="max-w-64 truncate">{{ $voucher->pihak_terkait ?: '—' }}</td>
-                                <td class="whitespace-nowrap text-right">{{ $isKeluar ? 'Pengeluaran' : 'Penerimaan' }}</td>
-                                <td class="kd-amount whitespace-nowrap text-right font-medium">Rp {{ Format::nominal($voucher->total_nominal) }}</td>
+                                <td class="kd-nowrap">{{ \Carbon\Carbon::parse($voucher->tanggal)->translatedFormat('d M Y') }}</td>
+                                <td class="kd-heading kd-nowrap kd-strong">{{ $voucher->no_bukti }}</td>
+                                <td class="kd-truncate">{{ $voucher->pihak_terkait ?: '—' }}</td>
+                                <td class="kd-num">{{ $isKeluar ? 'Pengeluaran' : 'Penerimaan' }}</td>
+                                <td class="kd-amount kd-num">Rp {{ Format::nominal($voucher->total_nominal) }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -126,5 +126,5 @@
         @endif
     </section>
 
-    <p class="kd-muted text-xs">Ringkasan dihitung dari voucher dan saldo awal yang tercatat. Periode: {{ $start->translatedFormat('d M Y') }} – {{ $end->translatedFormat('d M Y') }}.</p>
+    <p class="kd-footnote">Ringkasan dihitung dari voucher dan saldo awal yang tercatat. Periode: {{ $start->translatedFormat('d M Y') }} – {{ $end->translatedFormat('d M Y') }}.</p>
 </div>

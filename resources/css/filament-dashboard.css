@@ -1,28 +1,25 @@
-@tailwind utilities;
-
 /**
- * Kelas semantik khusus widget dashboard keuangan.
+ * Widget dashboard keuangan (panel Filament).
  *
- * Warna memakai token resmi Filament (`--gray-*`, `--primary-*`, `--danger-*`)
- * supaya widget ini otomatis mengikuti warna halaman Filament lain.
+ * PENTING: berkas ini sengaja TIDAK memuat `@tailwind utilities`. Berkas ini
+ * dimuat Filament sebagai aset panel GLOBAL (semua halaman). Bila Tailwind
+ * diaktifkan, seluruh utility dari `tailwind.config.js` ikut ter-emit — termasuk
+ * varian `dark:` yang dikompilasi sebagai `@media (prefers-color-scheme: dark)`.
+ * Akibatnya kelas `dark:*` milik halaman lain ikut aktif mengikuti tema OS,
+ * bukan tema panel Filament, sehingga teks berubah putih di panel terang.
+ * Semua gaya di bawah ditulis eksplisit dan hanya memakai nama kelas berprefiks
+ * `kd-`, sehingga tidak mungkin menimpa gaya halaman lain.
  *
- * Utility `dark:` Tailwind TIDAK dipakai di sini: varian dark bawaan Tailwind
- * keyed off `@media (prefers-color-scheme)` (tema OS), sedangkan Filament memakai
- * class `.dark` pada <html> (tema panel). Keduanya bisa berbeda, sehingga `dark:`
- * membuat warna widget tidak sinkron dengan tema panel. Scope di bawah meniru
- * `:where(.dark, .dark *)` milik Filament (zero specificity).
- *
- * Pemetaan mengikuti komponen Filament:
- *  - dark surface       -> var(--gray-900)  (.fi-section, .fi-ta-ctn)
- *  - dark surface muted -> #ffffff0d        (.fi-secondary, .fi-striped)
- *  - dark border        -> #ffffff1a        (.fi-section ring)
- *  - dark heading       -> #ffffff          (.fi-ta-header-cell)
- *  - muted text         -> var(--gray-500)  (.fi-section-header-description)
- *  - aksen dark         -> var(--primary-400) / var(--danger-400)
+ * Warna memakai token semantik (variabel CSS) yang di-scope ke `.dark` milik
+ * Filament lewat `:where(.dark, .dark *)`, sehingga mengikuti toggle tema panel
+ * dan bukan tema OS. Palet meniru halaman laporan (`laporan-*.blade.php`) supaya
+ * konsisten dengan halaman lain: slate, emerald (penerimaan), rose
+ * (pengeluaran), indigo (saldo/aksen), amber (defisit).
  */
 
+/* ------------------------------------------------------------------ token */
+
 .kd-page {
-    /* Palet meniru halaman laporan (`laporan-*.blade.php`) supaya konsisten. */
     --kd-surface: #ffffff;
     --kd-surface-muted: #f8fafc;
     --kd-text: #334155;
@@ -39,6 +36,7 @@
     --kd-thead-border: #cbd5e1;
     --kd-row-hover: #f8fafc;
     --kd-negative: #d97706;
+    --kd-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
 }
 
 :where(.dark, .dark *) .kd-page {
@@ -58,6 +56,20 @@
     --kd-thead-border: rgba(255, 255, 255, 0.08);
     --kd-row-hover: rgba(255, 255, 255, 0.03);
     --kd-negative: #fbbf24;
+    --kd-shadow: none;
+}
+
+/* ------------------------------------------------------------------ umum */
+
+.kd-page {
+    color: var(--kd-text);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
 }
 
 .kd-heading {
@@ -103,43 +115,215 @@
 
 .kd-link {
     color: var(--kd-accent);
+    text-decoration: none;
+    flex-shrink: 0;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 .kd-link:hover {
-    opacity: 0.85;
+    text-decoration: underline;
 }
 
-.kd-table {
-    border-collapse: collapse;
-    width: 100%;
-    text-align: left;
-    font-size: 13.5px;
+.kd-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    flex-shrink: 0;
 }
 
-.kd-thead th {
-    background: var(--kd-thead-bg);
-    color: var(--kd-thead-text);
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 11px;
-    letter-spacing: 0.5px;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--kd-thead-border);
+.kd-dot-in {
+    background-color: var(--kd-series-in);
 }
 
-.kd-table td {
-    padding: 9px 16px;
-    border-bottom: 1px solid var(--kd-divider);
-    vertical-align: middle;
+.kd-dot-out {
+    background-color: var(--kd-series-out);
+}
+
+/* ------------------------------------------------------------------ header */
+
+.kd-header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border-bottom: 1px solid var(--kd-border);
+    padding-bottom: 20px;
+    min-width: 0;
+}
+
+.kd-header-main {
+    min-width: 0;
+}
+
+.kd-title {
+    color: var(--kd-text-strong);
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+}
+
+.kd-subtitle {
+    color: var(--kd-muted);
+    font-size: 14px;
+    margin: 4px 0 0;
+}
+
+.kd-range {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
     color: var(--kd-text);
+    flex-shrink: 0;
+    white-space: nowrap;
+    width: fit-content;
 }
 
-.kd-table tbody tr:hover td {
-    background-color: var(--kd-row-hover);
+.kd-select {
+    border: 1px solid var(--kd-border);
+    border-radius: 8px;
+    background-color: transparent;
+    color: var(--kd-text);
+    font-size: 14px;
+    padding: 8px 32px 8px 12px;
+    box-shadow: var(--kd-shadow);
 }
 
-.kd-divide > :not([hidden]) ~ :not([hidden]) {
-    border-top-color: var(--kd-border);
+.kd-select:focus {
+    outline: none;
+    border-color: var(--kd-series-in);
+    box-shadow: 0 0 0 2px rgb(5 150 105 / 0.25);
+}
+
+:where(.dark, .dark *) .kd-select:focus {
+    box-shadow: 0 0 0 2px rgb(52 211 153 / 0.35);
+}
+
+/* ------------------------------------------------------------------ metrik */
+
+.kd-metrics {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px 24px;
+    border-bottom: 1px solid var(--kd-border);
+    padding-bottom: 20px;
+}
+
+.kd-metric {
+    border-left: 2px solid var(--kd-divider);
+    padding-left: 16px;
+    min-width: 0;
+}
+
+.kd-metric--saldo {
+    border-left-color: var(--kd-accent);
+}
+
+.kd-metric-label {
+    color: var(--kd-muted);
+    font-size: 14px;
+    margin: 0;
+}
+
+.kd-metric-value {
+    color: var(--kd-text-strong);
+    font-size: 18px;
+    font-weight: 600;
+    margin: 8px 0 0;
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.kd-metric--saldo .kd-metric-value {
+    font-size: 20px;
+}
+
+.kd-metric-hint {
+    color: var(--kd-muted);
+    font-size: 12px;
+    margin: 4px 0 0;
+}
+
+.kd-metric--defisit .kd-metric-value {
+    color: var(--kd-negative);
+}
+
+/* ------------------------------------------------------------------ kartu */
+
+.kd-section {
+    background-color: var(--kd-surface);
+    border: 1px solid var(--kd-border);
+    border-radius: 12px;
+    box-shadow: var(--kd-shadow);
+    overflow: hidden;
+}
+
+.kd-section--padded {
+    padding: 20px;
+}
+
+.kd-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    min-width: 0;
+}
+
+.kd-section-head--border {
+    border-bottom: 1px solid var(--kd-border);
+    padding: 16px 20px;
+    align-items: center;
+}
+
+.kd-section-head--border .kd-section-title {
+    font-size: 15px;
+}
+
+.kd-section-title {
+    color: var(--kd-text-strong);
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.kd-section-subtitle {
+    color: var(--kd-muted);
+    font-size: 14px;
+    margin: 4px 0 0;
+}
+
+.kd-legend {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--kd-muted);
+    flex-shrink: 0;
+}
+
+.kd-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ grafik */
+
+.kd-chart-wrap {
+    margin-top: 20px;
+}
+
+.kd-chart {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
 }
 
 .kd-line-in {
@@ -159,10 +343,134 @@
     font-size: 11px;
 }
 
-.kd-dot-in {
-    background-color: var(--kd-series-in);
+.kd-empty {
+    border-top: 1px solid var(--kd-border);
+    padding: 40px 0;
+    text-align: center;
 }
 
-.kd-dot-out {
-    background-color: var(--kd-series-out);
+.kd-empty--inline {
+    border-top: 0;
+    padding: 32px 20px;
+    color: var(--kd-muted);
+    font-size: 14px;
+}
+
+.kd-empty-title {
+    color: var(--kd-text-strong);
+    font-weight: 500;
+    margin: 0;
+}
+
+.kd-empty-hint {
+    color: var(--kd-muted);
+    font-size: 14px;
+    margin: 4px 0 0;
+}
+
+/* ------------------------------------------------------------------ tabel */
+
+.kd-table-wrap {
+    overflow-x: auto;
+}
+
+.kd-table {
+    border-collapse: collapse;
+    width: 100%;
+    text-align: left;
+    font-size: 13.5px;
+}
+
+.kd-thead th {
+    background: var(--kd-thead-bg);
+    color: var(--kd-thead-text);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--kd-thead-border);
+    white-space: nowrap;
+}
+
+.kd-table td {
+    padding: 9px 16px;
+    border-bottom: 1px solid var(--kd-divider);
+    vertical-align: middle;
+    color: var(--kd-text);
+}
+
+.kd-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.kd-table tbody tr:hover td {
+    background-color: var(--kd-row-hover);
+}
+
+.kd-nowrap {
+    white-space: nowrap;
+}
+
+.kd-strong {
+    font-weight: 700;
+}
+
+.kd-num {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.kd-truncate {
+    max-width: 256px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.kd-footnote {
+    color: var(--kd-muted);
+    font-size: 12px;
+    margin: 0;
+}
+
+/* ------------------------------------------------------------------ responsif */
+
+@media (min-width: 640px) {
+    .kd-header {
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+    }
+
+    .kd-title {
+        font-size: 24px;
+    }
+
+    .kd-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .kd-metric-value {
+        font-size: 20px;
+    }
+
+    .kd-metric--saldo .kd-metric-value {
+        font-size: 24px;
+    }
+
+    .kd-section--padded {
+        padding: 24px;
+    }
+
+    .kd-section-head--border {
+        padding: 16px 24px;
+    }
+}
+
+@media (min-width: 1280px) {
+    .kd-metrics {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
 }

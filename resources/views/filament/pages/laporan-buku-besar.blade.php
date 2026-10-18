@@ -157,6 +157,25 @@
             gap: 10px;
             flex-wrap: wrap;
         }
+        /*
+         * Empty state. Sebelumnya memakai utility `bg-white dark:bg-[#18181b]`.
+         * Utility `dark:` Tailwind tidak pernah aktif di panel Filament karena
+         * di-compile terhadap media query OS, sedangkan tema panel memakai
+         * class `.dark`, sehingga kotak ini tetap putih di mode gelap.
+         */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            color: #9ca3af;
+        }
+        .dark .empty-state {
+            background: #18181b;
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #6b7280;
+        }
     </style>
 
     {{-- Form Filter Section --}}
@@ -296,7 +315,7 @@
                 </div>
             </div>
         @empty
-            <div class="text-center py-10 px-5 bg-white dark:bg-[#18181b] border border-gray-200 dark:border-white/10 rounded-xl text-gray-400 dark:text-gray-500">
+            <div class="empty-state">
                 Tidak ada transaksi yang ditemukan untuk periode &amp; filter yang dipilih.
             </div>
         @endforelse

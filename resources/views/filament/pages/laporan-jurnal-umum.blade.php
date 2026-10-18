@@ -156,6 +156,33 @@
         .account-indent {
             padding-left: 28px !important;
         }
+        /*
+         * Latar baris jurnal. Sebelumnya memakai inline `background-color`
+         * terang + utility `dark:bg-zinc-900/*` di atribut yang sama. Inline
+         * style menang, dan utility `dark:` Tailwind tidak pernah aktif di
+         * panel Filament (di-compile terhadap media query OS, sedangkan tema
+         * panel memakai class `.dark`), sehingga baris tetap terang di mode
+         * gelap. Pindahkan ke CSS biasa dengan scope `.dark` seperti selektor
+         * lain di halaman ini.
+         */
+        .journal-row-primary {
+            background-color: #fdfdfd;
+        }
+        .dark .journal-row-primary {
+            background-color: rgba(24, 24, 27, 0.4);
+        }
+        .journal-row-note {
+            background-color: #fcfcfc;
+        }
+        .dark .journal-row-note {
+            background-color: rgba(24, 24, 27, 0.2);
+        }
+        .journal-row-divider {
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .dark .journal-row-divider {
+            border-bottom-color: rgba(255, 255, 255, 0.08);
+        }
     </style>
 
     {{-- Form Filter Section --}}
@@ -207,21 +234,21 @@
                             $isMasuk = in_array($entry['jenis_voucher'], ['Masuk', 'BKM', 'BBM'], true);
                         @endphp
                         {{-- Baris 1: Sisi Debet + Metadata Transaksi --}}
-                        <tr style="background-color: #fdfdfd;" class="dark:bg-zinc-900/40">
-                            <td class="text-gray-500 dark:text-gray-400 whitespace-nowrap font-medium align-top" rowspan="3" style="border-bottom: 2px solid #e2e8f0;">
+                        <tr class="journal-row-primary">
+                            <td class="journal-row-divider text-gray-500 dark:text-gray-400 whitespace-nowrap font-medium align-top" rowspan="3">
                                 {{ \Carbon\Carbon::parse($entry['tanggal'])->format('d/m/Y') }}
                             </td>
-                            <td class="col-code align-top" rowspan="3" style="border-bottom: 2px solid #e2e8f0;">
+                            <td class="journal-row-divider col-code align-top" rowspan="3">
                                 {{ $entry['no_bukti'] }}
                             </td>
-                            <td style="text-align: center; white-space: nowrap; align-top: top;" rowspan="3" style="border-bottom: 2px solid #e2e8f0;">
+                            <td class="journal-row-divider text-center whitespace-nowrap align-top" rowspan="3">
                                 @if($isMasuk)
                                     <span class="badge-masuk">{{ $entry['jenis_voucher'] }}</span>
                                 @else
                                     <span class="badge-keluar">{{ $entry['jenis_voucher'] }}</span>
                                 @endif
                             </td>
-                            <td class="text-gray-700 dark:text-gray-300 align-top" rowspan="3" style="border-bottom: 2px solid #e2e8f0;">
+                            <td class="journal-row-divider text-gray-700 dark:text-gray-300 align-top" rowspan="3">
                                 {{ $entry['pihak_terkait'] ?: '-' }}
                             </td>
                             {{-- Akun Debet --}}
@@ -240,7 +267,7 @@
                         </tr>
 
                         {{-- Baris 2: Sisi Kredit (Indented) --}}
-                        <tr style="background-color: #fdfdfd;" class="dark:bg-zinc-900/40">
+                        <tr class="journal-row-primary">
                             <td class="account-indent text-gray-700 dark:text-gray-300">
                                 <span class="text-gray-400 mr-1">↳</span> {{ $entry['kredit']['nama_akun'] }}
                             </td>
@@ -256,8 +283,8 @@
                         </tr>
 
                         {{-- Baris 3: Catatan Uraian Transaksi --}}
-                        <tr class="entry-group" style="background-color: #fcfcfc;" class="dark:bg-zinc-900/20">
-                            <td colspan="4" style="font-size: 12px; font-style: italic; color: #64748b; padding-left: 20px; border-bottom: 2px solid #e2e8f0;">
+                        <tr class="entry-group journal-row-note">
+                            <td colspan="4" class="journal-row-divider text-xs italic text-gray-600 dark:text-gray-400" style="padding-left: 20px;">
                                 ({{ $entry['uraian'] }})
                             </td>
                         </tr>
