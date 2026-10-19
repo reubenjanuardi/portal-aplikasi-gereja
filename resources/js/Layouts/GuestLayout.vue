@@ -1,6 +1,6 @@
 <template>
     <div
-        class="relative flex min-h-screen flex-col justify-between bg-slate-50 px-4 py-8 font-sans text-slate-900 sm:px-6 sm:py-12 lg:px-8"
+        class="bg-slate-50 text-slate-900 relative flex min-h-screen flex-col justify-between px-4 py-8 font-sans sm:px-6 sm:py-12 lg:px-8"
     >
         <!-- Tombol Kembali di Pojok Kiri Atas -->
         <div
@@ -8,10 +8,10 @@
         >
             <a
                 href="/"
-                class="shadow-xs inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-offset-2"
+                class="shadow-xs border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 inline-flex items-center gap-2 rounded-xl border bg-white px-3.5 py-2 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-offset-2"
             >
                 <svg
-                    class="h-4 w-4 text-slate-500"
+                    class="text-slate-500 h-4 w-4"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -41,12 +41,12 @@
                     />
                     <div>
                         <span
-                            class="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl"
+                            class="text-slate-900 text-xl font-bold tracking-tight sm:text-2xl"
                         >
                             Portal GPIB Hosiana
                         </span>
                         <p
-                            class="text-xs font-medium uppercase tracking-wider text-slate-500"
+                            class="text-slate-500 text-xs font-medium uppercase tracking-wider"
                         >
                             GPIB Jemaat Hosiana Jakarta Pusat
                         </p>
@@ -56,14 +56,14 @@
 
             <!-- Main Form Card Container -->
             <div
-                class="mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+                class="border-slate-200 mx-auto w-full max-w-md rounded-2xl border bg-white p-6 shadow-sm sm:p-8"
             >
                 <slot />
             </div>
         </div>
 
         <!-- Footer Information -->
-        <footer class="mt-8 space-y-1 text-center text-xs text-slate-500">
+        <footer class="text-slate-500 mt-8 space-y-1 text-center text-xs">
             <p>
                 &copy; 2026 GPIB Jemaat Hosiana Jakarta. Hak Cipta Dilindungi.
             </p>

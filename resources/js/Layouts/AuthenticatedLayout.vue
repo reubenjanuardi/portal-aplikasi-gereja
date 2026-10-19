@@ -55,11 +55,11 @@ function handleLogout() {
 
 <template>
     <div
-        class="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-900 selection:text-white"
+        class="bg-slate-50 text-slate-900 min-h-screen font-sans selection:bg-blue-900 selection:text-white"
     >
         <!-- Top Navbar -->
         <nav
-            class="shadow-xs sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md"
+            class="shadow-xs border-slate-200 sticky top-0 z-40 border-b bg-white/95 backdrop-blur-md"
         >
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 items-center justify-between gap-4">
@@ -76,7 +76,7 @@ function handleLogout() {
                             />
                             <div class="flex items-center gap-2">
                                 <span
-                                    class="text-base font-bold tracking-tight text-slate-900 sm:text-lg"
+                                    class="text-slate-900 text-base font-bold tracking-tight sm:text-lg"
                                 >
                                     Portal GPIB Hosiana
                                 </span>
@@ -90,7 +90,7 @@ function handleLogout() {
                                 :class="[
                                     route().current('dashboard')
                                         ? 'bg-blue-50 font-semibold text-blue-900'
-                                        : 'font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+                                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium',
                                     'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-colors',
                                 ]"
                             >
@@ -118,7 +118,7 @@ function handleLogout() {
                             <template #trigger>
                                 <button
                                     type="button"
-                                    class="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white p-1.5 pr-3 text-left transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-offset-2"
+                                    class="border-slate-200 hover:bg-slate-50 flex items-center gap-2.5 rounded-xl border bg-white p-1.5 pr-3 text-left transition-colors focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-offset-2"
                                 >
                                     <div
                                         class="shadow-xs flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-900 text-xs font-bold text-white"
@@ -127,18 +127,18 @@ function handleLogout() {
                                     </div>
                                     <div class="flex flex-col text-start">
                                         <span
-                                            class="max-w-[140px] truncate text-xs font-semibold text-slate-900"
+                                            class="text-slate-900 max-w-[140px] truncate text-xs font-semibold"
                                         >
                                             {{ user.name }}
                                         </span>
                                         <span
-                                            class="max-w-[140px] truncate text-[11px] font-medium text-slate-500"
+                                            class="text-slate-500 max-w-[140px] truncate text-[11px] font-medium"
                                         >
                                             {{ userRoleBadge }}
                                         </span>
                                     </div>
                                     <svg
-                                        class="h-4 w-4 text-slate-400"
+                                        class="text-slate-400 h-4 w-4"
                                         xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 20 20"
                                         fill="currentColor"
@@ -154,14 +154,14 @@ function handleLogout() {
 
                             <template #content>
                                 <div
-                                    class="border-b border-slate-100 px-4 py-2.5"
+                                    class="border-slate-100 border-b px-4 py-2.5"
                                 >
                                     <p
-                                        class="truncate text-xs font-bold text-slate-900"
+                                        class="text-slate-900 truncate text-xs font-bold"
                                     >
                                         {{ user.name }}
                                     </p>
-                                    <p class="truncate text-xs text-slate-500">
+                                    <p class="text-slate-500 truncate text-xs">
                                         {{ user.email }}
                                     </p>
                                 </div>
@@ -175,7 +175,7 @@ function handleLogout() {
                                     </DropdownLink>
                                 </div>
 
-                                <div class="border-t border-slate-100 py-1">
+                                <div class="border-slate-100 border-t py-1">
                                     <button
                                         type="button"
                                         @click="handleLogout"
@@ -208,7 +208,7 @@ function handleLogout() {
                                 showingNavigationDropdown =
                                     !showingNavigationDropdown
                             "
-                            class="inline-flex items-center justify-center rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900"
+                            class="text-slate-600 hover:bg-slate-100 hover:text-slate-900 inline-flex items-center justify-center rounded-lg p-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-900"
                         >
                             <svg
                                 class="h-6 w-6"
@@ -250,7 +250,7 @@ function handleLogout() {
                     block: showingNavigationDropdown,
                     hidden: !showingNavigationDropdown,
                 }"
-                class="border-b border-slate-200 bg-white sm:hidden"
+                class="border-slate-200 border-b bg-white sm:hidden"
             >
                 <div class="space-y-1 px-4 pb-3 pt-2">
                     <ResponsiveNavLink
@@ -267,7 +267,7 @@ function handleLogout() {
                     </ResponsiveNavLink>
                 </div>
 
-                <div class="border-t border-slate-200 px-4 py-3">
+                <div class="border-slate-200 border-t px-4 py-3">
                     <div class="flex items-center gap-3">
                         <div
                             class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-900 text-xs font-bold text-white"
@@ -275,10 +275,10 @@ function handleLogout() {
                             {{ userInitials }}
                         </div>
                         <div class="truncate">
-                            <div class="text-sm font-semibold text-slate-900">
+                            <div class="text-slate-900 text-sm font-semibold">
                                 {{ user.name }}
                             </div>
-                            <div class="truncate text-xs text-slate-500">
+                            <div class="text-slate-500 truncate text-xs">
                                 {{ user.email }}
                             </div>
                         </div>
@@ -313,7 +313,7 @@ function handleLogout() {
         <!-- Page Header Slot -->
         <header
             v-if="$slots.header"
-            class="shadow-xs border-b border-slate-200 bg-white"
+            class="shadow-xs border-slate-200 border-b bg-white"
         >
             <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                 <slot name="header" />

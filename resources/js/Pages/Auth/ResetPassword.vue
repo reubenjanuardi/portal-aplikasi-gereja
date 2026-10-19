@@ -36,10 +36,10 @@ const submit = () => {
         <Head title="Atur Ulang Kata Sandi" />
 
         <div class="mb-6">
-            <h1 class="text-xl font-bold tracking-tight text-slate-900">
+            <h1 class="text-slate-900 text-xl font-bold tracking-tight">
                 Atur Ulang Kata Sandi
             </h1>
-            <p class="mt-1 text-sm text-slate-600">
+            <p class="text-slate-600 mt-1 text-sm">
                 Masukkan kata sandi baru untuk akun portal Anda.
             </p>
         </div>
@@ -50,7 +50,7 @@ const submit = () => {
                 <TextInput
                     id="email"
                     type="email"
-                    class="w-full cursor-not-allowed bg-slate-100 text-slate-500"
+                    class="bg-slate-100 text-slate-500 w-full cursor-not-allowed"
                     v-model="form.email"
                     disabled
                     readonly
@@ -103,7 +103,7 @@ const submit = () => {
             <div class="pt-2 text-center">
                 <Link
                     :href="route('login')"
-                    class="text-xs font-medium text-slate-600 transition-colors hover:text-blue-900"
+                    class="text-slate-600 text-xs font-medium transition-colors hover:text-blue-900"
                 >
                     &larr; Kembali ke Halaman Masuk
                 </Link>

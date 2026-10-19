@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
+use App\Services\LaporanTriwulanService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -253,5 +254,44 @@ class LaporanPdfController extends Controller
         ))->setPaper('a4', 'portrait');
 
         return $pdf->stream('Laporan-Realisasi-Mingguan.pdf');
+    }
+
+    /**
+     * Stream PDF for Laporan Keuangan Triwulan (rekapitulasi + detail).
+     */
+    public function triwulan(Request $request): Response
+    {
+        abort_unless(auth()->user()?->can('keuangan.laporan.export'), 403, 'Anda tidak memiliki izin untuk mengunduh laporan keuangan.');
+
+        $tahunAnggaran = (int) $request->query('tahunAnggaran', LaporanTriwulanService::fiscalYearOf(now()->toDateString()));
+        $triwulan = (int) $request->query('triwulan', 1);
+
+        \App\Models\ActivityLog::log(
+            description: 'Mengunduh Laporan Triwulan PDF',
+            logName: 'keuangan',
+            properties: ['params' => $request->query()]
+        );
+
+        $service = app(LaporanTriwulanService::class);
+        $reportData = $service->getReport($tahunAnggaran, $triwulan);
+
+        $churchName = \App\Models\AppSetting::get('church_name', 'GPIB JEMAAT HOSIANA');
+        $churchAddress1 = \App\Models\AppSetting::get('church_address1', '');
+        $churchAddress2 = \App\Models\AppSetting::get('church_address2', '');
+
+        $pdf = Pdf::loadView('pdf.laporan-triwulan', array_merge($reportData, [
+            'period' => $reportData['period'],
+            'rekap' => $reportData['rekap'],
+            'totalPenerimaan' => $reportData['totalPenerimaan'],
+            'totalPengeluaran' => $reportData['totalPengeluaran'],
+            'surplusDefisit' => $reportData['surplusDefisit'],
+            'churchName' => $churchName,
+            'churchAddress1' => $churchAddress1,
+            'churchAddress2' => $churchAddress2,
+        ]))->setPaper('a4', 'landscape');
+
+        return $pdf->stream(
+            'Laporan-Triwulan-' . $reportData['period']['triwulan_label'] . '-TA-' . $reportData['period']['tahun_label'] . '.pdf'
+        );
     }
 }

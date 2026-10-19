@@ -26,10 +26,10 @@ const verificationLinkSent = computed(
         <Head title="Verifikasi Alamat Email" />
 
         <div class="mb-6">
-            <h1 class="text-xl font-bold tracking-tight text-slate-900">
+            <h1 class="text-slate-900 text-xl font-bold tracking-tight">
                 Verifikasi Alamat Email
             </h1>
-            <p class="mt-2 text-sm leading-relaxed text-slate-600">
+            <p class="text-slate-600 mt-2 text-sm leading-relaxed">
                 Sebelum memulai, silakan verifikasi alamat email Anda dengan
                 mengklik tautan yang baru saja kami kirimkan ke email Anda. Jika
                 Anda tidak menerima email tersebut, kami dapat mengirimkan
@@ -77,7 +77,7 @@ const verificationLinkSent = computed(
                     :href="route('logout')"
                     method="post"
                     as="button"
-                    class="text-xs font-medium text-slate-600 transition-colors hover:text-red-600"
+                    class="text-slate-600 text-xs font-medium transition-colors hover:text-red-600"
                 >
                     Keluar (Log Out)
                 </Link>

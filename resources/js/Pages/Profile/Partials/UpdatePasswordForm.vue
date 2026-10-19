@@ -35,9 +35,9 @@ const updatePassword = () => {
 
 <template>
     <section>
-        <header class="border-b border-slate-100 pb-4">
-            <h2 class="text-lg font-bold text-slate-900">Keamanan Akun</h2>
-            <p class="mt-1 text-sm text-slate-600">
+        <header class="border-slate-100 border-b pb-4">
+            <h2 class="text-slate-900 text-lg font-bold">Keamanan Akun</h2>
+            <p class="text-slate-600 mt-1 text-sm">
                 Pastikan akun Anda menggunakan kata sandi yang kuat dan unik
                 untuk menjaga keamanan akses portal.
             </p>

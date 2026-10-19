@@ -713,4 +713,213 @@ class ExcelReportService
 
         return $tempPath;
     }
+
+    /**
+     * Generate XLSX for Laporan Keuangan Triwulan (Multi-Sheet: Rekapitulasi & Detail)
+     */
+    public function generateTriwulanXlsx(array $reportData): string
+    {
+        $tempPath = tempnam(sys_get_temp_dir(), 'triwulan_') . '.xlsx';
+        $options = new Options();
+        $writer = new Writer($options);
+        $writer->openToFile($tempPath);
+
+        $churchName = AppSetting::get('church_name', 'GPIB JEMAAT HOSIANA');
+        $churchAddress1 = AppSetting::get('church_address1', '');
+        $churchAddress2 = AppSetting::get('church_address2', '');
+
+        $period = $reportData['period'];
+        $rekap = $reportData['rekap'];
+        $totalPenerimaan = $reportData['totalPenerimaan'];
+        $totalPengeluaran = $reportData['totalPengeluaran'];
+        $surplusDefisit = $reportData['surplusDefisit'];
+
+        $formattedPeriod = 'Periode: ' . Carbon::parse($period['start_date'])->translatedFormat('d F Y') .
+            ' s/d ' . Carbon::parse($period['end_date'])->translatedFormat('d F Y') .
+            " | {$period['triwulan_label']} TA {$period['tahun_label']}";
+
+        // ==========================================
+        // SHEET 1: Rekapitulasi
+        // ==========================================
+        $sheet = $writer->getCurrentSheet();
+        $sheet->setName('Rekapitulasi');
+
+        $writer->addRow(Row::fromValues([strtoupper($churchName)], $this->getTitleStyle()));
+        if ($churchAddress1 || $churchAddress2) {
+            $writer->addRow(Row::fromValues([trim("{$churchAddress1} {$churchAddress2}")], $this->getMetaStyle()));
+        }
+        $writer->addRow(Row::fromValues(['REKAPITULASI LAPORAN REALISASI TRIWULAN'], $this->getSubtitleStyle()));
+        $writer->addRow(Row::fromValues([$formattedPeriod], $this->getMetaStyle()));
+        $writer->addRow(Row::fromValues(['']));
+
+        // --- I. Penerimaan ---
+        $writer->addRow(Row::fromValues(['I. PENERIMAAN'], $this->getSectionHeaderStyle()));
+        $writer->addRow(Row::fromValues([
+            'No. MA', 'Uraian Anggaran', 'Anggaran Setahun (Rp)', 'Realisasi Triwulan (Rp)',
+        ], $this->getTableHeaderStyle()));
+
+        $penerimaanItems = $rekap['penerimaan']['items'] ?? [];
+        foreach ($penerimaanItems as $item) {
+            $indent = str_repeat('  ', (int) ($item['depth'] ?? 0));
+            $isHeader = ! ($item['is_postable'] ?? true);
+            $style = $isHeader ? $this->getSubtotalRowStyle() : $this->getDataRowStyle();
+            $numStyle = $isHeader ? $this->getSubtotalNumberStyle() : $this->getNumberStyle();
+
+            $cells = [
+                Cell::fromValue($item['kode_akun'] ?? '', $style),
+                Cell::fromValue($indent . ($item['nama_akun'] ?? ''), $style),
+                Cell::fromValue((float) ($item['anggaran_setahun'] ?? 0), $numStyle),
+                Cell::fromValue((float) ($item['realisasi'] ?? 0), $numStyle),
+            ];
+            $writer->addRow(new Row($cells));
+        }
+
+        // Total Penerimaan
+        $writer->addRow(new Row([
+            Cell::fromValue('TOTAL PENERIMAAN', $this->getGrandTotalRowStyle()),
+            Cell::fromValue('', $this->getGrandTotalRowStyle()),
+            Cell::fromValue((float) ($rekap['penerimaan']['total_anggaran'] ?? 0), $this->getGrandTotalNumberStyle()),
+            Cell::fromValue((float) ($rekap['penerimaan']['total_realisasi'] ?? 0), $this->getGrandTotalNumberStyle()),
+        ]));
+
+        $writer->addRow(Row::fromValues(['']));
+
+        // --- II. Pengeluaran ---
+        $writer->addRow(Row::fromValues(['II. PENGELUARAN'], $this->getSectionHeaderStyle()));
+        $writer->addRow(Row::fromValues([
+            'No. MA', 'Uraian Pengeluaran', 'Anggaran Setahun (Rp)', 'Anggaran Triwulan (Rp)', 'Realisasi Triwulan (Rp)', '%',
+        ], $this->getTableHeaderStyle()));
+
+        $pengeluaranItems = $rekap['pengeluaran']['items'] ?? [];
+        foreach ($pengeluaranItems as $item) {
+            $indent = str_repeat('  ', (int) ($item['depth'] ?? 0));
+            $isHeader = ! ($item['is_postable'] ?? true);
+            $style = $isHeader ? $this->getSubtotalRowStyle() : $this->getDataRowStyle();
+            $numStyle = $isHeader ? $this->getSubtotalNumberStyle() : $this->getNumberStyle();
+
+            $cells = [
+                Cell::fromValue($item['kode_akun'] ?? '', $style),
+                Cell::fromValue($indent . ($item['nama_akun'] ?? ''), $style),
+                Cell::fromValue((float) ($item['anggaran_setahun'] ?? 0), $numStyle),
+                Cell::fromValue((float) ($item['anggaran_triwulan'] ?? 0), $numStyle),
+                Cell::fromValue((float) ($item['realisasi'] ?? 0), $numStyle),
+                Cell::fromValue($item['persen'] !== null ? round((float) $item['persen'], 1) : null, $numStyle),
+            ];
+            $writer->addRow(new Row($cells));
+        }
+
+        $writer->addRow(new Row([
+            Cell::fromValue('TOTAL PENGELUARAN', $this->getGrandTotalRowStyle()),
+            Cell::fromValue('', $this->getGrandTotalRowStyle()),
+            Cell::fromValue((float) ($rekap['pengeluaran']['total_anggaran'] ?? 0), $this->getGrandTotalNumberStyle()),
+            Cell::fromValue((float) ($rekap['pengeluaran']['total_anggaran_triwulan'] ?? 0), $this->getGrandTotalNumberStyle()),
+            Cell::fromValue((float) ($rekap['pengeluaran']['total_realisasi'] ?? 0), $this->getGrandTotalNumberStyle()),
+            Cell::fromValue($rekap['pengeluaran']['total_persen'] !== null ? round((float) $rekap['pengeluaran']['total_persen'], 1) : null, $this->getGrandTotalNumberStyle()),
+        ]));
+
+        $writer->addRow(Row::fromValues(['']));
+        // Ringkasan
+        $writer->addRow(Row::fromValues(['RINGKASAN'], $this->getSectionHeaderStyle()));
+        $writer->addRow(Row::fromValues(['Total Penerimaan', (float) $totalPenerimaan], $this->getSubtitleStyle()));
+        $writer->addRow(Row::fromValues(['Total Pengeluaran', (float) $totalPengeluaran], $this->getSubtitleStyle()));
+        $writer->addRow(Row::fromValues(['Surplus / (Defisit)', (float) $surplusDefisit], $this->getSubtitleStyle()));
+
+        // ==========================================
+        // SHEET 2: Detail
+        // ==========================================
+        $sheet2 = $writer->addNewSheetAndMakeItCurrent();
+        $sheet2->setName('Detail');
+
+        $writer->addRow(Row::fromValues([strtoupper($churchName)], $this->getTitleStyle()));
+        if ($churchAddress1 || $churchAddress2) {
+            $writer->addRow(Row::fromValues([trim("{$churchAddress1} {$churchAddress2}")], $this->getMetaStyle()));
+        }
+        $writer->addRow(Row::fromValues(['DETAIL LAPORAN REALISASI TRIWULAN'], $this->getSubtitleStyle()));
+        $writer->addRow(Row::fromValues([$formattedPeriod], $this->getMetaStyle()));
+        $writer->addRow(Row::fromValues(['']));
+
+        $monthKeys = array_column($period['months'], 'key');
+        $monthLabels = array_column($period['months'], 'label');
+
+        // Header row 1 (group headers)
+        $header1 = ['No. MA', 'Mata Anggaran', 'Anggaran Tahunan', 'Anggaran Tahunan'];
+        foreach ($monthLabels as $label) {
+            $header1[] = $label;
+            $header1[] = $label;
+        }
+        $header1[] = 'Real to Plan Triwulan';
+        $header1[] = 'Real to Plan Triwulan';
+        $writer->addRow(Row::fromValues($header1, $this->getTableHeaderStyle()));
+
+        // Header row 2 (sub headers)
+        $header2 = ['', '', 'Masuk', 'Keluar'];
+        foreach ($monthKeys as $key) {
+            $header2[] = 'Masuk';
+            $header2[] = 'Keluar';
+        }
+        $header2[] = 'Masuk (%)';
+        $header2[] = 'Keluar (%)';
+        $writer->addRow(Row::fromValues($header2, $this->getTableHeaderStyle()));
+
+        // --- Penerimaan ---
+        $writer->addRow(Row::fromValues(['PENERIMAAN'], $this->getSectionHeaderStyle()));
+        foreach ($penerimaanItems as $item) {
+            $indent = str_repeat('  ', (int) ($item['depth'] ?? 0));
+            $isHeader = ! ($item['is_postable'] ?? true);
+            $style = $isHeader ? $this->getSubtotalRowStyle() : $this->getDataRowStyle();
+            $numStyle = $isHeader ? $this->getSubtotalNumberStyle() : $this->getNumberStyle();
+
+            $cells = [
+                Cell::fromValue($item['kode_akun'] ?? '', $style),
+                Cell::fromValue($indent . ($item['nama_akun'] ?? ''), $style),
+                Cell::fromValue((float) ($item['anggaran_setahun'] ?? 0), $numStyle),
+                Cell::fromValue(null, $numStyle), // Keluar blank
+            ];
+
+            // Monthly: Masuk + blank Keluar
+            foreach ($monthKeys as $key) {
+                $cells[] = Cell::fromValue((float) ($item['monthly'][$key] ?? 0), $numStyle);
+                $cells[] = Cell::fromValue(null, $numStyle);
+            }
+
+            // Real to Plan kumulatif triwulan: Masuk% + blank
+            $pct = $item['persen'] ?? null;
+            $cells[] = Cell::fromValue($pct !== null ? round((float) $pct, 1) : null, $numStyle);
+            $cells[] = Cell::fromValue(null, $numStyle);
+
+            $writer->addRow(new Row($cells));
+        }
+
+        // --- Pengeluaran ---
+        $writer->addRow(Row::fromValues(['PENGELUARAN'], $this->getSectionHeaderStyle()));
+        foreach ($pengeluaranItems as $item) {
+            $indent = str_repeat('  ', (int) ($item['depth'] ?? 0));
+            $isHeader = ! ($item['is_postable'] ?? true);
+            $style = $isHeader ? $this->getSubtotalRowStyle() : $this->getDataRowStyle();
+            $numStyle = $isHeader ? $this->getSubtotalNumberStyle() : $this->getNumberStyle();
+
+            $cells = [
+                Cell::fromValue($item['kode_akun'] ?? '', $style),
+                Cell::fromValue($indent . ($item['nama_akun'] ?? ''), $style),
+                Cell::fromValue(null, $numStyle), // Masuk blank
+                Cell::fromValue((float) ($item['anggaran_setahun'] ?? 0), $numStyle),
+            ];
+
+            foreach ($monthKeys as $key) {
+                $cells[] = Cell::fromValue(null, $numStyle);
+                $cells[] = Cell::fromValue((float) ($item['monthly'][$key] ?? 0), $numStyle);
+            }
+
+            // Real to Plan kumulatif triwulan: blank + Keluar%
+            $cells[] = Cell::fromValue(null, $numStyle);
+            $pct = $item['persen'] ?? null;
+            $cells[] = Cell::fromValue($pct !== null ? round((float) $pct, 1) : null, $numStyle);
+
+            $writer->addRow(new Row($cells));
+        }
+
+        $writer->close();
+
+        return $tempPath;
+    }
 }

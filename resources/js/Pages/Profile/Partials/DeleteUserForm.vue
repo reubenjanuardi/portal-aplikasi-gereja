@@ -60,7 +60,7 @@ const closeModal = () => {
                 </h2>
             </div>
 
-            <p class="mt-1 text-sm text-slate-600">
+            <p class="text-slate-600 mt-1 text-sm">
                 Setelah akun Anda dihapus, semua data dan hak akses yang
                 terhubung akan dihapus secara permanen. Tindakan ini tidak dapat
                 dibatalkan.
@@ -95,10 +95,10 @@ const closeModal = () => {
                     </div>
 
                     <div class="flex-1">
-                        <h3 class="text-lg font-bold text-slate-900">
+                        <h3 class="text-slate-900 text-lg font-bold">
                             Konfirmasi Penghapusan Akun
                         </h3>
-                        <p class="mt-1 text-sm leading-relaxed text-slate-600">
+                        <p class="text-slate-600 mt-1 text-sm leading-relaxed">
                             Apakah Anda yakin ingin menghapus akun Anda secara
                             permanen? Seluruh sesi dan hak akses portal akan
                             dihentikan seketika. Silakan masukkan kata sandi

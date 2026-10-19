@@ -257,11 +257,11 @@ function handleLogout() {
     <Head title="App Launcher - Portal GPIB Hosiana" />
 
     <div
-        class="flex min-h-screen flex-col bg-slate-100 font-sans selection:bg-blue-900 selection:text-white"
+        class="bg-slate-100 flex min-h-screen flex-col font-sans selection:bg-blue-900 selection:text-white"
     >
         <!-- Top Navbar -->
         <header
-            class="sticky top-0 z-40 border-b border-slate-200 bg-white bg-white/95 shadow-sm backdrop-blur-md"
+            class="border-slate-200 sticky top-0 z-40 border-b bg-white bg-white/95 shadow-sm backdrop-blur-md"
         >
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 items-center justify-between gap-4">
@@ -275,7 +275,7 @@ function handleLogout() {
                         <div>
                             <div class="flex items-center gap-2">
                                 <span
-                                    class="text-base font-bold tracking-tight text-slate-900 sm:text-lg"
+                                    class="text-slate-900 text-base font-bold tracking-tight sm:text-lg"
                                 >
                                     Portal GPIB Hosiana
                                 </span>
@@ -292,7 +292,7 @@ function handleLogout() {
                     <div class="hidden max-w-md flex-1 md:block">
                         <div class="relative">
                             <div
-                                class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"
+                                class="text-slate-400 pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
                             >
                                 <svg
                                     class="h-4 w-4"
@@ -312,12 +312,12 @@ function handleLogout() {
                                 v-model="searchQuery"
                                 type="text"
                                 placeholder="Cari modul aplikasi..."
-                                class="w-full rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-9 pr-8 text-sm transition-all placeholder:text-slate-400 focus:border-transparent focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-900"
+                                class="border-slate-200 bg-slate-50 placeholder:text-slate-400 w-full rounded-lg border py-1.5 pl-9 pr-8 text-sm transition-all focus:border-transparent focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-900"
                             />
                             <button
                                 v-if="searchQuery"
                                 @click="searchQuery = ''"
-                                class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-slate-400 hover:text-slate-600"
+                                class="text-slate-400 hover:text-slate-600 absolute inset-y-0 right-0 flex items-center pr-2.5"
                             >
                                 <svg
                                     class="h-4 w-4"
@@ -342,7 +342,7 @@ function handleLogout() {
                         <div class="relative">
                             <button
                                 @click="userDropdownOpen = !userDropdownOpen"
-                                class="flex items-center gap-2.5 rounded-lg p-1.5 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-900"
+                                class="hover:bg-slate-100 flex items-center gap-2.5 rounded-lg p-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-900"
                             >
                                 <div
                                     class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-900 text-xs font-bold text-white shadow-sm"
@@ -355,12 +355,12 @@ function handleLogout() {
                                 </div>
                                 <div class="hidden flex-col text-left lg:flex">
                                     <span
-                                        class="max-w-[140px] truncate text-sm font-medium leading-tight text-slate-800"
+                                        class="text-slate-800 max-w-[140px] truncate text-sm font-medium leading-tight"
                                     >
                                         {{ user.name }}
                                     </span>
                                     <span
-                                        class="text-[10px] font-normal text-slate-500"
+                                        class="text-slate-500 text-[10px] font-normal"
                                     >
                                         {{
                                             user.roles && user.roles.length
@@ -372,7 +372,7 @@ function handleLogout() {
                                     </span>
                                 </div>
                                 <svg
-                                    class="h-4 w-4 text-slate-500"
+                                    class="text-slate-500 h-4 w-4"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -396,17 +396,17 @@ function handleLogout() {
                             <!-- Dropdown Menu -->
                             <div
                                 v-if="userDropdownOpen"
-                                class="absolute right-0 z-50 mt-2 w-56 rounded-xl border border-slate-200 bg-white py-1.5 text-sm shadow-lg"
+                                class="border-slate-200 absolute right-0 z-50 mt-2 w-56 rounded-xl border bg-white py-1.5 text-sm shadow-lg"
                             >
                                 <div
-                                    class="border-b border-slate-100 px-4 py-2"
+                                    class="border-slate-100 border-b px-4 py-2"
                                 >
                                     <p
-                                        class="truncate font-semibold text-slate-900"
+                                        class="text-slate-900 truncate font-semibold"
                                     >
                                         {{ user.name }}
                                     </p>
-                                    <p class="truncate text-xs text-slate-500">
+                                    <p class="text-slate-500 truncate text-xs">
                                         {{ user.email }}
                                     </p>
                                     <div class="mt-1 flex flex-wrap gap-1">
@@ -421,10 +421,10 @@ function handleLogout() {
                                 </div>
                                 <Link
                                     :href="route('profile.edit')"
-                                    class="flex items-center gap-2 px-4 py-2 text-slate-700 transition-colors hover:bg-slate-50"
+                                    class="text-slate-700 hover:bg-slate-50 flex items-center gap-2 px-4 py-2 transition-colors"
                                 >
                                     <svg
-                                        class="h-4 w-4 text-slate-500"
+                                        class="text-slate-500 h-4 w-4"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
@@ -447,10 +447,10 @@ function handleLogout() {
                                             ))
                                     "
                                     href="/settings"
-                                    class="flex items-center gap-2 px-4 py-2 text-slate-700 transition-colors hover:bg-slate-50"
+                                    class="text-slate-700 hover:bg-slate-50 flex items-center gap-2 px-4 py-2 transition-colors"
                                 >
                                     <svg
-                                        class="h-4 w-4 text-slate-500"
+                                        class="text-slate-500 h-4 w-4"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
@@ -506,11 +506,11 @@ function handleLogout() {
             >
                 <div>
                     <h1
-                        class="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl"
+                        class="text-slate-900 text-2xl font-extrabold tracking-tight sm:text-3xl"
                     >
                         Aplikasi &amp; Layanan Portal
                     </h1>
-                    <p class="mt-1 text-sm text-slate-600 sm:text-base">
+                    <p class="text-slate-600 mt-1 text-sm sm:text-base">
                         Pilih modul di bawah untuk membuka sistem pengelolaan
                         GPIB Jemaat Hosiana sesuai hak akses Anda.
                     </p>
@@ -520,7 +520,7 @@ function handleLogout() {
                 <div class="w-full md:hidden">
                     <div class="relative">
                         <div
-                            class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"
+                            class="text-slate-400 pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
                         >
                             <svg
                                 class="h-4 w-4"
@@ -540,7 +540,7 @@ function handleLogout() {
                             v-model="searchQuery"
                             type="text"
                             placeholder="Cari modul aplikasi..."
-                            class="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900"
+                            class="border-slate-200 w-full rounded-lg border bg-white py-2 pl-9 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900"
                         />
                     </div>
                 </div>
@@ -558,7 +558,7 @@ function handleLogout() {
                         'whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-200 focus:outline-none',
                         selectedCategory === cat
                             ? 'border border-blue-900 bg-blue-900 text-white shadow-sm'
-                            : 'shadow-2xs border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+                            : 'shadow-2xs border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 border bg-white',
                     ]"
                 >
                     {{ cat }}
@@ -583,8 +583,8 @@ function handleLogout() {
                             app.active && hasModuleAccess(app)
                                 ? 'border-slate-100 shadow-blue-900/5 ring-2 ring-blue-900/10 group-hover:border-blue-300'
                                 : app.active && !hasModuleAccess(app)
-                                  ? 'border-amber-200/80 bg-slate-50/70 opacity-90 group-hover:border-amber-300'
-                                  : 'border-slate-100 opacity-80 group-hover:border-slate-300',
+                                  ? 'bg-slate-50/70 border-amber-200/80 opacity-90 group-hover:border-amber-300'
+                                  : 'border-slate-100 group-hover:border-slate-300 opacity-80',
                         ]"
                     >
                         <!-- Lock badge for active module WITHOUT user permission -->
@@ -612,7 +612,7 @@ function handleLogout() {
                         <!-- Coming Soon icon for unreleased modules -->
                         <span
                             v-else-if="!app.active"
-                            class="absolute right-2.5 top-2.5 h-4 w-4 text-slate-300 transition-colors group-hover:text-slate-400"
+                            class="text-slate-300 group-hover:text-slate-400 absolute right-2.5 top-2.5 h-4 w-4 transition-colors"
                             title="Segera Hadir"
                         >
                             <svg
@@ -922,12 +922,12 @@ function handleLogout() {
 
                     <!-- App Title Label -->
                     <span
-                        class="mt-3 w-full truncate text-center text-sm font-semibold tracking-tight text-slate-800 transition-colors group-hover:text-blue-900 sm:text-base"
+                        class="text-slate-800 mt-3 w-full truncate text-center text-sm font-semibold tracking-tight transition-colors group-hover:text-blue-900 sm:text-base"
                     >
                         {{ app.name }}
                     </span>
                     <span
-                        class="hidden w-full truncate text-center text-[11px] text-slate-500 sm:block"
+                        class="text-slate-500 hidden w-full truncate text-center text-[11px] sm:block"
                     >
                         {{ app.subtitle }}
                     </span>
@@ -937,10 +937,10 @@ function handleLogout() {
             <!-- Empty State for Search -->
             <div
                 v-else
-                class="rounded-3xl border border-slate-200 bg-white p-8 py-16 text-center shadow-sm"
+                class="border-slate-200 rounded-3xl border bg-white p-8 py-16 text-center shadow-sm"
             >
                 <div
-                    class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400"
+                    class="bg-slate-100 text-slate-400 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full"
                 >
                     <svg
                         class="h-6 w-6"
@@ -956,10 +956,10 @@ function handleLogout() {
                         />
                     </svg>
                 </div>
-                <h3 class="text-base font-semibold text-slate-900">
+                <h3 class="text-slate-900 text-base font-semibold">
                     Aplikasi tidak ditemukan
                 </h3>
-                <p class="mt-1 text-sm text-slate-500">
+                <p class="text-slate-500 mt-1 text-sm">
                     Tidak ada modul yang cocok dengan kata kunci "{{
                         searchQuery
                     }}".
@@ -978,7 +978,7 @@ function handleLogout() {
 
         <!-- Footer -->
         <footer
-            class="mt-auto border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500"
+            class="border-slate-200 text-slate-500 mt-auto border-t bg-white py-6 text-center text-xs"
         >
             <div class="mx-auto max-w-7xl px-4">
                 &copy; 2026 GPIB Jemaat Hosiana Jakarta. Portal Terintegrasi
@@ -989,15 +989,15 @@ function handleLogout() {
         <!-- Modal: Coming Soon or Access Denied Notification -->
         <div
             v-if="showModal"
-            class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/50 p-4 backdrop-blur-sm"
+            class="bg-slate-900/50 fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4 backdrop-blur-sm"
             @click.self="closeModal"
         >
             <div
-                class="animate-in fade-in zoom-in-95 relative w-full max-w-md rounded-3xl border border-slate-100 bg-white p-6 text-center shadow-2xl duration-200 sm:p-8"
+                class="animate-in fade-in zoom-in-95 border-slate-100 relative w-full max-w-md rounded-3xl border bg-white p-6 text-center shadow-2xl duration-200 sm:p-8"
             >
                 <button
                     @click="closeModal"
-                    class="absolute right-4 top-4 rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                    class="text-slate-400 hover:bg-slate-100 hover:text-slate-600 absolute right-4 top-4 rounded-full p-1 transition-colors"
                 >
                     <svg
                         class="h-5 w-5"
@@ -1040,17 +1040,17 @@ function handleLogout() {
                         Akses Terkunci
                     </div>
 
-                    <h3 class="text-xl font-bold tracking-tight text-slate-900">
+                    <h3 class="text-slate-900 text-xl font-bold tracking-tight">
                         Modul {{ activeModalApp?.name }}
                     </h3>
 
-                    <p class="mt-2 text-sm leading-relaxed text-slate-600">
+                    <p class="text-slate-600 mt-2 text-sm leading-relaxed">
                         Akun Anda (<strong>{{ user.name }}</strong
                         >) belum diberikan izin untuk mengakses modul ini.
                     </p>
 
                     <div
-                        class="mt-4 flex items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50 p-3.5 text-left text-xs text-slate-600"
+                        class="border-slate-200 bg-slate-50 text-slate-600 mt-4 flex items-start gap-2.5 rounded-xl border p-3.5 text-left text-xs"
                     >
                         <svg
                             class="mt-0.5 h-4 w-4 shrink-0 text-amber-600"
@@ -1077,7 +1077,7 @@ function handleLogout() {
                     <div class="mt-6">
                         <button
                             @click="closeModal"
-                            class="w-full rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-slate-800"
+                            class="bg-slate-900 hover:bg-slate-800 w-full rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors"
                         >
                             Saya Mengerti
                         </button>
@@ -1110,16 +1110,16 @@ function handleLogout() {
                         Tahap Pengembangan
                     </div>
 
-                    <h3 class="text-xl font-bold tracking-tight text-slate-900">
+                    <h3 class="text-slate-900 text-xl font-bold tracking-tight">
                         Modul {{ activeModalApp?.name }}
                     </h3>
 
-                    <p class="mt-2 text-sm leading-relaxed text-slate-600">
+                    <p class="text-slate-600 mt-2 text-sm leading-relaxed">
                         {{ activeModalApp?.description }}
                     </p>
 
                     <div
-                        class="mt-4 flex items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left text-xs text-slate-500"
+                        class="border-slate-200 bg-slate-50 text-slate-500 mt-4 flex items-start gap-2.5 rounded-xl border p-3 text-left text-xs"
                     >
                         <svg
                             class="mt-0.5 h-4 w-4 shrink-0 text-blue-900"
@@ -1143,7 +1143,7 @@ function handleLogout() {
                     <div class="mt-6">
                         <button
                             @click="closeModal"
-                            class="w-full rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+                            class="bg-slate-100 text-slate-700 hover:bg-slate-200 w-full rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors"
                         >
                             Tutup
                         </button>

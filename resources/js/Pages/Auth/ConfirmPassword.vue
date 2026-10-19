@@ -22,10 +22,10 @@ const submit = () => {
         <Head title="Konfirmasi Kata Sandi" />
 
         <div class="mb-6">
-            <h1 class="text-xl font-bold tracking-tight text-slate-900">
+            <h1 class="text-slate-900 text-xl font-bold tracking-tight">
                 Konfirmasi Kata Sandi
             </h1>
-            <p class="mt-1 text-sm text-slate-600">
+            <p class="text-slate-600 mt-1 text-sm">
                 Ini adalah area aman aplikasi. Harap konfirmasi kata sandi Anda
                 sebelum melanjutkan.
             </p>

@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use App\Models\Voucher;
 use App\Services\ExcelReportService;
 use App\Services\LaporanRealisasiService;
+use App\Services\LaporanTriwulanService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -256,6 +257,39 @@ class LaporanExcelController extends Controller
         );
 
         $fileName = 'Laporan-Realisasi-Mingguan-' . $startDate . '-sd-' . $endDate . '.xlsx';
+
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        return response()->download($filePath, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Download Excel for Laporan Keuangan Triwulan (Rekapitulasi & Detail).
+     */
+    public function triwulan(Request $request): BinaryFileResponse
+    {
+        abort_unless(auth()->user()?->can('keuangan.laporan.export'), 403, 'Anda tidak memiliki izin untuk mengunduh laporan keuangan.');
+
+        ActivityLog::log(
+            description: 'Mengunduh Laporan Triwulan Excel',
+            logName: 'keuangan',
+            properties: ['params' => $request->query()]
+        );
+
+        $tahunAnggaran = (int) $request->query('tahunAnggaran', LaporanTriwulanService::fiscalYearOf(now()->toDateString()));
+        $triwulan = (int) $request->query('triwulan', 1);
+
+        $service = app(LaporanTriwulanService::class);
+        $reportData = $service->getReport($tahunAnggaran, $triwulan);
+        $period = $reportData['period'];
+
+        $filePath = $this->excelReportService->generateTriwulanXlsx($reportData);
+
+        $fileName = 'Laporan-Triwulan-' . $period['triwulan_label'] . '-TA-' . $period['tahun_label'] . '.xlsx';
 
         if (ob_get_level()) {
             ob_end_clean();
