@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ChartOfAccount;
 use App\Models\Transaction;
 use App\Models\Voucher;
+use App\Observers\ChartOfAccountsObserver;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -180,7 +181,8 @@ class LaporanTriwulanService
     protected function getAggregatedReport(int $tahun, int $triwulan): array
     {
         $period = $this->resolvePeriod($tahun, $triwulan);
-        $cacheKey = "triwulan:report:{$tahun}:{$triwulan}";
+        $coaVersion = ChartOfAccountsObserver::version();
+        $cacheKey = "triwulan:report:{$tahun}:{$triwulan}:v{$coaVersion}";
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($period) {
             return $this->buildFromAggregatedQuery($period);
