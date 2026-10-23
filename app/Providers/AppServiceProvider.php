@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 use App\Models\ChartOfAccount;
 use App\Observers\ChartOfAccountsObserver;
+use App\Models\Voucher;
+use App\Observers\VoucherObserver;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 
 class AppServiceProvider extends ServiceProvider
@@ -90,6 +92,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Register ChartOfAccounts observer to clear triwulan report cache on CoA changes
         ChartOfAccount::observe(ChartOfAccountsObserver::class);
+        Voucher::observe(VoucherObserver::class);
 
         if (! class_exists(\Dom\HTMLDocument::class)) {
             Str::macro('sanitizeHtml', function (string $html): string {
