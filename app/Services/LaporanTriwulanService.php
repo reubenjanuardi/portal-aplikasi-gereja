@@ -270,15 +270,21 @@ class LaporanTriwulanService
             if (isset($accounts[$code]['direct_monthly'][$monthKey])) {
                 $masuk = (float) $row->masuk;
                 $keluar = (float) $row->keluar;
-                // Realisasi bersih per akun: net debit-kredit untuk Pengeluaran,
-                // net kredit-debit untuk Penerimaan agar nilai selalu positif.
-                $total = $accounts[$code]['kategori'] === 'Penerimaan'
-                    ? $keluar - $masuk
-                    : $masuk - $keluar;
-                $accounts[$code]['direct_monthly'][$monthKey] = $total;
-                $accounts[$code]['direct_realisasi'] += $total;
+                // Buku Besar: akun mata anggaran Penerimaan normalnya Kredit,
+                // sedangkan Pengeluaran normalnya Debet. Agregasi per bulan tetap
+                // menyimpan arah; nilai laporan kuartal memakai absolut net akun.
+                $net = $accounts[$code]['kategori'] === 'Penerimaan'
+                    ? $masuk - $keluar
+                    : $keluar - $masuk;
+                $accounts[$code]['direct_monthly'][$monthKey] = abs($net);
+                $accounts[$code]['direct_realisasi'] += $net;
             }
         }
+
+        foreach ($accounts as &$account) {
+            $account['direct_realisasi'] = abs($account['direct_realisasi']);
+        }
+        unset($account);
 
         // Bangun hierarki
         $rootCodes = [];
