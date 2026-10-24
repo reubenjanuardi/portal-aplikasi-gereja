@@ -158,7 +158,7 @@
                     <td class="font-mono">{{ $row['kode_akun'] }}</td>
                     <td>{!! $indent !!}{{ $row['nama_akun'] }}</td>
                     <td class="text-right font-mono">{{ \App\Support\Format::nominal($row['anggaran_setahun']) }}</td>
-                    <td class="text-right font-mono">{{ \App\Support\Format::nominal($row['realisasi']) }}</td>
+                    <td class="text-right font-mono">{{ \App\Support\Format::nominal(abs($row['realisasi'])) }}</td>
                 </tr>
             @empty
                 <tr>
@@ -198,7 +198,7 @@
                     <td>{!! $indent !!}{{ $row['nama_akun'] }}</td>
                     <td class="text-right font-mono">{{ \App\Support\Format::nominal($row['anggaran_setahun']) }}</td>
                     <td class="text-right font-mono">{{ \App\Support\Format::nominal($row['anggaran_triwulan']) }}</td>
-                    <td class="text-right font-mono">{{ \App\Support\Format::nominal($row['realisasi']) }}</td>
+                    <td class="text-right font-mono">{{ \App\Support\Format::nominal(abs($row['realisasi'])) }}</td>
                     <td class="text-center font-mono">
                         @if($row['persen'] !== null)
                             {{ number_format($row['persen'], 1) }}%

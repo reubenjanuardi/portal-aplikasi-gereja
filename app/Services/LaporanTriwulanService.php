@@ -270,7 +270,11 @@ class LaporanTriwulanService
             if (isset($accounts[$code]['direct_monthly'][$monthKey])) {
                 $masuk = (float) $row->masuk;
                 $keluar = (float) $row->keluar;
-                $total = $masuk + $keluar;
+                // Realisasi bersih per akun: net debit-kredit untuk Pengeluaran,
+                // net kredit-debit untuk Penerimaan agar nilai selalu positif.
+                $total = $accounts[$code]['kategori'] === 'Penerimaan'
+                    ? $keluar - $masuk
+                    : $masuk - $keluar;
                 $accounts[$code]['direct_monthly'][$monthKey] = $total;
                 $accounts[$code]['direct_realisasi'] += $total;
             }

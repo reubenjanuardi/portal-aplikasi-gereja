@@ -389,7 +389,7 @@
                                     {{ \App\Support\Format::nominal($row['anggaran_setahun']) }}
                                 </td>
                                 <td class="lt-col-num {{ $row['realisasi'] > 0 ? 'bold' : 'muted' }}">
-                                    {{ \App\Support\Format::nominal($row['realisasi']) }}
+                                    {{ \App\Support\Format::nominal(abs($row['realisasi'])) }}
                                 </td>
                             </tr>
                         @empty
@@ -452,7 +452,7 @@
                                     {{ \App\Support\Format::nominal($row['anggaran_triwulan']) }}
                                 </td>
                                 <td class="lt-col-num {{ $row['realisasi'] > 0 ? 'bold' : 'muted' }}">
-                                    {{ \App\Support\Format::nominal($row['realisasi']) }}
+                                    {{ \App\Support\Format::nominal(abs($row['realisasi'])) }}
                                 </td>
                                 <td class="center lt-col-num pct {{ $row['persen'] !== null && $row['persen'] >= 100 ? 'pos' : '' }}">
                                     @if($row['persen'] !== null)
