@@ -558,10 +558,12 @@
                                 <td class="lt-col-num muted">&mdash;</td>
                                 {{-- Bulan: Masuk/Keluar --}}
                                 @foreach($monthKeys as $key)
-                                    <td class="lt-col-num {{ ($row['monthly'][$key] ?? 0) > 0 ? 'bold' : 'muted' }}">
-                                        {{ \App\Support\Format::nominal($row['monthly'][$key] ?? 0) }}
+                                    <td class="lt-col-num {{ ($row['monthly_masuk'][$key] ?? 0) > 0 ? 'bold' : 'muted' }}">
+                                        {{ \App\Support\Format::nominal($row['monthly_masuk'][$key] ?? 0) }}
                                     </td>
-                                    <td class="lt-col-num muted">&mdash;</td>
+                                    <td class="lt-col-num {{ ($row['monthly_keluar'][$key] ?? 0) > 0 ? 'bold' : 'muted' }}">
+                                        {{ \App\Support\Format::nominal($row['monthly_keluar'][$key] ?? 0) }}
+                                    </td>
                                 @endforeach
                                 {{-- Real to Plan kumulatif triwulan --}}
                                 <td class="lt-col-num pct {{ $row['persen'] !== null && $row['persen'] >= 100 ? 'pos' : '' }}">
@@ -606,9 +608,11 @@
                                 </td>
                                 {{-- Bulan: Masuk/Keluar --}}
                                 @foreach($monthKeys as $key)
-                                    <td class="lt-col-num muted">&mdash;</td>
-                                    <td class="lt-col-num {{ ($row['monthly'][$key] ?? 0) > 0 ? 'bold' : 'muted' }}">
-                                        {{ \App\Support\Format::nominal($row['monthly'][$key] ?? 0) }}
+                                    <td class="lt-col-num {{ ($row['monthly_masuk'][$key] ?? 0) > 0 ? 'bold' : 'muted' }}">
+                                        {{ \App\Support\Format::nominal($row['monthly_masuk'][$key] ?? 0) }}
+                                    </td>
+                                    <td class="lt-col-num {{ ($row['monthly_keluar'][$key] ?? 0) > 0 ? 'bold' : 'muted' }}">
+                                        {{ \App\Support\Format::nominal($row['monthly_keluar'][$key] ?? 0) }}
                                     </td>
                                 @endforeach
                                 {{-- Real to Plan kumulatif triwulan --}}

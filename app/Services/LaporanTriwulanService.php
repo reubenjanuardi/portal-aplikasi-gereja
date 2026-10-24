@@ -182,7 +182,7 @@ class LaporanTriwulanService
     {
         $period = $this->resolvePeriod($tahun, $triwulan);
         $coaVersion = ChartOfAccountsObserver::version();
-        $cacheKey = "triwulan:report:{$tahun}:{$triwulan}:v{$coaVersion}";
+        $cacheKey = "triwulan:report:{$tahun}:{$triwulan}:v{$coaVersion}:directions-v2";
 
         return Cache::remember($cacheKey, now()->addDay(), function () use ($period) {
             return $this->buildFromAggregatedQuery($period);
@@ -260,9 +260,13 @@ class LaporanTriwulanService
                     'direct_budget' => (float) $row->budget,
                     'direct_realisasi' => 0.0,
                     'direct_monthly' => array_fill_keys($monthKeys, 0.0),
+                    'direct_monthly_masuk' => array_fill_keys($monthKeys, 0.0),
+                    'direct_monthly_keluar' => array_fill_keys($monthKeys, 0.0),
                     'total_budget' => 0.0,
                     'total_realisasi' => 0.0,
                     'monthly' => array_fill_keys($monthKeys, 0.0),
+                    'monthly_masuk' => array_fill_keys($monthKeys, 0.0),
+                    'monthly_keluar' => array_fill_keys($monthKeys, 0.0),
                     'children' => [],
                 ];
             }
@@ -270,6 +274,8 @@ class LaporanTriwulanService
             if (isset($accounts[$code]['direct_monthly'][$monthKey])) {
                 $masuk = (float) $row->masuk;
                 $keluar = (float) $row->keluar;
+                $accounts[$code]['direct_monthly_masuk'][$monthKey] = $masuk;
+                $accounts[$code]['direct_monthly_keluar'][$monthKey] = $keluar;
                 // Buku Besar: akun mata anggaran Penerimaan normalnya Kredit,
                 // sedangkan Pengeluaran normalnya Debet. Agregasi per bulan tetap
                 // menyimpan arah; nilai laporan kuartal memakai absolut net akun.
@@ -304,6 +310,8 @@ class LaporanTriwulanService
             $sumBudget = $item['direct_budget'];
             $sumRealisasi = $item['direct_realisasi'];
             $sumMonthly = $item['direct_monthly'];
+            $sumMonthlyMasuk = $item['direct_monthly_masuk'];
+            $sumMonthlyKeluar = $item['direct_monthly_keluar'];
 
             foreach ($item['children'] as $childCode) {
                 $child = $rollup($childCode);
@@ -311,14 +319,18 @@ class LaporanTriwulanService
                 $sumRealisasi += $child['realisasi'];
                 foreach ($monthKeys as $key) {
                     $sumMonthly[$key] += $child['monthly'][$key];
+                    $sumMonthlyMasuk[$key] += $child['monthly_masuk'][$key];
+                    $sumMonthlyKeluar[$key] += $child['monthly_keluar'][$key];
                 }
             }
 
             $item['total_budget'] = $sumBudget;
             $item['total_realisasi'] = $sumRealisasi;
             $item['monthly'] = $sumMonthly;
+            $item['monthly_masuk'] = $sumMonthlyMasuk;
+            $item['monthly_keluar'] = $sumMonthlyKeluar;
 
-            return ['budget' => $sumBudget, 'realisasi' => $sumRealisasi, 'monthly' => $sumMonthly];
+            return ['budget' => $sumBudget, 'realisasi' => $sumRealisasi, 'monthly' => $sumMonthly, 'monthly_masuk' => $sumMonthlyMasuk, 'monthly_keluar' => $sumMonthlyKeluar];
         };
 
         $totalBudget = 0.0;
@@ -336,8 +348,12 @@ class LaporanTriwulanService
         $flatten = function ($code) use (&$accounts, &$flatten, &$penerimaanItems, &$pengeluaranItems, $monthKeys, $anggaranTriwulan) {
             $item = $accounts[$code];
             $monthly = [];
+            $monthlyMasuk = [];
+            $monthlyKeluar = [];
             foreach ($monthKeys as $key) {
                 $monthly[$key] = $item['monthly'][$key] ?? 0.0;
+                $monthlyMasuk[$key] = $item['monthly_masuk'][$key] ?? 0.0;
+                $monthlyKeluar[$key] = $item['monthly_keluar'][$key] ?? 0.0;
             }
             $budgetTriwulan = $item['total_budget'] * $anggaranTriwulan;
             $flatItem = [
@@ -351,6 +367,8 @@ class LaporanTriwulanService
                 'realisasi' => $item['total_realisasi'],
                 'persen' => $budgetTriwulan > 0 ? ($item['total_realisasi'] / $budgetTriwulan) * 100 : null,
                 'monthly' => $monthly,
+                'monthly_masuk' => $monthlyMasuk,
+                'monthly_keluar' => $monthlyKeluar,
             ];
 
             if ($item['kategori'] === 'Penerimaan') {
@@ -418,6 +436,7 @@ class LaporanTriwulanService
         $monthKeys = array_column($period['months'], 'key');
 
         $directMonthly = $this->monthlySums($accounts->pluck('kode_akun')->all(), $period);
+        $directDirections = $this->monthlyDirectionSums($accounts->pluck('kode_akun')->all(), $period);
         $anggaranTriwulan = $period['persen_anggaran'];
 
         // Susun peta akun (nilai langsung + anak).
@@ -432,11 +451,17 @@ class LaporanTriwulanService
                 'depth' => substr_count($acc->kode_akun, '.'),
                 'is_postable' => (bool) $acc->is_postable,
                 'direct_budget' => (float) $acc->budget,
-                'direct_realisasi' => array_sum($directMonthlyForAccount),
+                'direct_realisasi' => $kategori === 'Penerimaan'
+                    ? array_sum($directDirections[$acc->kode_akun]['masuk'] ?? []) - array_sum($directDirections[$acc->kode_akun]['keluar'] ?? [])
+                    : array_sum($directDirections[$acc->kode_akun]['keluar'] ?? []) - array_sum($directDirections[$acc->kode_akun]['masuk'] ?? []),
                 'direct_monthly' => $directMonthlyForAccount,
+                'direct_monthly_masuk' => $directDirections[$acc->kode_akun]['masuk'] ?? array_fill_keys($monthKeys, 0.0),
+                'direct_monthly_keluar' => $directDirections[$acc->kode_akun]['keluar'] ?? array_fill_keys($monthKeys, 0.0),
                 'total_budget' => 0.0,
                 'total_realisasi' => 0.0,
                 'monthly' => array_fill_keys($monthKeys, 0.0),
+                'monthly_masuk' => array_fill_keys($monthKeys, 0.0),
+                'monthly_keluar' => array_fill_keys($monthKeys, 0.0),
                 'children' => [],
             ];
         }
@@ -459,9 +484,21 @@ class LaporanTriwulanService
             $sumBudget = $item['direct_budget'];
             $sumRealisasi = $item['direct_realisasi'];
             $sumMonthly = array_fill_keys($monthKeys, 0.0);
+            $sumMonthlyMasuk = array_fill_keys($monthKeys, 0.0);
+            $sumMonthlyKeluar = array_fill_keys($monthKeys, 0.0);
             foreach ($item['direct_monthly'] as $key => $value) {
                 if (array_key_exists($key, $sumMonthly)) {
                     $sumMonthly[$key] = $value;
+                }
+            }
+            foreach ($item['direct_monthly_masuk'] as $key => $value) {
+                if (array_key_exists($key, $sumMonthlyMasuk)) {
+                    $sumMonthlyMasuk[$key] = $value;
+                }
+            }
+            foreach ($item['direct_monthly_keluar'] as $key => $value) {
+                if (array_key_exists($key, $sumMonthlyKeluar)) {
+                    $sumMonthlyKeluar[$key] = $value;
                 }
             }
 
@@ -472,13 +509,21 @@ class LaporanTriwulanService
                 foreach ($child['monthly'] as $key => $value) {
                     $sumMonthly[$key] += $value;
                 }
+                foreach ($child['monthly_masuk'] as $key => $value) {
+                    $sumMonthlyMasuk[$key] += $value;
+                }
+                foreach ($child['monthly_keluar'] as $key => $value) {
+                    $sumMonthlyKeluar[$key] += $value;
+                }
             }
 
             $item['total_budget'] = $sumBudget;
             $item['total_realisasi'] = $sumRealisasi;
             $item['monthly'] = $sumMonthly;
+            $item['monthly_masuk'] = $sumMonthlyMasuk;
+            $item['monthly_keluar'] = $sumMonthlyKeluar;
 
-            return ['budget' => $sumBudget, 'realisasi' => $sumRealisasi, 'monthly' => $sumMonthly];
+            return ['budget' => $sumBudget, 'realisasi' => $sumRealisasi, 'monthly' => $sumMonthly, 'monthly_masuk' => $sumMonthlyMasuk, 'monthly_keluar' => $sumMonthlyKeluar];
         };
 
         $totalBudget = 0.0;
@@ -494,8 +539,12 @@ class LaporanTriwulanService
         $flatten = function ($code) use (&$accMap, &$flat, &$flatten, $monthKeys, $anggaranTriwulan) {
             $item = $accMap[$code];
             $monthly = [];
+            $monthlyMasuk = [];
+            $monthlyKeluar = [];
             foreach ($monthKeys as $key) {
                 $monthly[$key] = $item['monthly'][$key] ?? 0.0;
+                $monthlyMasuk[$key] = $item['monthly_masuk'][$key] ?? 0.0;
+                $monthlyKeluar[$key] = $item['monthly_keluar'][$key] ?? 0.0;
             }
 
             $budgetTriwulan = $item['total_budget'] * $anggaranTriwulan;
@@ -512,6 +561,8 @@ class LaporanTriwulanService
                 // kumulatif triwulan (25%/50%/75%/100% anggaran tahunan).
                 'persen' => $budgetTriwulan > 0 ? ($item['total_realisasi'] / $budgetTriwulan) * 100 : null,
                 'monthly' => $monthly,
+                'monthly_masuk' => $monthlyMasuk,
+                'monthly_keluar' => $monthlyKeluar,
             ];
 
             foreach ($item['children'] as $childCode) {
@@ -566,6 +617,69 @@ class LaporanTriwulanService
                 continue;
             }
             $result[$row->kode_akun][$monthKey] = ($result[$row->kode_akun][$monthKey] ?? 0) + (float) $row->nominal;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Hitung monthly masuk/keluar per akun (memisahkan arah berdasarkan jenis voucher).
+     *
+     * @param  array<string>  $codes
+     * @param  array  $period
+     * @return array<string, array{masuk: array<string, float>, keluar: array<string, float>}>
+     */
+    protected function monthlyDirectionSums(array $codes, array $period): array
+    {
+        if ($codes === []) {
+            return [];
+        }
+
+        $rows = Transaction::query()
+            ->join('vouchers', 'vouchers.no_bukti', '=', 'transactions.no_bukti')
+            ->join('chart_of_accounts', 'chart_of_accounts.kode_akun', '=', 'transactions.kode_akun')
+            ->whereBetween('vouchers.tanggal', [$period['start_date'], $period['end_date']])
+            ->whereIn('transactions.kode_akun', $codes)
+            ->get([
+                'transactions.kode_akun as kode_akun',
+                'transactions.nominal as nominal',
+                'vouchers.tanggal as tanggal',
+                'vouchers.jenis_voucher as jenis_voucher',
+                'chart_of_accounts.kategori as kategori',
+            ]);
+
+        $monthKeys = array_column($period['months'], 'key');
+        $validKeys = array_flip($monthKeys);
+        $result = [];
+
+        foreach ($rows as $row) {
+            $monthKey = Carbon::parse($row->tanggal)->format('Y-m');
+            if (! isset($validKeys[$monthKey])) {
+                continue;
+            }
+
+            $kode = $row->kode_akun;
+            $jenis = $row->jenis_voucher ?? '';
+            $nominal = (float) $row->nominal;
+            $isMasuk = in_array($jenis, ['Masuk', 'BKM', 'BBM', 'Bukti Kas Masuk (BKM)', 'Bukti Bank Masuk (BBM)'], true);
+            $isKeluar = in_array($jenis, ['Keluar', 'BKK', 'BBK', 'Bukti Kas Keluar (BKK)', 'Bukti Bank Keluar (BBK)'], true);
+
+            if (! isset($result[$kode])) {
+                $result[$kode] = [
+                    'masuk' => array_fill_keys($monthKeys, 0.0),
+                    'keluar' => array_fill_keys($monthKeys, 0.0),
+                ];
+            }
+
+            if ($isMasuk) {
+                $result[$kode]['masuk'][$monthKey] += $nominal;
+            } elseif ($isKeluar) {
+                $result[$kode]['keluar'][$monthKey] += $nominal;
+            } elseif ($row->kategori === 'Penerimaan') {
+                $result[$kode]['keluar'][$monthKey] += $nominal;
+            } else {
+                $result[$kode]['masuk'][$monthKey] += $nominal;
+            }
         }
 
         return $result;

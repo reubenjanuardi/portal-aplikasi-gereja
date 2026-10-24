@@ -161,6 +161,98 @@ test('LaporanTriwulanService includes transactions at period boundaries', functi
         ->and($itemQ2['monthly']['2026-07'])->toBe(100000.0);
 });
 
+test('expense detail keeps BBM refund under monthly Masuk and BKK under Keluar', function () {
+    $expense = ChartOfAccount::create([
+        'kode_akun' => '53.00.04',
+        'nama_akun' => 'Little Blessing Market',
+        'kategori' => 'Pengeluaran',
+        'parent_code' => '36',
+        'is_postable' => true,
+        'budget' => 2000000,
+    ]);
+
+    foreach ([['BBK-Q2-EXPENSE', '2026-08-01', 'BBK', 1000000], ['BBM-Q2-REFUND', '2026-09-04', 'BBM', 19297]] as [$noBukti, $tanggal, $jenis, $nominal]) {
+        Voucher::create([
+            'no_bukti' => $noBukti,
+            'tanggal' => $tanggal,
+            'pihak_terkait' => 'Adeline',
+            'jenis_voucher' => $jenis,
+            'kode_akun_kas_bank' => $this->kasBesar->kode_akun,
+            'kode_akun' => $expense->kode_akun,
+            'total_nominal' => $nominal,
+        ]);
+        Transaction::create([
+            'no_bukti' => $noBukti,
+            'kode_akun' => $expense->kode_akun,
+            'uraian' => 'Fixture',
+            'nominal' => $nominal,
+        ]);
+    }
+
+    $report = (new LaporanTriwulanService)->getReport(2026, 2);
+    $item = collect($report['rekap']['pengeluaran']['items'])->firstWhere('kode_akun', '53.00.04');
+
+    expect($item['monthly_masuk']['2026-09'])->toBe(19297.0)
+        ->and($item['monthly_keluar']['2026-08'])->toBe(1000000.0)
+        ->and($item['realisasi'])->toBe(980703.0);
+});
+
+test('aggregated report exposes monthly Masuk and Keluar to Filament detail', function () {
+    Voucher::create([
+        'no_bukti' => 'BKM-AGGREGATED-MONTHLY',
+        'tanggal' => '2026-09-04',
+        'pihak_terkait' => 'Jemaat',
+        'jenis_voucher' => 'BKM',
+        'kode_akun_kas_bank' => $this->kasBesar->kode_akun,
+        'kode_akun' => $this->kolekteChild->kode_akun,
+        'total_nominal' => 19297,
+    ]);
+    Transaction::create([
+        'no_bukti' => 'BKM-AGGREGATED-MONTHLY',
+        'kode_akun' => $this->kolekteChild->kode_akun,
+        'uraian' => 'Kolekte',
+        'nominal' => 19297,
+    ]);
+
+    $service = new LaporanTriwulanService;
+    $method = new ReflectionMethod($service, 'buildFromAggregatedQuery');
+    $report = $method->invoke($service, $service->resolvePeriod(2026, 2));
+    $item = collect($report['detail'])->firstWhere('kode_akun', $this->kolekteChild->kode_akun);
+
+    expect($item['monthly_masuk']['2026-09'])->toBe(19297.0)
+        ->and($item['monthly_keluar']['2026-09'])->toBe(0.0);
+});
+
+test('PDF detail renders monthly Masuk and Keluar from direction totals', function () {
+    Voucher::create([
+        'no_bukti' => 'BKM-PDF-MONTHLY',
+        'tanggal' => '2026-09-04',
+        'pihak_terkait' => 'Jemaat',
+        'jenis_voucher' => 'BKM',
+        'kode_akun_kas_bank' => $this->kasBesar->kode_akun,
+        'kode_akun' => $this->kolekteChild->kode_akun,
+        'total_nominal' => 19297,
+    ]);
+    Transaction::create([
+        'no_bukti' => 'BKM-PDF-MONTHLY',
+        'kode_akun' => $this->kolekteChild->kode_akun,
+        'uraian' => 'Kolekte',
+        'nominal' => 19297,
+    ]);
+
+    $service = new LaporanTriwulanService;
+    $method = new ReflectionMethod($service, 'buildFromAggregatedQuery');
+    $report = $method->invoke($service, $service->resolvePeriod(2026, 2));
+    $html = view('pdf.laporan-triwulan', array_merge($report, [
+        'churchName' => 'GPIB',
+        'churchAddress1' => '',
+        'churchAddress2' => '',
+    ]))->render();
+
+    expect($html)->toContain('19.297')
+        ->and($html)->not->toContain('monthly_masuk');
+});
+
 test('LaporanTriwulanService rollup: parent sums children without double counting', function () {
     // Child 1
     $v1 = Voucher::create([

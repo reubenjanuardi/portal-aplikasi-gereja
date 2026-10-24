@@ -307,8 +307,8 @@
                     <td class="text-right font-mono">{{ \App\Support\Format::nominal($row['anggaran_setahun']) }}</td>
                     <td class="text-center">&mdash;</td>
                     @foreach($monthKeys as $key)
-                        <td class="text-right font-mono">{{ \App\Support\Format::nominal($row['monthly'][$key] ?? 0) }}</td>
-                        <td class="text-center">&mdash;</td>
+                        <td class="text-right font-mono">{{ \App\Support\Format::nominal($row['monthly_masuk'][$key] ?? 0) }}</td>
+                        <td class="text-right font-mono">{{ \App\Support\Format::nominal($row['monthly_keluar'][$key] ?? 0) }}</td>
                     @endforeach
                     {{-- Real to Plan kumulatif triwulan --}}
                     <td class="text-center font-mono">
@@ -339,8 +339,8 @@
                     <td class="text-center">&mdash;</td>
                     <td class="text-right font-mono">{{ \App\Support\Format::nominal($row['anggaran_setahun']) }}</td>
                     @foreach($monthKeys as $key)
-                        <td class="text-center">&mdash;</td>
-                        <td class="text-right font-mono">{{ \App\Support\Format::nominal($row['monthly'][$key] ?? 0) }}</td>
+                        <td class="text-right font-mono">{{ \App\Support\Format::nominal($row['monthly_masuk'][$key] ?? 0) }}</td>
+                        <td class="text-right font-mono">{{ \App\Support\Format::nominal($row['monthly_keluar'][$key] ?? 0) }}</td>
                     @endforeach
                     {{-- Real to Plan kumulatif triwulan --}}
                     <td class="text-center">&mdash;</td>
